@@ -1,0 +1,24 @@
+{
+  "name": "@smart-edms/config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo skip",
+    "test": "vitest run --reporter=verbose"
+  },
+  "dependencies": {
+    "@smart-edms/types": "workspace:*",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.2",
+    "@types/node": "^20.14.0",
+    "vitest": "^2.1.4"
+  }
+}

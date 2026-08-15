@@ -19,10 +19,15 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "i18n:check": "pnpm --filter @smart-edms/i18n check",
     "i18n:extract": "pnpm --filter @smart-edms/i18n extract",
-    "db:generate": "pnpm --filter @smart-edms/backend db:generate",
-    "db:migrate": "pnpm --filter @smart-edms/backend db:migrate",
+    "db:generate": "pnpm --filter @smart-edms/backend db:generate && pnpm --filter @smart-edms/license-server db:generate",
+    "db:migrate": "pnpm --filter @smart-edms/backend db:migrate && pnpm --filter @smart-edms/license-server db:migrate",
+    "db:seed": "pnpm --filter @smart-edms/backend db:seed && pnpm --filter @smart-edms/license-server db:seed",
     "docker:up": "docker compose -f infra/docker/docker-compose.yml up -d",
-    "docker:down": "docker compose -f infra/docker/docker-compose.yml down"
+    "docker:down": "docker compose -f infra/docker/docker-compose.yml down",
+    "docker:dev:up": "docker compose -f infra/docker/docker-compose.dev.yml up -d",
+    "docker:dev:down": "docker compose -f infra/docker/docker-compose.dev.yml down",
+    "key:generate": "pnpm --filter @smart-edms/license-server key:generate",
+    "opensearch:init": "pnpm --filter @smart-edms/backend opensearch:init"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

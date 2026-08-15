@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "paths": {
+      "@smart-edms/types": ["../types/src/index.ts"],
+      "@smart-edms/types/*": ["../types/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts", "../types/src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

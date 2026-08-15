@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@smart-edms/types": ["../types/src/index.ts"],
+      "@smart-edms/types/*": ["../types/src/*"],
+      "@smart-edms/i18n": ["../i18n/src/index.ts"],
+      "@smart-edms/i18n/*": ["../i18n/src/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../types/src/**/*.ts",
+    "../i18n/src/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

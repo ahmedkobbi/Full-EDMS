@@ -22,7 +22,6 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "incremental": true,
     "composite": false
   },
   "exclude": ["node_modules", "dist", "build", "coverage"]

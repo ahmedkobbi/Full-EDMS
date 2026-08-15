@@ -1,0 +1,90 @@
+# Smart EDMS — Development Docker Compose
+#
+# Lightweight stack for local development — only the infrastructure services
+# the backend depends on. The API, worker, and license-server run directly
+# via `pnpm dev` (faster rebuild + hot reload).
+#
+# Usage:
+#   docker compose -f infra/docker/docker-compose.dev.yml up -d
+#   docker compose -f infra/docker/docker-compose.dev.yml down
+
+version: '3.9'
+
+networks:
+  smart-edms-dev:
+    driver: bridge
+
+volumes:
+  dev-postgres-data:
+  dev-redis-data:
+  dev-minio-data:
+
+services:
+  postgres:
+    image: postgres:16.4-alpine3.20
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: smart_edms
+      POSTGRES_PASSWORD: smart_edms_dev
+      POSTGRES_DB: smart_edms
+    ports:
+      - '5432:5432'
+    volumes:
+      - dev-postgres-data:/var/lib/postgresql/data
+      # Create the license database on first run
+      - ./init-dev.sql:/docker-entrypoint-initdb.d/init-dev.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U smart_edms']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [smart-edms-dev]
+
+  redis:
+    image: redis:7.4-alpine3.20
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - dev-redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [smart-edms-dev]
+
+  minio:
+    image: minio/minio:RELEASE.2024-09-13T20-26-02Z
+    restart: unless-stopped
+    command: ['server', '/data', '--console-address', ':9001']
+    environment:
+      MINIO_ROOT_USER: smart_edms_minio
+      MINIO_ROOT_PASSWORD: smart_edms_minio_dev_secret
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - dev-minio-data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [smart-edms-dev]
+
+  minio-init:
+    image: minio/mc:RELEASE.2024-09-13T20-26-02Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 smart_edms_minio smart_edms_minio_dev_secret;
+      mc mb -p local/smart-edms-documents || true;
+      mc anonymous set none local/smart-edms-documents || true;
+      mc version enable local/smart-edms-documents || true;
+      exit 0;
+      "
+    networks: [smart-edms-dev]
