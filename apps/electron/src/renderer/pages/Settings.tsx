@@ -18,6 +18,7 @@ import {
   Select, SegmentedControl, Switch, Badge, Table, ActionIcon, Code,
   Alert, ThemeIcon, Modal, Divider, LoadingOverlay, Timeline,
 } from '@mantine/core';
+import { useForm, hasLength, matchesField, isNotEmpty } from '@mantine/form';
 import { IconUser, IconSettings, IconShieldCheck, IconBell, IconKey, IconTrash, IconRefresh, IconCheck, IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/theme';
@@ -130,60 +131,67 @@ function SecurityTab() {
 
 function PasswordChangeSection() {
   const { t } = useTranslation();
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const changePassword = useChangePasswordMutation();
 
-  const handleSubmit = () => {
-    if (newPassword !== confirmPassword) return;
-    if (newPassword.length < 8) return;
-    changePassword.mutate({ currentPassword, newPassword }, {
-      onSuccess: () => {
-        setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+  // $mantine-form skill: useForm with hasLength + matchesField validators
+  const form = useForm({
+    initialValues: {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+    },
+    validate: {
+      currentPassword: isNotEmpty(t('common:form.required.field', { defaultValue: 'Required' })),
+      newPassword: hasLength({ min: 8 }, t('settings.password.minLength', { defaultValue: 'Must be at least 8 characters' })),
+      confirmPassword: matchesField('newPassword', t('settings.password.mismatch', { defaultValue: 'Passwords do not match' })),
+    },
+    validateInputOnChange: ['newPassword', 'confirmPassword'],
+  });
+
+  const handleSubmit = form.onSubmit((values) => {
+    changePassword.mutate(
+      { currentPassword: values.currentPassword, newPassword: values.newPassword },
+      {
+        onSuccess: () => form.reset(),
       },
-    });
-  };
+    );
+  });
 
   return (
     <Paper p="md" withBorder radius="md">
-      <Stack gap="sm">
-        <Text fw={500}>{t('settings.password.title', { defaultValue: 'Change password' })}</Text>
-        <PasswordInput
-          label={t('settings.password.current', { defaultValue: 'Current password' })}
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-        />
-        <PasswordInput
-          label={t('settings.password.new', { defaultValue: 'New password' })}
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          error={newPassword.length > 0 && newPassword.length < 8 ? t('form.minLength', { defaultValue: 'Must be at least 8 characters' }) : null}
-        />
-        <PasswordInput
-          label={t('settings.password.confirm', { defaultValue: 'Confirm new password' })}
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          error={confirmPassword.length > 0 && newPassword !== confirmPassword ? t('settings.password.mismatch', { defaultValue: 'Passwords do not match' }) : null}
-        />
-        {changePassword.isError && (
-          <Alert color="red" icon={<IconAlertCircle size={16} />}>
-            {t('settings.password.error', { defaultValue: 'Failed to change password. Check your current password.' })}
-          </Alert>
-        )}
-        {changePassword.isSuccess && (
-          <Alert color="teal" icon={<IconCheck size={16} />}>
-            {t('settings.password.success', { defaultValue: 'Password changed successfully.' })}
-          </Alert>
-        )}
-        <Button
-          onClick={handleSubmit}
-          loading={changePassword.isPending}
-          disabled={!currentPassword || !newPassword || newPassword !== confirmPassword || newPassword.length < 8}
-        >
-          {t('settings.password.submit', { defaultValue: 'Change password' })}
-        </Button>
-      </Stack>
+      <form onSubmit={handleSubmit}>
+        <Stack gap="sm">
+          <Text fw={500}>{t('settings.password.title', { defaultValue: 'Change password' })}</Text>
+          <PasswordInput
+            label={t('settings.password.current', { defaultValue: 'Current password' })}
+            {...form.getInputProps('currentPassword')}
+            required
+          />
+          <PasswordInput
+            label={t('settings.password.new', { defaultValue: 'New password' })}
+            {...form.getInputProps('newPassword')}
+            required
+          />
+          <PasswordInput
+            label={t('settings.password.confirm', { defaultValue: 'Confirm new password' })}
+            {...form.getInputProps('confirmPassword')}
+            required
+          />
+          {changePassword.isError && (
+            <Alert color="red" icon={<IconAlertCircle size={16} />}>
+              {t('settings.password.error', { defaultValue: 'Failed to change password. Check your current password.' })}
+            </Alert>
+          )}
+          {changePassword.isSuccess && (
+            <Alert color="teal" icon={<IconCheck size={16} />}>
+              {t('settings.password.success', { defaultValue: 'Password changed successfully.' })}
+            </Alert>
+          )}
+          <Button type="submit" loading={changePassword.isPending}>
+            {t('settings.password.submit', { defaultValue: 'Change password' })}
+          </Button>
+        </Stack>
+      </form>
     </Paper>
   );
 }
