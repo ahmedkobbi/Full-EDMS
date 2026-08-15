@@ -517,5 +517,222 @@ export function useAdminDashboardQuery(
   });
 }
 
+// ---------------------------------------------------------------------------
+// §9.1 IAM — Sessions, MFA, Password management
+// ---------------------------------------------------------------------------
+
+export function useSessionsQuery(
+  options?: Omit<UseQueryOptions<unknown[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<unknown[], ApiError>({
+    queryKey: ['sessions'],
+    queryFn: () => apiGet<unknown[]>('/auth/sessions'),
+    ...options,
+  });
+}
+
+export function useRevokeSessionMutation(
+  options?: UseMutationOptions<{ ok: true }, ApiError, string>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, ApiError, string>({
+    mutationFn: (sessionId) => apiDelete<{ ok: true }>(`/auth/sessions/${sessionId}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sessions'] }),
+    ...options,
+  });
+}
+
+export function useRevokeAllSessionsMutation(
+  options?: UseMutationOptions<{ count: number }, ApiError, void>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ count: number }, ApiError, void>({
+    mutationFn: () => apiPost<{ count: number }>('/auth/sessions/revoke-all', {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['sessions'] }),
+    ...options,
+  });
+}
+
+export function useChangePasswordMutation(
+  options?: UseMutationOptions<{ ok: true }, ApiError, { currentPassword: string; newPassword: string }>,
+) {
+  return useMutation<{ ok: true }, ApiError, { currentPassword: string; newPassword: string }>({
+    mutationFn: (input) => apiPost<{ ok: true }>('/auth/password/change', input),
+    ...options,
+  });
+}
+
+export function useStartMfaEnrollmentMutation(
+  options?: UseMutationOptions<{ secret: string; qrCodeUri: string; backupCodes: string[] }, ApiError, void>,
+) {
+  return useMutation<{ secret: string; qrCodeUri: string; backupCodes: string[] }, ApiError, void>({
+    mutationFn: () => apiPost<{ secret: string; qrCodeUri: string; backupCodes: string[] }>('/auth/mfa/enroll/start', {}),
+    ...options,
+  });
+}
+
+export function useConfirmMfaEnrollmentMutation(
+  options?: UseMutationOptions<{ ok: true }, ApiError, { code: string }>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, ApiError, { code: string }>({
+    mutationFn: (input) => apiPost<{ ok: true }>('/auth/mfa/enroll/confirm', input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.me() }),
+    ...options,
+  });
+}
+
+export function useDisableMfaMutation(
+  options?: UseMutationOptions<{ ok: true }, ApiError, { currentPassword: string }>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, ApiError, { currentPassword: string }>({
+    mutationFn: (input) => apiPost<{ ok: true }>('/auth/mfa/disable', input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.me() }),
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// §9.13 Notification preferences
+// ---------------------------------------------------------------------------
+
+export function useNotificationPreferencesQuery(
+  options?: Omit<UseQueryOptions<Record<string, unknown>, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<Record<string, unknown>, ApiError>({
+    queryKey: ['notification-preferences'],
+    queryFn: () => apiGet<Record<string, unknown>>('/notifications/preferences'),
+    ...options,
+  });
+}
+
+export function useUpdateNotificationPreferencesMutation(
+  options?: UseMutationOptions<Record<string, unknown>, ApiError, Record<string, unknown>>,
+) {
+  const qc = useQueryClient();
+  return useMutation<Record<string, unknown>, ApiError, Record<string, unknown>>({
+    mutationFn: (input) => apiPatch<Record<string, unknown>>('/notifications/preferences', input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['notification-preferences'] }),
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// §9.3 Document detail — versions, comments, tags, metadata, share, lock
+// ---------------------------------------------------------------------------
+
+export function useDocumentVersionsQuery(
+  documentId: string | undefined,
+  options?: Omit<UseQueryOptions<unknown[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<unknown[], ApiError>({
+    queryKey: documentId ? ['document', documentId, 'versions'] : ['document', 'undefined', 'versions'],
+    queryFn: () => apiGet<unknown[]>(`/documents/${documentId}/versions`),
+    enabled: !!documentId,
+    ...options,
+  });
+}
+
+export function useDocumentCommentsQuery(
+  documentId: string | undefined,
+  options?: Omit<UseQueryOptions<unknown[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<unknown[], ApiError>({
+    queryKey: documentId ? ['document', documentId, 'comments'] : ['document', 'undefined', 'comments'],
+    queryFn: () => apiGet<unknown[]>(`/documents/${documentId}/comments`),
+    enabled: !!documentId,
+    ...options,
+  });
+}
+
+export function useCreateCommentMutation(
+  documentId: string,
+  options?: UseMutationOptions<unknown, ApiError, { body: string; anchor?: string }>,
+) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, { body: string; anchor?: string }>({
+    mutationFn: (input) => apiPost<unknown>(`/documents/${documentId}/comments`, input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['document', documentId, 'comments'] }),
+    ...options,
+  });
+}
+
+export function useDocumentTagsQuery(
+  documentId: string | undefined,
+  options?: Omit<UseQueryOptions<{ tags: string[] }, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<{ tags: string[] }, ApiError>({
+    queryKey: documentId ? ['document', documentId, 'tags'] : ['document', 'undefined', 'tags'],
+    queryFn: () => apiGet<{ tags: string[] }>(`/documents/${documentId}/tags`),
+    enabled: !!documentId,
+    ...options,
+  });
+}
+
+export function useAddTagMutation(
+  documentId: string,
+  options?: UseMutationOptions<{ tags: string[] }, ApiError, string>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ tags: string[] }, ApiError, string>({
+    mutationFn: (tag) => apiPost<{ tags: string[] }>(`/documents/${documentId}/tags`, { tag }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['document', documentId, 'tags'] }),
+    ...options,
+  });
+}
+
+export function useLockDocumentMutation(
+  documentId: string,
+  options?: UseMutationOptions<unknown, ApiError, void>,
+) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, void>({
+    mutationFn: () => apiPost<unknown>(`/documents/${documentId}/lock`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.document(documentId) }),
+    ...options,
+  });
+}
+
+export function useUnlockDocumentMutation(
+  documentId: string,
+  options?: UseMutationOptions<unknown, ApiError, void>,
+) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, void>({
+    mutationFn: () => apiPost<unknown>(`/documents/${documentId}/unlock`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.document(documentId) }),
+    ...options,
+  });
+}
+
+export function useRestoreVersionMutation(
+  documentId: string,
+  options?: UseMutationOptions<unknown, ApiError, { versionId: string; reason: string }>,
+) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, { versionId: string; reason: string }>({
+    mutationFn: (input) =>
+      apiPost<unknown>(`/documents/${documentId}/versions/${input.versionId}/restore`, { reason: input.reason }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.document(documentId) });
+      qc.invalidateQueries({ queryKey: ['document', documentId, 'versions'] });
+    },
+    ...options,
+  });
+}
+
+export function useDeclareRecordMutation(
+  documentId: string,
+  options?: UseMutationOptions<unknown, ApiError, { reason: string }>,
+) {
+  const qc = useQueryClient();
+  return useMutation<unknown, ApiError, { reason: string }>({
+    mutationFn: (input) => apiPost<unknown>(`/documents/${documentId}/declare-record`, input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.document(documentId) }),
+    ...options,
+  });
+}
+
 // Re-export the error helper for convenience.
 export { toApiError };
