@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ValidationPipe, Logger } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyHelmet from '@fastify/helmet';
@@ -10,7 +11,6 @@ import fastifyMultipart from '@fastify/multipart';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module.js';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
-import { TenantContextMiddleware } from './common/middleware/tenant-context.middleware.js';
 
 /**
  * Bootstrap the Smart EDMS on-premise NestJS backend (Fastify adapter).
@@ -75,10 +75,7 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
-  app.useGlobalFilters(new AllExceptionsFilter(app.get(ConfigService)));
-  app.use((req as any, _res: any, next: any) => {
-    void new TenantContextMiddleware().use(req as any, _res as any, next as any);
-  });
+  app.useGlobalFilters(new AllExceptionsFilter(app.get(HttpAdapterHost)));
 
   app.enableShutdownHooks();
 

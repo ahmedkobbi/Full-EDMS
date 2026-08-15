@@ -128,7 +128,11 @@ export class UserService {
         });
       }
       // sendInvite path would enqueue an email job here
-      return serializeUser(await tx.user.findUniqueOrThrow({ where: { id: user.id }, include: { roleAssignments: { include: { role: true } }, preferences: true } } }));
+      const created = await tx.user.findUniqueOrThrow({
+        where: { id: user.id },
+        include: { roleAssignments: { include: { role: true } }, preferences: true },
+      });
+      return serializeUser(created);
     });
   }
 

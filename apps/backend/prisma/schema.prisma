@@ -107,6 +107,7 @@ model User {
   assistantAuditEvents AssistantAuditEvent[]
   preferences       UserPreference?
   devices           DeviceTrust[]
+  shareLinks        ShareLink[] @relation("ShareLinkCreator")
 
   @@unique([tenantId, email])
   @@index([tenantId, status])
@@ -123,7 +124,7 @@ enum UserStatus {
 
 model UserPreference {
   id                String   @id @default(uuid()) @db.Uuid
-  userId            String   @id @db.Uuid
+  userId            String   @unique @db.Uuid
   tenantId          String   @db.Uuid
   locale            String   @default("en") @db.VarChar(16)
   theme             String   @default("system") @db.VarChar(16)
@@ -431,7 +432,8 @@ model ClassificationLabel {
 
   tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   documents         Document[]
-  history           ClassificationHistory[]
+  historyFrom        ClassificationHistory[] @relation("ClassificationHistoryFrom")
+  historyTo          ClassificationHistory[] @relation("ClassificationHistoryTo")
 
   @@unique([tenantId, code])
   @@index([tenantId, sensitivityLevel])
@@ -447,6 +449,9 @@ model ClassificationHistory {
   reason            String?
   changedByUserId   String   @db.Uuid
   createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  fromLabel         ClassificationLabel? @relation("ClassificationHistoryFrom", fields: [fromLabelId], references: [id])
+  toLabel           ClassificationLabel? @relation("ClassificationHistoryTo", fields: [toLabelId], references: [id])
 
   @@index([tenantId, documentId, createdAt])
   @@map("classification_history")
@@ -682,6 +687,7 @@ model AuditEvent {
 
   user              User?    @relation(fields: [userId], references: [id])
   document          Document? @relation(fields: [documentId], references: [id])
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId, occurredAt])
   @@index([tenantId, code])
@@ -732,7 +738,7 @@ model ShareLink {
 
   tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  createdBy         User     @relation(fields: [createdByUserId], references: [id])
+  createdBy         User     @relation("ShareLinkCreator", fields: [createdByUserId], references: [id])
 
   @@index([tenantId, documentId])
   @@index([tenantId, isActive])
@@ -880,7 +886,7 @@ model TourDefinition {
 
 model TourStep {
   id                String   @id @default(uuid()) @db.Uuid
-  tourId            String   @id @db.Uuid
+  tourId            String   @db.Uuid
   stepOrder         Int
   targetSelector    String   @db.VarChar(128)
   titleKey          String
@@ -915,6 +921,7 @@ model TourUserState {
 
   tour              TourDefinition @relation(fields: [tourId], references: [id], onDelete: Cascade)
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([tourId, userId])
   @@index([tenantId, userId, status])
