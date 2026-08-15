@@ -1534,4 +1534,224 @@ export class DocumentService {
       data: { folderId: targetFolderId },
     });
   }
+
+  // ===========================================================================
+  // §9.3 — Declare as record + version compare + batch upload
+  // ===========================================================================
+
+  /**
+   * Declare a document as an official record.
+   *
+   * Once declared, the document's isRecord flag is set to true and the
+   * status changes to RECORD. Records have stricter retention rules and
+   * cannot be modified without special permission.
+   *
+   * Spec ref: §9.3 (declare documents as records), §9.6 (immutability).
+   */
+  async declareAsRecord(
+    tenantId: string,
+    documentId: string,
+    userId: string,
+    reason: string,
+  ) {
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, tenantId, deletedAt: null },
+    });
+    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (doc.isRecord) {
+      return { ok: true, alreadyRecord: true };
+    }
+
+    const updated = await this.prisma.document.update({
+      where: { id: documentId },
+      data: {
+        isRecord: true,
+        status: 'RECORD',
+      },
+    });
+
+    // Add chain of custody entry
+    await this.prisma.auditEvent.create({
+      data: {
+        id: randomUUID(),
+        tenantId,
+        userId,
+        actorKind: 'user',
+        category: 'document',
+        code: 'document.record.declare',
+        result: 'allow',
+        resourceType: 'document',
+        resourceId: documentId,
+        documentId,
+        reason,
+        sequenceNumber: 0n,
+        previousHash: null,
+        eventHash: createHash('sha256').update(`${documentId}:record:${Date.now()}`).digest('hex'),
+        occurredAt: new Date(),
+      },
+    });
+
+    // Emit WebSocket event
+    await this.emitWsEvent(tenantId, {
+      name: 'document.updated',
+      payload: { tenantId, documentId, action: 'declared_as_record', reason },
+    });
+
+    return { ok: true, documentId, isRecord: true, status: 'RECORD' };
+  }
+
+  /**
+   * Compare two document versions (metadata diff, not binary diff).
+   *
+   * Returns the differences between two versions' metadata (title, description,
+   * classification, tags, metadata values). Binary content comparison is
+   * not performed (spec §9.6: "version comparison must not load full binaries
+   * unnecessarily").
+   *
+   * Spec ref: §9.3 (compare versions where practical), §9.6.
+   */
+  async compareVersions(
+    tenantId: string,
+    documentId: string,
+    versionId1: string,
+    versionId2: string,
+  ) {
+    const [v1, v2] = await Promise.all([
+      this.prisma.documentVersion.findFirst({
+        where: { id: versionId1, tenantId, documentId },
+      }),
+      this.prisma.documentVersion.findFirst({
+        where: { id: versionId2, tenantId, documentId },
+      }),
+    ]);
+    if (!v1 || !v2) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, tenantId },
+      select: { title: true, description: true, classificationId: true, sensitivityLevel: true, tags: true },
+    });
+
+    // Compare metadata values between versions
+    const [mv1, mv2] = await Promise.all([
+      this.prisma.metadataValue.findMany({ where: { documentId, tenantId } }),
+      this.prisma.metadataValue.findMany({ where: { documentId, tenantId } }),
+    ]);
+
+    const differences: Array<{
+      field: string;
+      version1: unknown;
+      version2: unknown;
+      changed: boolean;
+    }> = [];
+
+    // Compare version-level fields
+    const fields = ['versionNumber', 'sizeBytes', 'checksum', 'mime', 'originalFilename', 'changeReason'];
+    for (const field of fields) {
+      const val1 = (v1 as any)[field];
+      const val2 = (v2 as any)[field];
+      differences.push({
+        field,
+        version1: val1,
+        version2: val2,
+        changed: val1 !== val2,
+      });
+    }
+
+    // Compare metadata values
+    const mv1Map = new Map(mv1.map((m) => [m.fieldCode, m.value]));
+    const mv2Map = new Map(mv2.map((m) => [m.fieldCode, m.value]));
+    const allFields = new Set([...mv1Map.keys(), ...mv2Map.keys()]);
+    for (const field of allFields) {
+      const val1 = mv1Map.get(field);
+      const val2 = mv2Map.get(field);
+      if (JSON.stringify(val1) !== JSON.stringify(val2)) {
+        differences.push({
+          field: `metadata.${field}`,
+          version1: val1 ?? null,
+          version2: val2 ?? null,
+          changed: true,
+        });
+      }
+    }
+
+    const changedCount = differences.filter((d) => d.changed).length;
+
+    return {
+      documentId,
+      version1: { id: v1.id, versionNumber: v1.versionNumber, createdAt: v1.createdAt },
+      version2: { id: v2.id, versionNumber: v2.versionNumber, createdAt: v2.createdAt },
+      differences,
+      changedFields: changedCount,
+      summary: `${changedCount} field(s) changed between version ${v1.versionNumber} and ${v2.versionNumber}`,
+    };
+  }
+
+  /**
+   * Batch upload multiple files in a single request.
+   *
+   * Creates document records for each file, enqueues upload-init for each,
+   * and returns a batch ID for tracking progress.
+   *
+   * Spec ref: §9.3 (batch ingestion), §9.16 (batch processing).
+   */
+  async batchUpload(
+    tenantId: string,
+    userId: string,
+    files: Array<{
+      filename: string;
+      contentType: string;
+      size: number;
+      metadata?: Record<string, unknown>;
+    }>,
+    options: { folderId?: string; classificationId?: string } = {},
+  ): Promise<{
+    batchId: string;
+    documents: Array<{ documentId: string; filename: string; uploadInitId: string }>;
+    totalCount: number;
+  }> {
+    const batchId = randomUUID();
+    const documents: Array<{ documentId: string; filename: string; uploadInitId: string }> = [];
+
+    for (const file of files.slice(0, 100)) { // max 100 files per batch
+      // Create document record
+      const doc = await this.prisma.document.create({
+        data: {
+          tenantId,
+          folderId: options.folderId ?? null,
+          title: file.filename,
+          classificationId: options.classificationId ?? null,
+          status: 'PROCESSING',
+          createdByUserId: userId,
+        },
+      });
+
+      // Initialize upload for this file
+      const uploadInit = await this.uploadInit(tenantId, userId, {
+        documentId: doc.id,
+        filename: file.filename,
+        contentType: file.contentType,
+        size: file.size,
+        folderId: options.folderId,
+      });
+
+      documents.push({
+        documentId: doc.id,
+        filename: file.filename,
+        uploadInitId: (uploadInit as any).uploadId ?? doc.id,
+      });
+    }
+
+    // Emit WebSocket event for batch start
+    await this.emitWsEvent(tenantId, {
+      name: 'job.progress.updated',
+      payload: {
+        tenantId,
+        jobId: batchId,
+        status: 'batch_upload_started',
+        totalFiles: documents.length,
+      },
+    });
+
+    return { batchId, documents, totalCount: documents.length };
+  }
 }

@@ -486,4 +486,56 @@ export class DocumentController {
   ) {
     return this.documents.moveDocument(req.user!.tid, id, body.targetFolderId);
   }
+
+  // ── §9.3 Declare as record + version compare + batch upload ──────────────
+
+  /**
+   * Declare a document as an official record.
+   * Spec ref: §9.3 (declare documents as records).
+   */
+  @Post(':id/declare-record')
+  @Audit({ category: 'document', code: 'document.record.declare', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async declareAsRecord(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { reason: string },
+  ) {
+    return this.documents.declareAsRecord(req.user!.tid, id, req.user!.sub, body.reason);
+  }
+
+  /**
+   * Compare two document versions (metadata diff).
+   * Spec ref: §9.3 (compare versions where practical), §9.6.
+   */
+  @Get(':id/versions/:versionId1/compare/:versionId2')
+  async compareVersions(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Param('versionId1') versionId1: string,
+    @Param('versionId2') versionId2: string,
+  ) {
+    return this.documents.compareVersions(req.user!.tid, id, versionId1, versionId2);
+  }
+
+  /**
+   * Batch upload multiple files.
+   * Spec ref: §9.3 (batch ingestion), §9.16 (batch processing).
+   */
+  @Post('batch-upload')
+  @Audit({ category: 'document', code: 'document.batch_upload' })
+  async batchUpload(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: {
+      files: Array<{ filename: string; contentType: string; size: number; metadata?: Record<string, unknown> }>;
+      folderId?: string;
+      classificationId?: string;
+    },
+  ) {
+    return this.documents.batchUpload(
+      req.user!.tid,
+      req.user!.sub,
+      body.files,
+      { folderId: body.folderId, classificationId: body.classificationId },
+    );
+  }
 }

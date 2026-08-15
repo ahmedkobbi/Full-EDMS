@@ -43,7 +43,9 @@ import { KnowledgeGraphModule } from './modules/knowledge-graph/knowledge-graph.
 import { CaptureRulesModule } from './modules/capture-rules/capture-rules.module.js';
 import { MigrationModule } from './modules/migration/migration.module.js';
 import { EmailModule } from './modules/email/email.module.js';
+import { PhysicalTwinModule } from './modules/physical-twin/physical-twin.module.js';
 import { WebSocketModule } from './websocket/websocket.module.js';
+import { WorkflowReminderCron } from './modules/workflow/workflow-reminder-cron.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { ApiKeyAuthGuard } from './common/guards/api-key-auth.guard.js';
 import { TenantGuard } from './common/guards/tenant.guard.js';
@@ -124,6 +126,7 @@ import { environmentSchema } from './config/environment.js';
     CaptureRulesModule,
     MigrationModule,
     EmailModule,
+    PhysicalTwinModule,
     WebSocketModule,
   ],
   providers: [
@@ -132,6 +135,7 @@ import { environmentSchema } from './config/environment.js';
     { provide: APP_GUARD, useClass: TenantGuard },
     { provide: APP_GUARD, useClass: LicenseGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+    WorkflowReminderCron,
   ],
 })
 export class AppModule {}
