@@ -243,6 +243,36 @@ export class WebhookService implements OnModuleInit {
    * Manually replay a webhook delivery (admin action — typically after
    * the customer reports they didn't receive an event).
    */
+  /**
+   * Send a test event to a webhook (spec §12.10).
+   */
+  async sendTestEvent(webhookId: string, adminId: string, ipAddress?: string): Promise<{ ok: true }> {
+    const webhook = await this.prisma.webhook.findUnique({ where: { id: webhookId } });
+    if (!webhook) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    await this.emit({
+      customerId: webhook.customerId,
+      event: 'webhook.test',
+      payload: {
+        message: 'Smart EDMS webhook test event',
+        webhookId,
+        sentAt: new Date().toISOString(),
+      },
+    });
+
+    await this.audit.record({
+      adminId,
+      action: 'webhook.test',
+      target: 'webhook',
+      targetId: webhookId,
+      result: 'allow',
+      ipAddress,
+    });
+
+    this.logger.log(`Test event sent to webhook ${webhookId}`);
+    return { ok: true };
+  }
+
   async replayDelivery(deliveryId: string, adminId: string, ipAddress?: string): Promise<{ ok: true }> {
     const delivery = await this.prisma.webhookDelivery.findUnique({
       where: { id: deliveryId },

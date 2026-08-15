@@ -66,4 +66,15 @@ export class WebhookController {
   async replay(@Param('id') id: string, @Req() req: AdminAuthenticatedRequest) {
     return this.webhook.replayDelivery(id, req.admin!.sub, req.ip);
   }
+
+  /**
+   * Send a test event to a webhook (spec §12.10 — webhook test).
+   */
+  @Post(':id/test')
+  @AuditAction('webhook.test')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Send a test event to a webhook (admin)' })
+  async test(@Param('id') id: string, @Req() req: AdminAuthenticatedRequest) {
+    return this.webhook.sendTestEvent(id, req.admin!.sub, req.ip);
+  }
 }

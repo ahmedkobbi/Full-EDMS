@@ -19,6 +19,10 @@ import { RevocationModule } from './modules/revocation/revocation.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { CronModule } from './modules/cron/cron.module.js';
 import { AdminAuthModule } from './modules/admin-auth/admin-auth.module.js';
+import { DeviceModule } from './modules/device/device.module.js';
+import { UsageModule } from './modules/usage/usage.module.js';
+import { ApiKeyModule } from './modules/api-key/api-key.module.js';
+import { AdminUserModule } from './modules/admin-user/admin-user.module.js';
 import { AuditInterceptor } from './common/audit.interceptor.js';
 import { environmentSchema } from './config/environment.js';
 
@@ -90,6 +94,10 @@ import { environmentSchema } from './config/environment.js';
     HealthModule,
     CronModule,
     AdminAuthModule,
+    DeviceModule,
+    UsageModule,
+    ApiKeyModule,
+    AdminUserModule,
   ],
   providers: [
     // AdminJwtGuard is applied selectively (admin endpoints). Activation
