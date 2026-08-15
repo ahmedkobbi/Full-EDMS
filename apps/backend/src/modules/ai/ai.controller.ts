@@ -189,6 +189,31 @@ export class AiController {
   async listTools(@Req() req: AuthenticatedRequest) {
     return this.ai.listTools(ctxFromReq(req));
   }
+
+  /**
+   * Confirm a suggested action. Sensitive actions are executed; destructive
+   * actions are blocked and the client must redirect to the appropriate
+   * admin UI (spec §11.4).
+   */
+  @Post('actions/:id/confirm')
+  @Audit({ category: 'ai_assistant', code: 'ai.action.confirm', resourceType: 'assistant_action', resourceIdParam: 'id' })
+  @HttpCode(200)
+  async confirmAction(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.ai.confirmAction(req.user!.tid, req.user!.sub, id, {
+      requestId: req.id,
+      ipAddress: req.ip,
+      userAgent: req.headers['user-agent'],
+    });
+  }
+
+  /**
+   * Cancel a suggested action (user dismissed it). No execution.
+   */
+  @Post('actions/:id/cancel')
+  @HttpCode(200)
+  async cancelAction(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.ai.cancelAction(req.user!.tid, req.user!.sub, id);
+  }
 }
 
 // ---------------------------------------------------------------------------

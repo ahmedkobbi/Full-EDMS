@@ -869,6 +869,216 @@ export class AiService {
   }
 
   // ===========================================================================
+  // ACTION CONFIRMATION (spec §11.4 — sensitive actions require explicit user
+  // confirmation; destructive actions NEVER executed by AI)
+  // ===========================================================================
+
+  /**
+   * Confirm a suggested action. Marks the AssistantAction as `confirmed`,
+   * then executes it (for non-destructive action types only).
+   *
+   * Destructive action types (`delete`, `remove_legal_hold`,
+   * `downgrade_classification`, `revoke_license`, `disable_user`,
+   * `change_security_policy`, `delete_tenant_configuration`) are NEVER
+   * executed by this endpoint — they return `{ ok: false, reason:
+   * 'destructive_action_requires_dedicated_flow' }` and the client must
+   * redirect the user to the appropriate admin UI.
+   *
+   * Spec ref: §11.4 (read-only default, sensitive actions require
+   *           confirmation, destructive actions never auto-executed).
+   */
+  async confirmAction(
+    tenantId: string,
+    userId: string,
+    actionId: string,
+    reqCtx: Pick<AiRequestContext, 'requestId' | 'ipAddress' | 'userAgent'>,
+  ): Promise<{
+    ok: boolean;
+    status: string;
+    actionType?: string;
+    targetType?: string;
+    targetId?: string;
+    result?: unknown;
+    reason?: string;
+  }> {
+    const action = await this.prisma.assistantAction.findFirst({
+      where: { id: actionId, tenantId },
+      include: { message: { include: { session: true } } },
+    });
+    if (!action) {
+      return { ok: false, status: 'not_found' };
+    }
+    if (action.message.session.userId !== userId) {
+      // Authorization: only the user who owns the session can confirm its actions
+      void this.audit.record({
+        tenantId,
+        userId,
+        category: 'ai_assistant',
+        code: 'ai.action.confirm',
+        result: 'deny',
+        reason: 'not_session_owner',
+        resourceType: 'assistant_action',
+        resourceId: actionId,
+        correlationId: reqCtx.requestId,
+        ipAddress: reqCtx.ipAddress,
+        userAgent: reqCtx.userAgent,
+      });
+      return { ok: false, status: 'unauthorized' };
+    }
+    if (action.status !== 'suggested') {
+      return { ok: false, status: 'already_resolved', reason: `current_status:${action.status}` };
+    }
+    if (!action.confirmationRequired) {
+      return { ok: false, status: 'no_confirmation_required' };
+    }
+
+    // Block destructive actions (spec §11.4)
+    const destructiveTypes = new Set([
+      'delete',
+      'remove_legal_hold',
+      'downgrade_classification',
+      'revoke_license',
+      'disable_user',
+      'change_security_policy',
+      'delete_tenant_configuration',
+    ]);
+    if (destructiveTypes.has(action.actionType)) {
+      await this.prisma.assistantAction.update({
+        where: { id: actionId },
+        data: { status: 'blocked_destructive', confirmedAt: new Date() },
+      });
+      void this.audit.record({
+        tenantId,
+        userId,
+        category: 'ai_assistant',
+        code: 'ai.action.confirm',
+        result: 'deny',
+        reason: 'destructive_action_requires_dedicated_flow',
+        resourceType: 'assistant_action',
+        resourceId: actionId,
+        correlationId: reqCtx.requestId,
+        ipAddress: reqCtx.ipAddress,
+        userAgent: reqCtx.userAgent,
+      });
+      return {
+        ok: false,
+        status: 'blocked_destructive',
+        actionType: action.actionType,
+        targetType: action.targetType,
+        targetId: action.targetId ?? undefined,
+        reason: 'destructive_action_requires_dedicated_flow',
+      };
+    }
+
+    // Execute non-destructive actions
+    const executedAt = new Date();
+    let executionResult: unknown = null;
+    let executionStatus = 'executed';
+    try {
+      executionResult = await this.executeNonDestructiveAction(action);
+    } catch (err) {
+      executionStatus = 'execution_failed';
+      executionResult = { error: (err as Error).message.slice(0, 500) };
+    }
+
+    await this.prisma.assistantAction.update({
+      where: { id: actionId },
+      data: {
+        status: executionStatus,
+        confirmedAt: executedAt,
+        executedAt: executionStatus === 'executed' ? executedAt : null,
+      },
+    });
+
+    void this.audit.record({
+      tenantId,
+      userId,
+      category: 'ai_assistant',
+      code: 'ai.action.confirm',
+      result: 'allow',
+      resourceType: 'assistant_action',
+      resourceId: actionId,
+      correlationId: reqCtx.requestId,
+      ipAddress: reqCtx.ipAddress,
+      userAgent: reqCtx.userAgent,
+      metadata: {
+        actionType: action.actionType,
+        targetType: action.targetType,
+        targetId: action.targetId,
+        executionStatus,
+      },
+    });
+
+    return {
+      ok: executionStatus === 'executed',
+      status: executionStatus,
+      actionType: action.actionType,
+      targetType: action.targetType,
+      targetId: action.targetId ?? undefined,
+      result: executionResult,
+    };
+  }
+
+  /**
+   * Cancel a suggested action (user dismissed it). No execution.
+   */
+  async cancelAction(
+    tenantId: string,
+    userId: string,
+    actionId: string,
+  ): Promise<{ ok: boolean; status: string }> {
+    const action = await this.prisma.assistantAction.findFirst({
+      where: { id: actionId, tenantId },
+      include: { message: { include: { session: true } } },
+    });
+    if (!action) return { ok: false, status: 'not_found' };
+    if (action.message.session.userId !== userId) return { ok: false, status: 'unauthorized' };
+    if (action.status !== 'suggested') return { ok: false, status: 'already_resolved' };
+
+    await this.prisma.assistantAction.update({
+      where: { id: actionId },
+      data: { status: 'cancelled' },
+    });
+    return { ok: true, status: 'cancelled' };
+  }
+
+  /**
+   * Execute a non-destructive action. Currently supports:
+   * - `navigate`: returns the target route (client-side navigation only)
+   * - `launch_tour`: returns the tour code (client-side tour launch only)
+   *
+   * Other non-destructive types are returned as "client_action_required" —
+   * the client must perform the action using its own authenticated API calls
+   * (e.g., create_share, start_workflow). The AI never executes these
+   * server-side; it only suggests them.
+   */
+  private async executeNonDestructiveAction(action: {
+    actionType: string;
+    targetType: string;
+    targetId: string | null;
+  }): Promise<unknown> {
+    switch (action.actionType) {
+      case 'navigate':
+      case 'launch_tour':
+        return {
+          client_action_required: true,
+          actionType: action.actionType,
+          targetType: action.targetType,
+          targetId: action.targetId,
+        };
+      default:
+        // For all other action types, the client must execute via the
+        // appropriate REST endpoint. The AI never executes them.
+        return {
+          client_action_required: true,
+          actionType: action.actionType,
+          targetType: action.targetType,
+          targetId: action.targetId,
+        };
+    }
+  }
+
+  // ===========================================================================
   // INTERNAL HELPERS
   // ===========================================================================
 

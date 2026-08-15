@@ -592,3 +592,31 @@ model OfflineActivationCertificate {
   @@index([signingKeyId])
   @@map("lic_offline_activation_certificates")
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// Admin Users (License Admin Panel login)
+// Spec ref: §12.10 (license admin panel — secure login, MFA required).
+// ────────────────────────────────────────────────────────────────────────────
+
+model AdminUser {
+  id                String   @id @default(uuid()) @db.Uuid
+  email             String   @unique
+  firstName         String
+  lastName          String
+  passwordHash      String?
+  roles             String[] @default(["admin"]) // super_admin | admin | support | read_only
+  isActive          Boolean  @default(true)
+  mfaSecret         String?  @db.VarChar(64)
+  mfaBackupCodes    String[] @default([])
+  mfaEnrolledAt     DateTime? @db.Timestamptz(3)
+  failedLoginCount  Int      @default(0)
+  lockedUntil       DateTime? @db.Timestamptz(3)
+  lastLoginAt       DateTime? @db.Timestamptz(3)
+  lastLoginIp       String?  @db.VarChar(64)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime? @db.Timestamptz(3)
+
+  @@index([isActive])
+  @@map("lic_admin_users")
+}

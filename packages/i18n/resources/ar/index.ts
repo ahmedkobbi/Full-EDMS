@@ -24,6 +24,9 @@ import marketing from './marketing.js';
 import settings from './settings.js';
 import scanner from './scanner.js';
 import locales from './locales.js';
+import nav from './nav.js';
+import dashboard from './dashboard.js';
+import notFound from './notFound.js';
 
 import { tour } from './tour/index.js';
 import { ai } from './ai/index.js';
@@ -51,6 +54,9 @@ export const ar = {
   settings,
   scanner,
   locales,
+  nav,
+  dashboard,
+  notFound,
   'tour.common': tour.common,
   'tour.welcome': tour.welcome,
   'tour.documents': tour.documents,

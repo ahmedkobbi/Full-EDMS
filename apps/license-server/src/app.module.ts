@@ -18,6 +18,7 @@ import { WebhookModule } from './modules/webhook/webhook.module.js';
 import { RevocationModule } from './modules/revocation/revocation.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { CronModule } from './modules/cron/cron.module.js';
+import { AdminAuthModule } from './modules/admin-auth/admin-auth.module.js';
 import { AuditInterceptor } from './common/audit.interceptor.js';
 import { environmentSchema } from './config/environment.js';
 
@@ -88,6 +89,7 @@ import { environmentSchema } from './config/environment.js';
     RevocationModule,
     HealthModule,
     CronModule,
+    AdminAuthModule,
   ],
   providers: [
     // AdminJwtGuard is applied selectively (admin endpoints). Activation

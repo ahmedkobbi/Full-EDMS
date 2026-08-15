@@ -18,7 +18,8 @@
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "opensearch:init": "tsx scripts/opensearch-init.ts"
   },
   "dependencies": {
     "@fastify/compress": "^8.0.1",
@@ -38,6 +39,7 @@
     "@nestjs/schedule": "^4.1.0",
     "@nestjs/swagger": "^7.4.0",
     "@nestjs/websockets": "^10.4.1",
+    "@opensearch-project/opensearch": "^2.12.0",
     "@prisma/client": "^5.19.1",
     "@socket.io/redis-adapter": "^8.3.0",
     "@smart-edms/i18n": "workspace:*",
