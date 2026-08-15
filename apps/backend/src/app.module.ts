@@ -32,6 +32,9 @@ import { WebhookModule } from './modules/webhook/webhook.module.js';
 import { ApiKeyModule } from './modules/api-key/api-key.module.js';
 import { LocaleModule } from './modules/locale/locale.module.js';
 import { PresenceModule } from './modules/presence/presence.module.js';
+import { SecureViewerModule } from './modules/secure-viewer/secure-viewer.module.js';
+import { ProvenanceModule } from './modules/provenance/provenance.module.js';
+import { PiiDetectionModule } from './modules/pii-detection/pii-detection.module.js';
 import { WebSocketModule } from './websocket/websocket.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { ApiKeyAuthGuard } from './common/guards/api-key-auth.guard.js';
@@ -102,6 +105,9 @@ import { environmentSchema } from './config/environment.js';
     ApiKeyModule,
     LocaleModule,
     PresenceModule,
+    SecureViewerModule,
+    ProvenanceModule,
+    PiiDetectionModule,
     WebSocketModule,
   ],
   providers: [
