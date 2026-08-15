@@ -21,6 +21,8 @@ const nextConfig = {
     '@smart-edms/i18n',
     '@smart-edms/types',
     '@smart-edms/schemas',
+    '@smart-edms/ui',
+    '@smart-edms/utils',
   ],
   // The marketing site is purely static content + two API routes; no images
   // are served from third-party domains.
