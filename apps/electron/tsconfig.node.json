@@ -1,0 +1,31 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/main",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "jsx": "react-jsx",
+    "types": ["node"],
+    "noEmit": false,
+    "declaration": false,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@smart-edms/types": ["../../packages/types/src/index.ts"],
+      "@smart-edms/schemas": ["../../packages/schemas/src/index.ts"],
+      "@smart-edms/i18n": ["../../packages/i18n/src/index.ts"],
+      "@smart-edms/license-core": ["../../packages/license-core/src/index.ts"]
+    }
+  },
+  "include": [
+    "src/main/index.ts",
+    "src/main/ipc.ts",
+    "src/main/auto-updater.ts",
+    "src/main/menu.ts"
+  ]
+}

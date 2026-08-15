@@ -1,0 +1,13 @@
+PLACEHOLDER — replace with a real 1024x1024 PNG icon for production builds.
+The designer must provide:
+  - icon.png        — 1024x1024 PNG with transparent background
+  - icon.ico        — Windows multi-resolution ICO (16/24/32/48/64/128/256)
+  - icon.icns       — macOS ICNS (16/32/64/128/256/512/1024)
+  - icon-linux-512.png — Linux AppImage icon
+
+Branding guidelines (spec §19):
+  - The Smart EDMS mark uses the primary brand color on a transparent or
+    dark surface. Both light and dark variants must have AA contrast.
+  - The mark must NOT be modified per locale. The wordmark "Smart EDMS"
+    stays consistent across locales (descriptive text translates, product
+    name does not).

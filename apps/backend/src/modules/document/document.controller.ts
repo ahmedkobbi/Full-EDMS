@@ -1,0 +1,359 @@
+/**
+ * Smart EDMS — Document REST controller.
+ *
+ * All endpoints are JWT-protected (no @Public), tenant-scoped (uses
+ * `req.user.tid`), and audited via the @Audit() decorator where mutating.
+ *
+ * Spec ref: §9.3 (document lifecycle), §14 (API contract), §14.3 (cursor
+ * pagination), §27.3 (audit every mutation).
+ *
+ * Endpoint summary:
+ *   POST   /v1/documents/upload-init             initialize multipart upload
+ *   POST   /v1/documents/upload-chunk            receive a chunk (multipart)
+ *   POST   /v1/documents/upload-complete         finalize + checksum + WS event
+ *   GET    /v1/documents                          paginated list (cursor)
+ *   GET    /v1/documents/:id                      get metadata
+ *   GET    /v1/documents/:id/download             signed URL
+ *   GET    /v1/documents/:id/versions             version history (cursor)
+ *   POST   /v1/documents/:id/versions/:versionId/restore   restore
+ *   PATCH  /v1/documents/:id                      update metadata
+ *   POST   /v1/documents/:id/lock                 lock
+ *   POST   /v1/documents/:id/unlock               unlock (owner or admin)
+ *   DELETE /v1/documents/:id                      soft delete (legal-hold guard)
+ *   POST   /v1/documents/:id/share                create share link
+ */
+
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
+import type { AuditEventCode } from '@smart-edms/types';
+import { Audit } from '../../common/decorators/audit.decorator.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { DocumentService } from './document.service.js';
+import {
+  DocumentListQuerySchema,
+  LockDocumentBodySchema,
+  RestoreVersionBodySchema,
+  ShareDocumentBodySchema,
+  UpdateDocumentBodySchema,
+  UploadChunkFieldsSchema,
+  UploadCompleteBodySchema,
+  UploadInitBodySchema,
+  VersionListQuerySchema,
+  type DocumentListQuery,
+  type LockDocumentBody,
+  type RestoreVersionBody,
+  type ShareDocumentBody,
+  type UpdateDocumentBody,
+  type UploadCompleteBody,
+  type UploadInitBody,
+} from './dto.js';
+
+@Controller('v1/documents')
+export class DocumentController {
+  constructor(private readonly documents: DocumentService) {}
+
+  // -------------------------------------------------------------------------
+  // Upload flow
+  // -------------------------------------------------------------------------
+
+  @Post('upload-init')
+  @Audit({
+    category: 'create',
+    code: 'document.upload' as AuditEventCode,
+    resourceType: 'document',
+  })
+  @HttpCode(200)
+  async uploadInit(@Body() body: unknown, @Req() req: AuthenticatedRequest) {
+    const parsed = UploadInitBodySchema.parse(body) as UploadInitBody;
+    const result = await this.documents.uploadInit(req.user!.tid, req.user!.sub, parsed);
+    return result;
+  }
+
+  @Post('upload-chunk')
+  @Audit({
+    category: 'create',
+    code: 'document.upload' as AuditEventCode,
+    resourceType: 'document',
+  })
+  @HttpCode(200)
+  async uploadChunk(@Req() req: AuthenticatedRequest): Promise<{
+    partNumber: number;
+    etag: string;
+    size: number;
+  }> {
+    // Fastify multipart: parse the request manually.
+    const parts = (req as unknown as { parts(): AsyncIterable<unknown> }).parts();
+    let fields: Record<string, string> = {};
+    let chunkStream: NodeJS.ReadableStream | null = null;
+
+    for await (const part of parts as AsyncIterable<
+      | { type: 'file'; fieldname: string; file: NodeJS.ReadableStream; mimetype: string }
+      | { type: 'field'; fieldname: string; value: string }
+    >) {
+      if (part.type === 'field') {
+        fields[part.fieldname] = part.value;
+      } else if (part.type === 'file' && part.fieldname === 'chunk') {
+        chunkStream = part.file;
+      } else {
+        // Drain unknown file parts to avoid backpressure.
+        if (part.type === 'file') {
+          part.file.resume();
+        }
+      }
+    }
+
+    if (!chunkStream) {
+      throw new BadRequestException({
+        messageKey: 'errors.VALIDATION_FAILED',
+        detail: 'missing chunk file part',
+      });
+    }
+
+    const parsed = UploadChunkFieldsSchema.parse({
+      uploadId: fields['uploadId'],
+      documentId: fields['documentId'],
+      partNumber: fields['partNumber'] !== undefined ? Number(fields['partNumber']) : undefined,
+      totalParts: fields['totalParts'] !== undefined ? Number(fields['totalParts']) : undefined,
+      partChecksum: fields['partChecksum'],
+    });
+
+    return this.documents.uploadChunk(
+      req.user!.tid,
+      req.user!.sub,
+      parsed,
+      chunkStream as unknown as import('node:crypto').Readable,
+    );
+  }
+
+  @Post('upload-complete')
+  @Audit({
+    category: 'create',
+    code: 'document.upload' as AuditEventCode,
+    resourceType: 'document',
+    // resourceIdParam / documentIdParam omitted — the documentId arrives in
+    // the request body, not the URL. The service enriches the audit event
+    // with the documentId explicitly.
+  })
+  @HttpCode(200)
+  async uploadComplete(@Body() body: unknown, @Req() req: AuthenticatedRequest) {
+    const parsed = UploadCompleteBodySchema.parse(body) as UploadCompleteBody;
+    return this.documents.uploadComplete(
+      req.user!.tid,
+      req.user!.sub,
+      parsed,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Read endpoints
+  // -------------------------------------------------------------------------
+
+  @Get()
+  async list(@Query() query: unknown, @Req() req: AuthenticatedRequest) {
+    const parsed = DocumentListQuerySchema.parse(query) as DocumentListQuery;
+    // `includeDeleted` is admin-only — strip it for non-admins.
+    if (!req.user!.roles?.includes('admin')) {
+      parsed.includeDeleted = false;
+    }
+    return this.documents.listDocuments(req.user!.tid, req.user!.sub, parsed);
+  }
+
+  @Get(':id')
+  @Audit({
+    category: 'read',
+    code: 'document.read',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async getOne(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.documents.getDocument(req.user!.tid, req.user!.sub, id);
+  }
+
+  @Get(':id/download')
+  @Audit({
+    category: 'download',
+    code: 'document.downloaded',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async download(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.documents.downloadDocument(
+      req.user!.tid,
+      req.user!.sub,
+      id,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+
+  @Get(':id/versions')
+  async listVersions(
+    @Param('id') id: string,
+    @Query() query: unknown,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const parsed = VersionListQuerySchema.parse(query);
+    return this.documents.listVersions(req.user!.tid, req.user!.sub, id, parsed);
+  }
+
+  // -------------------------------------------------------------------------
+  // Mutations
+  // -------------------------------------------------------------------------
+
+  @Post(':id/versions/:versionId/restore')
+  @Roles('admin', 'records-manager', 'editor')
+  @Audit({
+    category: 'update',
+    code: 'document.version.restored',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async restoreVersion(
+    @Param('id') id: string,
+    @Param('versionId') versionId: string,
+    @Body() body: unknown,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const parsed = RestoreVersionBodySchema.parse(body ?? {}) as RestoreVersionBody;
+    return this.documents.restoreVersion(
+      req.user!.tid,
+      req.user!.sub,
+      id,
+      versionId,
+      parsed,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+
+  @Patch(':id')
+  @Roles('admin', 'records-manager', 'editor')
+  @Audit({
+    category: 'update',
+    code: 'document.updated',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async update(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const parsed = UpdateDocumentBodySchema.parse(body) as UpdateDocumentBody;
+    return this.documents.updateDocument(
+      req.user!.tid,
+      req.user!.sub,
+      id,
+      parsed,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+
+  @Post(':id/lock')
+  @Roles('admin', 'records-manager', 'editor')
+  @Audit({
+    category: 'update',
+    code: 'document.checkout',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async lock(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const parsed = LockDocumentBodySchema.parse(body ?? {}) as LockDocumentBody;
+    return this.documents.lockDocument(
+      req.user!.tid,
+      req.user!.sub,
+      id,
+      parsed,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+
+  @Post(':id/unlock')
+  @Roles('admin', 'records-manager', 'editor')
+  @Audit({
+    category: 'update',
+    code: 'document.checkin',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async unlock(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.documents.unlockDocument(
+      req.user!.tid,
+      req.user!.sub,
+      req.user!.roles ?? [],
+      id,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+
+  @Delete(':id')
+  @Roles('admin', 'records-manager')
+  @Audit({
+    category: 'delete',
+    code: 'document.deleted',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async delete(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
+    return this.documents.deleteDocument(
+      req.user!.tid,
+      req.user!.sub,
+      id,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+
+  @Post(':id/share')
+  @Roles('admin', 'records-manager', 'editor')
+  @Audit({
+    category: 'sharing',
+    code: 'document.shared',
+    resourceType: 'document',
+    resourceIdParam: 'id',
+    documentIdParam: 'id',
+  })
+  async share(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const parsed = ShareDocumentBodySchema.parse(body) as ShareDocumentBody;
+    return this.documents.shareDocument(
+      req.user!.tid,
+      req.user!.sub,
+      id,
+      parsed,
+      req.ip,
+      req.headers['user-agent'],
+    );
+  }
+}

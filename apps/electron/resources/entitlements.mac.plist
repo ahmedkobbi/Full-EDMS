@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Smart EDMS macOS entitlements (spec §7.1).
+
+  Hardened runtime is enabled (mac.hardenedRuntime = true in electron-builder).
+  These entitlements whitelist the minimum set of capabilities required:
+    - com.apple.security.cs.allow-jit              → V8 JIT (required for renderer)
+    - com.apple.security.cs.allow-unsigned-executable-memory → V8 codegen
+    - com.apple.security.cs.disable-library-validation → allow loading our
+      prebuilt native modules (electron-updater differential patches)
+
+  We deliberately do NOT enable:
+    - com.apple.security.cs.allow-dyld-environment-variables
+    - com.apple.security.cs.disable-executable-page-protection
+    - com.apple.security.device.camera / microphone / etc. (not needed;
+      document scanning is handled by the backend, not the desktop client)
+-->
+<plist version="1.0">
+<dict>
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+  <key>com.apple.security.network.client</key>
+  <true/>
+  <key>com.apple.security.files.user-selected.read-only</key>
+  <true/>
+</dict>
+</plist>

@@ -1,0 +1,1165 @@
+// Smart EDMS — Prisma schema
+// On-premise backend data model. Every tenant-owned table carries `tenant_id` for
+// strict multi-tenant isolation (enforced in code + via row-level security where supported).
+// Spec reference: §9.x (product scope), §15.1 (EDMS core entities), §15.3 (tenant isolation).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Identity & Tenancy
+// ────────────────────────────────────────────────────────────────────────────
+
+model Tenant {
+  id                String   @id @default(uuid()) @db.Uuid
+  code              String   @unique
+  name              String
+  slug              String   @unique
+  status            TenantStatus @default(ACTIVE)
+  defaultLocale     String   @default("en") @db.VarChar(16)
+  enabledLocales    String[] @default(["en", "fr", "ar", "ru", "zh-CN", "de"])
+  defaultTheme      String   @default("system") @db.VarChar(16)
+  flagConfig        Json     @default("{\"ar\":\"neutral\"}")
+  branding          Json?
+  dataResidency     String?  @db.VarChar(64)
+  quotaUsers        Int      @default(50)
+  quotaStorageBytes BigInt   @default(10737418240)
+  quotaDocuments    Int      @default(100000)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime? @db.Timestamptz(3)
+
+  users             User[]
+  groups            Group[]
+  roles             Role[]
+  documents         Document[]
+  folders           Folder[]
+  classifications   ClassificationLabel[]
+  metadataSchemas   MetadataSchema[]
+  workflows         WorkflowDefinition[]
+  retentionSchedules RetentionSchedule[]
+  legalHolds        LegalHold[]
+  shareLinks        ShareLink[]
+  auditEvents       AuditEvent[]
+  notifications     Notification[]
+  scannerProfiles   ScannerProfile[]
+  scannerJobs       ScannerJob[]
+  tourDefinitions   TourDefinition[]
+  tourUserStates    TourUserState[]
+  assistantSessions AssistantSession[]
+  assistantSettings AssistantSettings?
+  apiKeys           ApiKey[]
+  webhooks          Webhook[]
+  jobs              Job[]
+  localeResources   LocaleResource[]
+  savedSearches     SavedSearch[]
+
+  @@index([status])
+  @@map("tenants")
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+model User {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  email             String
+  emailVerified     Boolean  @default(false)
+  passwordHash      String?
+  firstName         String
+  lastName          String
+  preferredName     String?
+  status            UserStatus @default(ACTIVE)
+  mfaEnabled        Boolean  @default(false)
+  mfaSecret         String?  @db.VarChar(64)
+  mfaBackupCodes    String[] @default([])
+  preferredLocale   String?  @db.VarChar(16)
+  preferredTheme    String?  @db.VarChar(16) // system | light | dark
+  preferredTimezone String?  @db.VarChar(64)
+  failedLoginCount  Int      @default(0)
+  lockedUntil       DateTime? @db.Timestamptz(3)
+  lastLoginAt       DateTime? @db.Timestamptz(3)
+  lastLoginIp       String?  @db.VarChar(64)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime? @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessions          Session[]
+  groupMemberships  GroupMember[]
+  roleAssignments   UserRoleAssignment[]
+  documents         Document[]
+  auditEvents       AuditEvent[]
+  notifications     Notification[]
+  tourUserStates    TourUserState[]
+  assistantSessions AssistantSession[]
+  assistantAuditEvents AssistantAuditEvent[]
+  preferences       UserPreference?
+  devices           DeviceTrust[]
+
+  @@unique([tenantId, email])
+  @@index([tenantId, status])
+  @@index([email])
+  @@map("users")
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  INVITED
+  DELETED
+}
+
+model UserPreference {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @id @db.Uuid
+  tenantId          String   @db.Uuid
+  locale            String   @default("en") @db.VarChar(16)
+  theme             String   @default("system") @db.VarChar(16)
+  timezone          String   @default("UTC") @db.VarChar(64)
+  numbering         String?  @db.VarChar(16)
+  direction         String?  @db.VarChar(8)
+  reducedMotion     Boolean  @default(false)
+  highContrast      Boolean  @default(false)
+  tourAutoStart     Boolean  @default(true)
+  aiAssistantEnabled Boolean @default(true)
+  notificationPrefs Json     @default("{}")
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@map("user_preferences")
+}
+
+model Session {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @db.Uuid
+  tenantId          String   @db.Uuid
+  tokenHash         String   @unique
+  refreshTokenHash  String?  @unique
+  ipAddress         String?  @db.VarChar(64)
+  userAgent         String?  @db.Text
+  deviceFingerprint String?  @db.VarChar(128)
+  status            SessionStatus @default(ACTIVE)
+  expiresAt         DateTime @db.Timestamptz(3)
+  revokedAt         DateTime? @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+enum SessionStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+model DeviceTrust {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @db.Uuid
+  tenantId          String   @db.Uuid
+  fingerprint       String   @db.VarChar(128)
+  trusted           Boolean  @default(false)
+  firstSeenAt       DateTime @default(now()) @db.Timestamptz(3)
+  lastSeenAt        DateTime @default(now()) @db.Timestamptz(3)
+  metadata          Json?
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fingerprint])
+  @@index([tenantId])
+  @@map("device_trust")
+}
+
+model Group {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  name              String
+  description       String?
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  members           GroupMember[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@map("groups")
+}
+
+model GroupMember {
+  id                String   @id @default(uuid()) @db.Uuid
+  groupId           String   @db.Uuid
+  userId            String   @db.Uuid
+  tenantId          String   @db.Uuid
+  role              String   @default("member") @db.VarChar(32)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  group             Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([tenantId, userId])
+  @@map("group_members")
+}
+
+model Role {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  name              String
+  description       String?
+  permissions       String[]
+  isSystem          Boolean  @default(false)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignments       UserRoleAssignment[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("roles")
+}
+
+model UserRoleAssignment {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @db.Uuid
+  roleId            String   @db.Uuid
+  tenantId          String   @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role              Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@index([tenantId])
+  @@map("user_role_assignments")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Document Management
+// ────────────────────────────────────────────────────────────────────────────
+
+model Folder {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  parentId          String?  @db.Uuid
+  name              String
+  path              String
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime? @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  documents         Document[]
+
+  @@index([tenantId, parentId])
+  @@index([tenantId, path])
+  @@map("folders")
+}
+
+model Document {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  folderId          String?  @db.Uuid
+  title             String
+  description       String?
+  documentType      String?  @db.VarChar(64)
+  sourceSystem      String?  @db.VarChar(128)
+  contentLanguage   String?  @db.VarChar(16)
+  textDirection     String?  @db.VarChar(8)
+  classificationId  String?  @db.Uuid
+  sensitivityLevel  Int      @default(2)
+  status            DocumentStatus @default(ACTIVE)
+  isRecord          Boolean  @default(false)
+  isLocked          Boolean  @default(false)
+  lockedByUserId    String?  @db.Uuid
+  lockedAt          DateTime? @db.Timestamptz(3)
+  checksumAlgorithm String   @default("sha256") @db.VarChar(16)
+  checksum          String?  @db.VarChar(128)
+  sizeBytes         BigInt   @default(0)
+  currentVersionId  String?  @db.Uuid
+  retentionScheduleId String? @db.Uuid
+  legalHoldActive   Boolean  @default(false)
+  createdByUserId   String   @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  deletedAt         DateTime? @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  folder            Folder?  @relation(fields: [folderId], references: [id])
+  classification    ClassificationLabel? @relation(fields: [classificationId], references: [id])
+  retentionSchedule RetentionSchedule? @relation(fields: [retentionScheduleId], references: [id])
+  createdBy         User     @relation(fields: [createdByUserId], references: [id])
+  versions          DocumentVersion[]
+  metadataValues    MetadataValue[]
+  shareLinks        ShareLink[]
+  auditEvents       AuditEvent[]
+  workflowInstances WorkflowInstance[]
+  comments          DocumentComment[]
+  provenanceManifests ProvenanceManifest[]
+  scannerJobs       ScannerJob[]
+  legalHolds        LegalHold[] @relation("LegalHoldDocuments")
+
+  @@index([tenantId, status])
+  @@index([tenantId, classificationId])
+  @@index([tenantId, createdByUserId])
+  @@index([tenantId, updatedAt])
+  @@index([tenantId, isRecord])
+  @@index([tenantId, legalHoldActive])
+  @@map("documents")
+}
+
+enum DocumentStatus {
+  ACTIVE
+  ARCHIVED
+  RECORD
+  DELETED
+  PROCESSING
+  QUARANTINED
+}
+
+model DocumentVersion {
+  id                String   @id @default(uuid()) @db.Uuid
+  documentId        String   @db.Uuid
+  tenantId          String   @db.Uuid
+  versionNumber     Int
+  storageKey        String   @db.VarChar(512)
+  sizeBytes         BigInt
+  checksumAlgorithm String   @default("sha256") @db.VarChar(16)
+  checksum          String   @db.VarChar(128)
+  mime              String   @db.VarChar(128)
+  originalFilename  String
+  createdByUserId   String?  @db.Uuid
+  changeReason      String?
+  isImmutable       Boolean  @default(true)
+  encryptionKeyRef  String?  @db.VarChar(128)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, versionNumber])
+  @@index([tenantId, documentId])
+  @@index([tenantId, createdAt])
+  @@map("document_versions")
+}
+
+model DocumentComment {
+  id                String   @id @default(uuid()) @db.Uuid
+  documentId        String   @db.Uuid
+  tenantId          String   @db.Uuid
+  userId            String   @db.Uuid
+  body              String   @db.Text
+  anchor            String?
+  resolved          Boolean  @default(false)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, documentId])
+  @@map("document_comments")
+}
+
+model MetadataSchema {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  name              String
+  documentType      String?  @db.VarChar(64)
+  fields            Json
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, code])
+  @@index([tenantId])
+  @@map("metadata_schemas")
+}
+
+model MetadataValue {
+  id                String   @id @default(uuid()) @db.Uuid
+  documentId        String   @db.Uuid
+  tenantId          String   @db.Uuid
+  schemaId          String?  @db.Uuid
+  fieldCode         String   @db.VarChar(64)
+  value             Json
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, fieldCode])
+  @@index([tenantId, fieldCode])
+  @@map("metadata_values")
+}
+
+model ClassificationLabel {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  nameKey           String
+  descriptionKey    String?
+  sensitivityLevel  Int
+  color             String?  @db.VarChar(16)
+  bannerText        String?  @db.Text
+  isSystem          Boolean  @default(false)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  documents         Document[]
+  history           ClassificationHistory[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, sensitivityLevel])
+  @@map("classification_labels")
+}
+
+model ClassificationHistory {
+  id                String   @id @default(uuid()) @db.Uuid
+  documentId        String   @db.Uuid
+  tenantId          String   @db.Uuid
+  fromLabelId       String?  @db.Uuid
+  toLabelId         String?  @db.Uuid
+  reason            String?
+  changedByUserId   String   @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([tenantId, documentId, createdAt])
+  @@map("classification_history")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Workflows (BPMN / CMMN / DMN)
+// ────────────────────────────────────────────────────────────────────────────
+
+model WorkflowDefinition {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  name              String
+  description       String?
+  modelKind         WorkflowModelKind
+  bpmnXml           String?  @db.Text
+  dmnTableXml       String?  @db.Text
+  cmmnXml           String?  @db.Text
+  definitionJson    Json
+  version           Int      @default(1)
+  status            WorkflowDefinitionStatus @default(DRAFT)
+  isAiDraft         Boolean  @default(false)
+  createdByUserId   String   @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  instances         WorkflowInstance[]
+
+  @@unique([tenantId, code, version])
+  @@index([tenantId, status])
+  @@map("workflow_definitions")
+}
+
+enum WorkflowModelKind {
+  BPMN
+  CMMN
+  DMN
+}
+
+enum WorkflowDefinitionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model WorkflowInstance {
+  id                String   @id @default(uuid()) @db.Uuid
+  definitionId      String   @db.Uuid
+  documentId        String?  @db.Uuid
+  tenantId          String   @db.Uuid
+  status            WorkflowStatus @default(PENDING)
+  context           Json
+  startedByUserId   String   @db.Uuid
+  startedAt         DateTime @default(now()) @db.Timestamptz(3)
+  completedAt       DateTime? @db.Timestamptz(3)
+  dueAt             DateTime? @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  definition        WorkflowDefinition @relation(fields: [definitionId], references: [id])
+  document          Document? @relation(fields: [documentId], references: [id])
+  steps             WorkflowStep[]
+  approvals         Approval[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, documentId])
+  @@index([tenantId, startedByUserId])
+  @@map("workflow_instances")
+}
+
+enum WorkflowStatus {
+  PENDING
+  RUNNING
+  APPROVED
+  REJECTED
+  CANCELLED
+  FAILED
+  COMPLETED
+}
+
+model WorkflowStep {
+  id                String   @id @default(uuid()) @db.Uuid
+  instanceId        String   @db.Uuid
+  tenantId          String   @db.Uuid
+  stepKey           String   @db.VarChar(64)
+  name              String
+  status            String   @default("pending") @db.VarChar(32)
+  assigneeId        String?  @db.Uuid
+  delegateId        String?  @db.Uuid
+  startedAt         DateTime? @db.Timestamptz(3)
+  completedAt       DateTime? @db.Timestamptz(3)
+  dueAt             DateTime? @db.Timestamptz(3)
+  metadata          Json?
+
+  instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, instanceId])
+  @@index([tenantId, assigneeId, status])
+  @@map("workflow_steps")
+}
+
+model Approval {
+  id                String   @id @default(uuid()) @db.Uuid
+  instanceId        String   @db.Uuid
+  tenantId          String   @db.Uuid
+  approverId        String   @db.Uuid
+  decision          ApprovalDecision?
+  comment           String?
+  signature         String?  @db.Text
+  decidedAt         DateTime? @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  instance          WorkflowInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, instanceId])
+  @@index([tenantId, approverId, decision])
+  @@map("approvals")
+}
+
+enum ApprovalDecision {
+  APPROVED
+  REJECTED
+  DELEGATED
+  ESCALATED
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Retention, Legal Hold, Disposition
+// ────────────────────────────────────────────────────────────────────────────
+
+model RetentionSchedule {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  name              String
+  description       String?
+  triggerKind       String   @db.VarChar(32)
+  triggerDateField  String?  @db.VarChar(64)
+  retentionDays     Int
+  dispositionAction String   @default("delete") @db.VarChar(32)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  documents         Document[]
+  dispositions      DispositionRecord[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isActive])
+  @@map("retention_schedules")
+}
+
+model LegalHold {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  name              String
+  reason            String   @db.Text
+  caseReference     String?  @db.VarChar(128)
+  placedByUserId    String   @db.Uuid
+  releasedByUserId  String?  @db.Uuid
+  releasedAt        DateTime? @db.Timestamptz(3)
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  documents         Document[] @relation("LegalHoldDocuments")
+  dispositions      DispositionRecord[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, isActive])
+  @@map("legal_holds")
+}
+
+model DispositionRecord {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  documentId        String   @db.Uuid
+  retentionScheduleId String @db.Uuid
+  legalHoldId       String?  @db.Uuid
+  status            DispositionStatus @default(PENDING)
+  scheduledAt       DateTime @db.Timestamptz(3)
+  approvedByUserId  String?  @db.Uuid
+  approvedAt        DateTime? @db.Timestamptz(3)
+  executedAt        DateTime? @db.Timestamptz(3)
+  certificateKey    String?  @db.VarChar(512)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  retentionSchedule RetentionSchedule @relation(fields: [retentionScheduleId], references: [id])
+  legalHold         LegalHold? @relation(fields: [legalHoldId], references: [id])
+
+  @@index([tenantId, status, scheduledAt])
+  @@map("disposition_records")
+}
+
+enum DispositionStatus {
+  PENDING
+  APPROVED
+  EXECUTED
+  CANCELLED
+  BLOCKED_LEGAL_HOLD
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Audit, Provenance, Evidence
+// ────────────────────────────────────────────────────────────────────────────
+
+model AuditEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  userId            String?  @db.Uuid
+  actorKind         String   @db.VarChar(32)
+  category          String   @db.VarChar(64)
+  code              String   @db.VarChar(64)
+  result            String   @db.VarChar(16)
+  resourceType      String?  @db.VarChar(64)
+  resourceId        String?  @db.Uuid
+  documentId        String?  @db.Uuid
+  ipAddress         String?  @db.VarChar(64)
+  userAgent         String?  @db.Text
+  correlationId     String?  @db.VarChar(64)
+  reason            String?  @db.Text
+  metadata          Json?
+  sequenceNumber    BigInt
+  previousHash      String?  @db.VarChar(128)
+  eventHash         String   @db.VarChar(128)
+  occurredAt        DateTime @default(now()) @db.Timestamptz(3)
+
+  user              User?    @relation(fields: [userId], references: [id])
+  document          Document? @relation(fields: [documentId], references: [id])
+
+  @@index([tenantId, occurredAt])
+  @@index([tenantId, code])
+  @@index([tenantId, userId])
+  @@index([tenantId, resourceType, resourceId])
+  @@index([tenantId, correlationId])
+  @@map("audit_events")
+}
+
+model ProvenanceManifest {
+  id                String   @id @default(uuid()) @db.Uuid
+  documentId        String   @db.Uuid
+  tenantId          String   @db.Uuid
+  manifestKind      String   @db.VarChar(32)
+  c2paManifest      Json?
+  chainOfCustody    Json?
+  forgeryVerdict    String?  @db.VarChar(32)
+  forgeryScore      Float?
+  signedAt          DateTime? @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, documentId])
+  @@map("provenance_manifests")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Sharing
+// ────────────────────────────────────────────────────────────────────────────
+
+model ShareLink {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  documentId        String   @db.Uuid
+  createdByUserId   String   @db.Uuid
+  token             String   @unique @db.VarChar(64)
+  passwordHash      String?  @db.VarChar(128)
+  permission        String   @default("view") @db.VarChar(32)
+  expiresAt         DateTime? @db.Timestamptz(3)
+  maxViews          Int?
+  viewCount         Int      @default(0)
+  isActive          Boolean  @default(true)
+  revokedAt         DateTime? @db.Timestamptz(3)
+  recipientEmail    String?  @db.VarChar(256)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  document          Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdBy         User     @relation(fields: [createdByUserId], references: [id])
+
+  @@index([tenantId, documentId])
+  @@index([tenantId, isActive])
+  @@map("share_links")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Notifications
+// ────────────────────────────────────────────────────────────────────────────
+
+model Notification {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  userId            String   @db.Uuid
+  channel           String   @default("in_app") @db.VarChar(32)
+  severity          String   @default("info") @db.VarChar(16)
+  titleKey          String
+  bodyKey           String
+  titleVars         Json?
+  bodyVars          Json?
+  actionUrl         String?
+  readAt            DateTime? @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, userId, readAt])
+  @@index([tenantId, createdAt])
+  @@map("notifications")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// License Local State (per on-premise deployment)
+// ────────────────────────────────────────────────────────────────────────────
+
+model LicenseLocalState {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @unique @db.Uuid
+  licenseId         String?  @db.Uuid
+  deploymentId      String   @unique @db.VarChar(128)
+  environment       String   @default("production") @db.VarChar(32)
+  state             String   @default("invalid") @db.VarChar(32)
+  kid               String?  @db.VarChar(64)
+  alg               String?  @db.VarChar(16)
+  payloadJson       Json?
+  signature         String?  @db.Text
+  fingerprintHash   String?  @db.VarChar(128)
+  lastHeartbeatAt   DateTime? @db.Timestamptz(3)
+  heartbeatFailures Int      @default(0)
+  graceExhaustedAt  DateTime? @db.Timestamptz(3)
+  importedAt        DateTime? @db.Timestamptz(3)
+  importedByUserId  String?  @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("license_local_state")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Scanner / Digitization
+// ────────────────────────────────────────────────────────────────────────────
+
+model ScannerProfile {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  name              String
+  driverKind        String   @default("upload") @db.VarChar(32)
+  deviceId          String?  @db.VarChar(128)
+  settings          Json
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  jobs              ScannerJob[]
+
+  @@unique([tenantId, code])
+  @@map("scanner_profiles")
+}
+
+model ScannerJob {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  profileId         String?  @db.Uuid
+  documentId        String?  @db.Uuid
+  status            ScannerJobStatus @default(PENDING)
+  totalFiles        Int      @default(0)
+  processedFiles    Int      @default(0)
+  failedFiles       Int      @default(0)
+  ocrLanguage       String?  @db.VarChar(32)
+  confidenceScore   Float?
+  errorMessage      String?  @db.Text
+  startedAt         DateTime? @db.Timestamptz(3)
+  completedAt       DateTime? @db.Timestamptz(3)
+  createdByUserId   String   @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  profile           ScannerProfile? @relation(fields: [profileId], references: [id])
+  document          Document? @relation(fields: [documentId], references: [id])
+
+  @@index([tenantId, status])
+  @@index([tenantId, createdByUserId])
+  @@map("scanner_jobs")
+}
+
+enum ScannerJobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+  QUARANTINED
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Guided Tour
+// ────────────────────────────────────────────────────────────────────────────
+
+model TourDefinition {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  code              String   @db.VarChar(64)
+  module            String   @db.VarChar(64)
+  audience          String[] @default([])
+  priority          Int      @default(100)
+  version           Int      @default(1)
+  triggerType       String   @db.VarChar(32)
+  enabled           Boolean  @default(true)
+  licenseModuleRequired String? @db.VarChar(64)
+  steps             TourStep[]
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  userStates        TourUserState[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, enabled])
+  @@map("tour_definitions")
+}
+
+model TourStep {
+  id                String   @id @default(uuid()) @db.Uuid
+  tourId            String   @id @db.Uuid
+  stepOrder         Int
+  targetSelector    String   @db.VarChar(128)
+  titleKey          String
+  bodyKey           String
+  placement         String   @default("auto") @db.VarChar(16)
+  requiresPermission String?  @db.VarChar(128)
+  requiresLicenseModule String? @db.VarChar(64)
+  actionType        String?  @db.VarChar(32)
+  waitForEvent      String?  @db.VarChar(64)
+  enabled           Boolean  @default(true)
+
+  tour              TourDefinition @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@index([tourId, stepOrder])
+  @@map("tour_steps")
+}
+
+model TourUserState {
+  id                String   @id @default(uuid()) @db.Uuid
+  tourId            String   @db.Uuid
+  userId            String   @db.Uuid
+  tenantId          String   @db.Uuid
+  status            TourUserStatus @default(NOT_STARTED)
+  currentStepId     String?  @db.Uuid
+  currentStepOrder  Int      @default(0)
+  startedAt         DateTime? @db.Timestamptz(3)
+  completedAt       DateTime? @db.Timestamptz(3)
+  skippedAt         DateTime? @db.Timestamptz(3)
+  doNotShowAgain    Boolean  @default(false)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tour              TourDefinition @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, userId])
+  @@index([tenantId, userId, status])
+  @@map("tour_user_states")
+}
+
+enum TourUserStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  DISMISSED
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// AI Assistant
+// ────────────────────────────────────────────────────────────────────────────
+
+model AssistantSettings {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @unique @db.Uuid
+  enabled           Boolean  @default(false)
+  allowedRoles      String[] @default([])
+  allowedTools      String[] @default([])
+  externalAiAllowed Boolean  @default(false)
+  localOnlyMode     Boolean  @default(false)
+  modelProvider     String?  @db.VarChar(64)
+  chatRetentionDays Int      @default(30)
+  showCitations     Boolean  @default(true)
+  allowNavigationActions Boolean @default(false)
+  allowSuggestedActions Boolean @default(true)
+  requireDisclaimer Boolean  @default(true)
+  rateLimitPerMinute Int     @default(20)
+  usageQuotaPerDay  Int      @default(200)
+  privacyNotice     String?  @db.Text
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("assistant_settings")
+}
+
+model AssistantSession {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  userId            String   @db.Uuid
+  locale            String   @default("en") @db.VarChar(16)
+  status            String   @default("active") @db.VarChar(16)
+  modelProvider     String?  @db.VarChar(64)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages          AssistantMessage[]
+
+  @@index([tenantId, userId])
+  @@index([tenantId, createdAt])
+  @@map("assistant_sessions")
+}
+
+model AssistantMessage {
+  id                String   @id @default(uuid()) @db.Uuid
+  sessionId         String   @db.Uuid
+  tenantId          String   @db.Uuid
+  userId            String   @db.Uuid
+  role              String   @db.VarChar(16)
+  contentSummary    String   @db.Text
+  contentHash       String   @db.VarChar(128)
+  modelProvider     String?  @db.VarChar(64)
+  citationsJson     Json?
+  suggestedActions  Json?
+  disclaimerKey     String?
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+
+  session           AssistantSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  toolInvocations   AssistantToolInvocation[]
+  actions           AssistantAction[]
+
+  @@index([tenantId, sessionId])
+  @@index([tenantId, createdAt])
+  @@map("assistant_messages")
+}
+
+model AssistantToolInvocation {
+  id                String   @id @default(uuid()) @db.Uuid
+  messageId         String   @db.Uuid
+  sessionId         String   @db.Uuid
+  tenantId          String   @db.Uuid
+  toolName          String   @db.VarChar(64)
+  inputSummary      String   @db.Text
+  outputSummary     String   @db.Text
+  status            String   @db.VarChar(16)
+  authorized        Boolean  @default(false)
+  occurredAt        DateTime @default(now()) @db.Timestamptz(3)
+
+  message           AssistantMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, sessionId])
+  @@index([tenantId, toolName])
+  @@map("assistant_tool_invocations")
+}
+
+model AssistantAction {
+  id                String   @id @default(uuid()) @db.Uuid
+  messageId         String   @db.Uuid
+  sessionId         String   @db.Uuid
+  tenantId          String   @db.Uuid
+  actionType        String   @db.VarChar(32)
+  targetType        String   @db.VarChar(32)
+  targetId          String?  @db.Uuid
+  confirmationRequired Boolean @default(true)
+  confirmedAt       DateTime? @db.Timestamptz(3)
+  executedAt        DateTime? @db.Timestamptz(3)
+  status            String   @db.VarChar(16) @default("suggested")
+
+  message           AssistantMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, sessionId])
+  @@map("assistant_actions")
+}
+
+model AssistantAuditEvent {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  userId            String   @db.Uuid
+  sessionId         String?  @db.Uuid
+  messageId         String?  @db.Uuid
+  category          String   @db.VarChar(64)
+  code              String   @db.VarChar(64)
+  result            String   @db.VarChar(16)
+  metadata          Json?
+  occurredAt        DateTime @default(now()) @db.Timestamptz(3)
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, occurredAt])
+  @@index([tenantId, userId])
+  @@map("assistant_audit_events")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// API Keys, Webhooks, Jobs, Locale Resources
+// ────────────────────────────────────────────────────────────────────────────
+
+model ApiKey {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  name              String
+  keyHash           String   @unique @db.VarChar(128)
+  keyPrefix         String   @db.VarChar(16)
+  scopes            String[]
+  lastUsedAt        DateTime? @db.Timestamptz(3)
+  expiresAt         DateTime? @db.Timestamptz(3)
+  isActive          Boolean  @default(true)
+  createdByUserId   String   @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, isActive])
+  @@map("api_keys")
+}
+
+model Webhook {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  url               String
+  secretHash        String?  @db.VarChar(128)
+  events            String[]
+  isActive          Boolean  @default(true)
+  lastDeliveryAt    DateTime? @db.Timestamptz(3)
+  lastDeliveryStatus String? @db.VarChar(16)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, isActive])
+  @@map("webhooks")
+}
+
+model Job {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  kind              String   @db.VarChar(64)
+  status            String   @default("queued") @db.VarChar(16)
+  payload           Json
+  result            Json?
+  errorMessage      String?  @db.Text
+  attempts          Int      @default(0)
+  maxAttempts       Int      @default(3)
+  scheduledAt       DateTime @default(now()) @db.Timestamptz(3)
+  startedAt         DateTime? @db.Timestamptz(3)
+  completedAt       DateTime? @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status, scheduledAt])
+  @@index([tenantId, kind])
+  @@map("jobs")
+}
+
+model LocaleResource {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  locale            String   @db.VarChar(16)
+  namespace         String   @db.VarChar(64)
+  key               String   @db.VarChar(128)
+  value             String   @db.Text
+  isOverride        Boolean  @default(true)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, locale, namespace, key])
+  @@index([tenantId, locale])
+  @@map("locale_resources")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Saved Searches (spec §9.10)
+// ────────────────────────────────────────────────────────────────────────────
+
+model SavedSearch {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String   @db.Uuid
+  ownerUserId       String   @db.Uuid
+  name              String   @db.VarChar(200)
+  // Stored as JSON matching the `SearchQuery` shape from @smart-edms/types.
+  query             Json
+  // Optional alert subscription — null when not subscribed.
+  alertEnabled      Boolean  @default(false)
+  alertInterval     String?  @db.VarChar(16)
+  lastNotifiedAt    DateTime? @db.Timestamptz(3)
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, ownerUserId])
+  @@index([tenantId, alertEnabled, alertInterval])
+  @@map("saved_searches")
+}

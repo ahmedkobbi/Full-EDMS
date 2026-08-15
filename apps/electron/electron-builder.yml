@@ -1,0 +1,72 @@
+# Smart EDMS Electron desktop client — electron-builder configuration
+# Spec ref: §4.1 (Electron deployment), §7.1 (signed updates + ASAR integrity).
+
+appId: com.smart-edms.desktop
+productName: Smart EDMS
+copyright: © 2025 Smart EDMS. All rights reserved.
+
+directories:
+  output: release
+  buildResources: resources
+
+# ASAR packaging with integrity validation (spec §7.1).
+# electron-builder injects ASAR integrity hashes into the launcher executable
+# so tampering with the bundled JavaScript fails closed at startup.
+asar: true
+asarUnpack:
+  - resources/**
+  - node_modules/**/*.{node,dylib,so,dll}
+
+# Files included inside the ASAR archive.
+files:
+  - dist/**/*
+  - resources/**/*
+  - package.json
+  - '!**/.map'
+  - '!**/*.ts'
+
+# Signed updates (spec §7.1).
+# The updater only accepts signatures issued by the Smart EDMS release key.
+# Unsigned or wrongly-signed updates are rejected before extraction.
+publish:
+  provider: generic
+  url: https://updates.smart-edms.com/desktop/stable
+  channel: stable
+
+# Per-OS build targets with code-signing options.
+win:
+  target:
+    - target: nsis
+      arch: [x64, arm64]
+  signtoolOptions:
+    signingHashAlgorithms: [sha256]
+  # Certificate SHA-1 thumbprint is provided via CSC_THUMBPRINT env var at
+  # build time (kept out of the repo).
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  category: public.app-category.business
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.plist
+  # Developer ID is provided via CSC_NAME env var.
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64, arm64]
+  category: Office
+  maintainer: releases@smart-edms.com
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  differentialPackage: true
+  deleteAppDataOnUninstall: false
+
+# After-sign hook verifies the signature before publishing.
+afterSign: scripts/after-sign-hook.js

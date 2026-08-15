@@ -1,0 +1,77 @@
+/**
+ * @smart-edms/i18n — English baseline: `tour.welcome` namespace (spec §16.4)
+ *
+ * The first-run tour. Walks a new user through the essentials.
+ */
+
+const tourWelcome = {
+  'title': 'Welcome tour',
+  'subtitle': 'Get oriented in under 5 minutes.',
+
+  'step.intro.title': 'Welcome to Smart EDMS',
+  'step.intro.body': 'Smart EDMS is your organisation’s document management platform. This short tour shows you where to find things and how to get started.',
+  'step.intro.target': 'Welcome dialog',
+
+  'step.navigation.title': 'Navigation',
+  'step.navigation.body': 'The sidebar on the left is your home base. Use it to move between documents, workflows, audit log, and administration.',
+  'step.navigation.target': 'Sidebar',
+
+  'step.search.title': 'Search',
+  'step.search.body': 'Use the search bar at the top to find any document by name, content, or metadata. You can also save searches you run frequently.',
+  'step.search.target': 'Search bar',
+
+  'step.library.title': 'Document library',
+  'step.library.body': 'The library is where all your documents live. You can upload, preview, share, and organise them from here.',
+  'step.library.target': 'Library tile',
+
+  'step.upload.title': 'Upload your first document',
+  'step.upload.body': 'Click the Upload button to add a document. OCR runs automatically on image PDFs, and the system suggests a classification label.',
+  'step.upload.target': 'Upload button',
+
+  'step.notifications.title': 'Notifications',
+  'step.notifications.body': 'The bell icon shows notifications about documents shared with you, workflow steps assigned to you, and security alerts.',
+  'step.notifications.target': 'Notifications bell',
+
+  'step.profile.title': 'Your profile',
+  'step.profile.body': 'Click your name to view your profile, change settings, switch language, or sign out.',
+  'step.profile.target': 'Profile menu',
+
+  'step.help.title': 'Help is one click away',
+  'step.help.body': 'The Help menu has all the guided tours, documentation, and a way to contact support.',
+  'step.help.target': 'Help menu',
+
+  'step.language.title': 'Switch language anytime',
+  'step.language.body': 'Smart EDMS is available in six languages. Switch from your profile — your documents stay where they are.',
+  'step.language.target': 'Language selector',
+
+  'step.security.title': 'Security is built in',
+  'step.security.body': 'Every action is recorded in a tamper-evident audit log. Multi-factor authentication protects your account. Sensitive documents can be encrypted and watermarked.',
+  'step.security.target': 'Security badge',
+
+  'step.next.title': 'Where to go next',
+  'step.next.body': 'That’s the basics! The Documents tour shows you how to work with files in depth. The Workflows tour covers approvals and signatures.',
+  'step.next.target': 'Tour picker',
+
+  'completion.title': 'You’re ready to roll',
+  'completion.body': 'You know your way around Smart EDMS. Explore on your own, or take another tour to go deeper.',
+  'completion.takeDocumentsTour': 'Take the Documents tour',
+  'completion.takeWorkflowsTour': 'Take the Workflows tour',
+  'completion.takeAiTour': 'Take the AI assistant tour',
+  'completion.explore': 'Explore on my own',
+
+  'checklist.title': 'Welcome tour checklist',
+  'checklist.subtitle': 'Complete these to get the most out of Smart EDMS.',
+  'checklist.item.uploadDocument': 'Upload your first document',
+  'checklist.item.runSearch': 'Run a search',
+  'checklist.item.viewNotifications': 'View your notifications',
+  'checklist.item.openProfile': 'Open your profile',
+  'checklist.item.switchLanguage': 'Try switching language',
+  'checklist.item.invite': 'Invite a colleague (optional)',
+
+  'tips.title': 'Tips',
+  'tips.keyboard': 'Tip: Press ? anywhere to see keyboard shortcuts.',
+  'tips.dragDrop': 'Tip: Drag and drop files anywhere on the library to upload.',
+  'tips.bookmark': 'Tip: Save searches you run often.',
+} as const;
+
+export default tourWelcome;

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' ws://localhost:4000 http://localhost:4000 https://updates.smart-edms.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Smart EDMS</title>
+    <!--
+      No-FOUC theme bootstrap (spec §18, §4.7).
+      Read theme synchronously from localStorage BEFORE the React bundle loads
+      so the initial background color is correct and the user never sees a
+      white flash if they have chosen dark mode.
+    -->
+    <script>
+      (function () {
+        try {
+          var pref = localStorage.getItem('smart-edms:theme') || 'system';
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var dark = pref === 'dark' || (pref === 'system' && prefersDark);
+          document.documentElement.setAttribute('data-mantine-color-scheme', dark ? 'dark' : 'light');
+          document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        } catch (_) {
+          // Best-effort — never break the renderer if localStorage is blocked.
+        }
+      })();
+    </script>
+    <style>
+      /* Pre-Mantine background so the window is dark immediately if needed. */
+      html[data-mantine-color-scheme='dark'] {
+        background-color: #0b0d12;
+      }
+      html[data-mantine-color-scheme='light'] {
+        background-color: #f7f8fa;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

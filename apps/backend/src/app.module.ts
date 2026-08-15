@@ -1,0 +1,99 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
+import { LoggerModule } from 'nestjs-pino';
+import { PrismaModule } from './prisma/prisma.module.js';
+import { RedisModule } from './common/redis.module.js';
+import { StorageModule } from './common/storage.module.js';
+import { AuditModule } from './common/audit.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { TenantModule } from './modules/tenant/tenant.module.js';
+import { UserModule } from './modules/user/user.module.js';
+import { DocumentModule } from './modules/document/document.module.js';
+import { ClassificationModule } from './modules/classification/classification.module.js';
+import { WorkflowModule } from './modules/workflow/workflow.module.js';
+import { RetentionModule } from './modules/retention/retention.module.js';
+import { LegalHoldModule } from './modules/legal-hold/legal-hold.module.js';
+import { AuditApiModule } from './modules/audit/audit.module.js';
+import { SearchModule } from './modules/search/search.module.js';
+import { ShareModule } from './modules/share/share.module.js';
+import { NotificationModule } from './modules/notification/notification.module.js';
+import { LicenseModule } from './modules/license/license.module.js';
+import { ScannerModule } from './modules/scanner/scanner.module.js';
+import { TourModule } from './modules/tour/tour.module.js';
+import { AiModule } from './modules/ai/ai.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
+import { HealthModule } from './modules/health/health.module.js';
+import { WebSocketModule } from './websocket/websocket.module.js';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
+import { TenantGuard } from './common/guards/tenant.guard.js';
+import { LicenseGuard } from './common/guards/license.guard.js';
+import { AuditInterceptor } from './common/interceptors/audit.interceptor.js';
+import { environmentSchema } from './config/environment.js';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      validate: (raw) => environmentSchema.parse(raw),
+    }),
+    LoggerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        pinoHttp: {
+          level: config.get<string>('LOG_LEVEL') ?? 'info',
+          transport:
+            config.get<string>('NODE_ENV') === 'production'
+              ? undefined
+              : { target: 'pino-pretty', options: { colorize: true, singleLine: true } },
+          redact: {
+            paths: [
+              'req.headers.authorization',
+              'req.headers.cookie',
+              'res.headers["set-cookie"]',
+              '*.password',
+              '*.passwordHash',
+              '*.token',
+              '*.mfaSecret',
+            ],
+            censor: '[REDACTED]',
+          },
+          genReqId: (req: any) => req.id,
+        },
+      }),
+    }),
+    ScheduleModule.forRoot(),
+    PrismaModule,
+    RedisModule,
+    StorageModule,
+    AuditModule,
+    AuthModule,
+    TenantModule,
+    UserModule,
+    DocumentModule,
+    ClassificationModule,
+    WorkflowModule,
+    RetentionModule,
+    LegalHoldModule,
+    AuditApiModule,
+    SearchModule,
+    ShareModule,
+    NotificationModule,
+    LicenseModule,
+    ScannerModule,
+    TourModule,
+    AiModule,
+    AdminModule,
+    HealthModule,
+    WebSocketModule,
+  ],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useClass: TenantGuard },
+    { provide: APP_GUARD, useClass: LicenseGuard },
+    { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
+  ],
+})
+export class AppModule {}

@@ -1,0 +1,70 @@
+# Multi-stage Dockerfile for the Smart EDMS on-premise backend (API + Worker).
+# Spec ref: §23.1 (on-premise Docker services).
+
+# ─── Stage 1: build workspace ────────────────────────────────────────────────
+FROM node:20.18.0-alpine3.20 AS builder
+WORKDIR /workspace
+
+# Enable pnpm via corepack
+RUN corepack enable pnpm
+
+# Copy workspace manifests
+COPY package.json pnpm-workspace.yaml tsconfig.base.json ./
+COPY apps/backend/package.json apps/backend/
+COPY packages/types/package.json packages/types/
+COPY packages/schemas/package.json packages/schemas/
+COPY packages/i18n/package.json packages/i18n/
+COPY packages/license-core/package.json packages/license-core/
+
+# Install deps (frozen lockfile for reproducible builds)
+RUN pnpm install --frozen-lockfile
+
+# Copy source and build
+COPY packages/ packages/
+COPY apps/backend/ apps/backend/
+
+# Generate Prisma client
+RUN pnpm --filter @smart-edms/backend db:generate
+
+# Build shared packages + backend
+RUN pnpm --filter @smart-edms/types build || true
+RUN pnpm --filter @smart-edms/schemas build || true
+RUN pnpm --filter @smart-edms/i18n build || true
+RUN pnpm --filter @smart-edms/license-core build || true
+RUN pnpm --filter @smart-edms/backend build
+
+# ─── Stage 2: production runtime ─────────────────────────────────────────────
+FROM node:20.18.0-alpine3.20 AS runtime
+WORKDIR /app
+
+# Run as non-root user
+RUN addgroup -S smart-edms && adduser -S smart-edms -G smart-edms
+
+# Install runtime deps only
+RUN corepack enable pnpm
+COPY package.json pnpm-workspace.yaml ./
+COPY apps/backend/package.json apps/backend/
+COPY packages/types/package.json packages/types/
+COPY packages/schemas/package.json packages/schemas/
+COPY packages/i18n/package.json packages/i18n/
+COPY packages/license-core/package.json packages/license-core/
+RUN pnpm install --prod --frozen-lockfile
+
+# Copy built artifacts
+COPY --from=builder /workspace/apps/backend/dist ./dist
+COPY --from=builder /workspace/apps/backend/prisma ./prisma
+COPY --from=builder /workspace/apps/backend/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /workspace/packages/types/dist ./node_modules/@smart-edms/types/dist
+COPY --from=builder /workspace/packages/schemas/dist ./node_modules/@smart-edms/schemas/dist
+COPY --from=builder /workspace/packages/i18n/dist ./node_modules/@smart-edms/i18n/dist
+COPY --from=builder /workspace/packages/license-core/dist ./node_modules/@smart-edms/license-core/dist
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
+  CMD wget -qO- http://localhost:4000/v1/health/ready || exit 1
+
+USER smart-edms
+EXPOSE 4000
+
+# Default: run API. Worker overrides via `command: ['node', 'dist/worker.js']`
+CMD ["node", "dist/main.js"]

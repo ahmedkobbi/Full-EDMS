@@ -1,0 +1,44 @@
+# Multi-stage Dockerfile for the Smart EDMS Licensing Server.
+# Spec ref: §7.3, §23.3 (licensing server deployment).
+
+FROM node:20.18.0-alpine3.20 AS builder
+WORKDIR /workspace
+RUN corepack enable pnpm
+
+COPY package.json pnpm-workspace.yaml tsconfig.base.json ./
+COPY apps/license-server/package.json apps/license-server/
+COPY packages/types/package.json packages/types/
+COPY packages/schemas/package.json packages/schemas/
+COPY packages/license-core/package.json packages/license-core/
+
+RUN pnpm install --frozen-lockfile
+
+COPY packages/ packages/
+COPY apps/license-server/ apps/license-server/
+
+RUN pnpm --filter @smart-edms/license-server db:generate
+RUN pnpm --filter @smart-edms/license-server build
+
+# ─── Runtime ──────────────────────────────────────────────────────────────────
+FROM node:20.18.0-alpine3.20 AS runtime
+WORKDIR /app
+RUN addgroup -S smart-edms && adduser -S smart-edms -G smart-edms
+RUN corepack enable pnpm
+
+COPY package.json pnpm-workspace.yaml ./
+COPY apps/license-server/package.json apps/license-server/
+COPY packages/types/package.json packages/types/
+COPY packages/schemas/package.json packages/schemas/
+COPY packages/license-core/package.json packages/license-core/
+RUN pnpm install --prod --frozen-lockfile
+
+COPY --from=builder /workspace/apps/license-server/dist ./dist
+COPY --from=builder /workspace/apps/license-server/prisma ./prisma
+COPY --from=builder /workspace/apps/license-server/node_modules/.prisma ./node_modules/.prisma
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=30s \
+  CMD wget -qO- http://localhost:4001/v1/health/live || exit 1
+
+USER smart-edms
+EXPOSE 4001
+CMD ["node", "dist/main.js"]
