@@ -17,10 +17,9 @@ import {
   Text,
   Paper,
   Button,
-  Chips,
-  Chip,
   Select,
   Pagination,
+  Badge,
 } from '@mantine/core';
 import { IconSearch, IconFilter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';

@@ -32,6 +32,7 @@
     "@smart-edms/ui": "workspace:*",
     "@smart-edms/utils": "workspace:*",
     "@tanstack/react-query": "^5.59.0",
+    "@tabler/icons-react": "^3.46.0",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
     "i18next": "^23.15.1",

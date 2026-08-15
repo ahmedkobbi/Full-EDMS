@@ -28,7 +28,6 @@ import {
   IconUser,
   IconSettings,
   IconLogout,
-  IconBell,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

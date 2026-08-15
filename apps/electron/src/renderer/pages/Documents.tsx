@@ -26,7 +26,6 @@ import {
   Button,
   Paper,
   ActionIcon,
-  Tree,
   rem,
 } from '@mantine/core';
 import { IconUpload, IconSearch, IconFolderPlus, IconRefresh, IconChevronRight } from '@tabler/icons-react';

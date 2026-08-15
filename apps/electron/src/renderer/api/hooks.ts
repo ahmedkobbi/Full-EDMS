@@ -622,6 +622,17 @@ export function useUpdateNotificationPreferencesMutation(
 // §9.3 Document detail — versions, comments, tags, metadata, share, lock
 // ---------------------------------------------------------------------------
 
+export function useFoldersQuery(
+  parentId?: string,
+  options?: Omit<UseQueryOptions<unknown[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<unknown[], ApiError>({
+    queryKey: ['folders', parentId ?? 'root'],
+    queryFn: () => apiGet<unknown[]>('/documents/folders', { params: { parentId } }),
+    ...options,
+  });
+}
+
 export function useDocumentVersionsQuery(
   documentId: string | undefined,
   options?: Omit<UseQueryOptions<unknown[], ApiError>, 'queryKey' | 'queryFn'>,
