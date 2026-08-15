@@ -1,3 +1,4 @@
+import { StepUpRequired } from "../../common/decorators/step-up-required.decorator.js";
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { Audit } from '../../common/decorators/audit.decorator.js';
@@ -46,6 +47,7 @@ export class UserController {
 
   @Roles('admin')
   @Audit({ category: 'user', code: 'user.delete', resourceType: 'user', resourceIdParam: 'id' })
+  @StepUpRequired()
   @Delete('users/:id')
   async delete(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     await this.users.softDelete(req.user!.tid, id);

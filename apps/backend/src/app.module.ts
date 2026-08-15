@@ -44,8 +44,11 @@ import { CaptureRulesModule } from './modules/capture-rules/capture-rules.module
 import { MigrationModule } from './modules/migration/migration.module.js';
 import { EmailModule } from './modules/email/email.module.js';
 import { PhysicalTwinModule } from './modules/physical-twin/physical-twin.module.js';
+import { QuotaModule } from './modules/quota/quota.module.js';
+import { StepUpAuthModule } from './modules/step-up-auth/step-up-auth.module.js';
 import { WebSocketModule } from './websocket/websocket.module.js';
 import { WorkflowReminderCron } from './modules/workflow/workflow-reminder-cron.js';
+import { StepUpGuard } from './common/guards/step-up.guard.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { ApiKeyAuthGuard } from './common/guards/api-key-auth.guard.js';
 import { TenantGuard } from './common/guards/tenant.guard.js';
@@ -127,6 +130,8 @@ import { environmentSchema } from './config/environment.js';
     MigrationModule,
     EmailModule,
     PhysicalTwinModule,
+    QuotaModule,
+    StepUpAuthModule,
     WebSocketModule,
   ],
   providers: [
@@ -134,6 +139,7 @@ import { environmentSchema } from './config/environment.js';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: TenantGuard },
     { provide: APP_GUARD, useClass: LicenseGuard },
+    { provide: APP_GUARD, useClass: StepUpGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditInterceptor },
     WorkflowReminderCron,
   ],
