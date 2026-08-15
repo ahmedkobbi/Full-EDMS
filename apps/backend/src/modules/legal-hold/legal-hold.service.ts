@@ -29,6 +29,7 @@ import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../../common/audit.service.js';
+import { RedisService } from '../../common/redis.service.js';
 import { z } from 'zod';
 
 // ---------------------------------------------------------------------------
@@ -86,6 +87,7 @@ export class LegalHoldService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly redis: RedisService,
   ) {}
 
   // -------------------------------------------------------------------------
@@ -368,6 +370,12 @@ export class LegalHoldService {
       metadata: { action: 'attach_document', code: hold.code },
     });
 
+    // Emit WebSocket event (spec §13.4 — legalHold.changed)
+    await this.emitWsEvent(tenantId, {
+      name: 'legalHold.changed',
+      payload: { tenantId, holdId, documentId, action: 'attach', holdCode: hold.code },
+    });
+
     return { holdId, documentId, attached: true };
   }
 
@@ -556,5 +564,19 @@ export class LegalHoldService {
       },
     });
     return count > 0;
+  }
+
+  /**
+   * Emit a WebSocket event via Redis pub/sub (spec §13.4 — legalHold.changed).
+   */
+  private async emitWsEvent(tenantId: string, event: { name: string; payload: unknown }): Promise<void> {
+    try {
+      await this.redis.connection.publish(
+        `smart-edms:ws-events:${tenantId}`,
+        JSON.stringify(event),
+      );
+    } catch (err) {
+      this.logger.warn(`ws event publish failed tenant=${tenantId}: ${(err as Error).message}`);
+    }
   }
 }

@@ -1009,6 +1009,31 @@ export class WorkflowService {
       },
     });
 
+    // Emit WebSocket events (spec §13.4)
+    await this.emitWsEvent(tenantId, {
+      name: 'workflow.approval.completed',
+      payload: {
+        tenantId,
+        instanceId,
+        decision: body.decision,
+        stepId: currentStep.id,
+        advanced,
+        finalStatus,
+      },
+    });
+    if (advanced) {
+      await this.emitWsEvent(tenantId, {
+        name: 'workflow.step.updated',
+        payload: {
+          tenantId,
+          instanceId,
+          stepKey: advanced.stepKey,
+          status: 'pending',
+          assigneeId: advanced.assigneeId,
+        },
+      });
+    }
+
     return {
       instanceId,
       status: finalStatus,
@@ -1102,5 +1127,21 @@ export class WorkflowService {
     // Hook for future auto-advance logic. Currently a no-op: instances
     // advance only on explicit approval submissions.
     this.logger.debug(`processInstance: instance ${instanceId} in state ${inst.status} (no auto-advance)`);
+  }
+
+  /**
+   * Emit a WebSocket event via Redis pub/sub (spec §13.4).
+   * The WebSocket gateway subscribes to `smart-edms:ws-events:${tenantId}`
+   * and fans out to connected sockets in the `tenant:${tenantId}` room.
+   */
+  private async emitWsEvent(tenantId: string, event: { name: string; payload: unknown }): Promise<void> {
+    try {
+      await this.redis.connection.publish(
+        `smart-edms:ws-events:${tenantId}`,
+        JSON.stringify(event),
+      );
+    } catch (err) {
+      this.logger.warn(`ws event publish failed tenant=${tenantId}: ${(err as Error).message}`);
+    }
   }
 }

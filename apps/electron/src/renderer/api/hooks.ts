@@ -31,6 +31,12 @@ import type {
   Citation,
   LicenseLocalState,
   User,
+  AuditEvent,
+  ScannerProfile,
+  ScannerJob,
+  WorkflowDefinition,
+  WorkflowInstance,
+  SearchHit,
 } from '@smart-edms/types';
 import { apiGet, apiPost, apiPatch, apiDelete, toApiError } from './client';
 import type { ApiError } from '@smart-edms/types';
@@ -52,6 +58,13 @@ export const queryKeys = {
   license: () => ['license'] as const,
   aiSession: (sessionId: string) => ['ai', 'session', sessionId] as const,
   aiMessages: (sessionId: string) => ['ai', 'messages', sessionId] as const,
+  audit: (params?: Record<string, unknown>) => ['audit', params] as const,
+  scannerProfiles: () => ['scanner', 'profiles'] as const,
+  scannerJobs: (params?: Record<string, unknown>) => ['scanner', 'jobs', params] as const,
+  workflows: (params?: Record<string, unknown>) => ['workflows', params] as const,
+  workflowInstances: (params?: Record<string, unknown>) => ['workflowInstances', params] as const,
+  search: (query: string, params?: Record<string, unknown>) => ['search', query, params] as const,
+  adminDashboard: () => ['admin', 'dashboard'] as const,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -347,6 +360,135 @@ export function useImportLicenseMutation(
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.license() });
     },
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Audit (spec §9.12)
+// ---------------------------------------------------------------------------
+
+export function useAuditEventsQuery(
+  params: {
+    limit?: number;
+    cursor?: string;
+    category?: string;
+    result?: 'allow' | 'deny';
+    from?: string;
+    to?: string;
+  } = {},
+  options?: Omit<UseQueryOptions<PaginatedResponse<AuditEvent>, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<PaginatedResponse<AuditEvent>, ApiError>({
+    queryKey: queryKeys.audit(params),
+    queryFn: () => apiGet<PaginatedResponse<AuditEvent>>('/audit/events', { params }),
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Scanner (spec §9.16)
+// ---------------------------------------------------------------------------
+
+export function useScannerProfilesQuery(
+  options?: Omit<UseQueryOptions<ScannerProfile[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<ScannerProfile[], ApiError>({
+    queryKey: queryKeys.scannerProfiles(),
+    queryFn: () => apiGet<ScannerProfile[]>('/scanner/profiles'),
+    ...options,
+  });
+}
+
+export function useScannerJobsQuery(
+  params: { limit?: number; status?: string } = {},
+  options?: Omit<UseQueryOptions<PaginatedResponse<ScannerJob>, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<PaginatedResponse<ScannerJob>, ApiError>({
+    queryKey: queryKeys.scannerJobs(params),
+    queryFn: () => apiGet<PaginatedResponse<ScannerJob>>('/scanner/jobs', { params }),
+    ...options,
+  });
+}
+
+export function useCreateScannerProfileMutation(
+  options?: UseMutationOptions<ScannerProfile, ApiError, Record<string, unknown>>,
+) {
+  const qc = useQueryClient();
+  return useMutation<ScannerProfile, ApiError, Record<string, unknown>>({
+    mutationFn: (input) => apiPost<ScannerProfile>('/scanner/profiles', input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.scannerProfiles() }),
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Workflows (spec §9.8)
+// ---------------------------------------------------------------------------
+
+export function useWorkflowDefinitionsQuery(
+  params: { limit?: number; status?: string } = {},
+  options?: Omit<UseQueryOptions<PaginatedResponse<WorkflowDefinition>, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<PaginatedResponse<WorkflowDefinition>, ApiError>({
+    queryKey: queryKeys.workflows(params),
+    queryFn: () => apiGet<PaginatedResponse<WorkflowDefinition>>('/workflows', { params }),
+    ...options,
+  });
+}
+
+export function useWorkflowInstancesQuery(
+  params: { limit?: number; status?: string; documentId?: string } = {},
+  options?: Omit<UseQueryOptions<PaginatedResponse<WorkflowInstance>, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<PaginatedResponse<WorkflowInstance>, ApiError>({
+    queryKey: queryKeys.workflowInstances(params),
+    queryFn: () => apiGet<PaginatedResponse<WorkflowInstance>>('/workflows/instances', { params }),
+    ...options,
+  });
+}
+
+export function useCreateWorkflowMutation(
+  options?: UseMutationOptions<WorkflowDefinition, ApiError, Record<string, unknown>>,
+) {
+  const qc = useQueryClient();
+  return useMutation<WorkflowDefinition, ApiError, Record<string, unknown>>({
+    mutationFn: (input) => apiPost<WorkflowDefinition>('/workflows', input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.workflows() }),
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Search (spec §9.10)
+// ---------------------------------------------------------------------------
+
+export function useSearchQuery(
+  query: string,
+  params: { limit?: number; filters?: Record<string, unknown> } = {},
+  options?: Omit<UseQueryOptions<{ items: SearchHit[]; total: number }, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<{ items: SearchHit[]; total: number }, ApiError>({
+    queryKey: queryKeys.search(query, params),
+    queryFn: () =>
+      apiGet<{ items: SearchHit[]; total: number }>('/search', {
+        params: { q: query, limit: params.limit ?? 25, ...params.filters },
+      }),
+    enabled: query.length > 0,
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Admin (spec §9.15)
+// ---------------------------------------------------------------------------
+
+export function useAdminDashboardQuery(
+  options?: Omit<UseQueryOptions<Record<string, unknown>, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<Record<string, unknown>, ApiError>({
+    queryKey: queryKeys.adminDashboard(),
+    queryFn: () => apiGet<Record<string, unknown>>('/admin/dashboard'),
     ...options,
   });
 }
