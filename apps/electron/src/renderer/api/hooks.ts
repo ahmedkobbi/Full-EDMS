@@ -745,5 +745,109 @@ export function useDeclareRecordMutation(
   });
 }
 
+// ---------------------------------------------------------------------------
+// §9.16 OCR / OMR / ICR / Barcode / Human Verification
+// ---------------------------------------------------------------------------
+
+export function useRunOcrMutation(
+  options?: UseMutationOptions<unknown, ApiError, { documentId: string; versionId: string; language?: string; pages?: number[] }>,
+) {
+  return useMutation<unknown, ApiError, { documentId: string; versionId: string; language?: string; pages?: number[] }>({
+    mutationFn: (input) => apiPost('/ocr/run', input),
+    ...options,
+  });
+}
+
+export function useRunOmrMutation(
+  options?: UseMutationOptions<unknown, ApiError, { documentId: string; versionId: string; fieldDefinitions?: unknown[] }>,
+) {
+  return useMutation<unknown, ApiError, { documentId: string; versionId: string; fieldDefinitions?: unknown[] }>({
+    mutationFn: (input) => apiPost('/omr/run', input),
+    ...options,
+  });
+}
+
+export function useRunIcrMutation(
+  options?: UseMutationOptions<unknown, ApiError, { documentId: string; versionId: string; fieldDefinitions?: unknown[] }>,
+) {
+  return useMutation<unknown, ApiError, { documentId: string; versionId: string; fieldDefinitions?: unknown[] }>({
+    mutationFn: (input) => apiPost('/icr/run', input),
+    ...options,
+  });
+}
+
+export function useDetectBarcodesMutation(
+  options?: UseMutationOptions<unknown, ApiError, { documentId: string; versionId: string }>,
+) {
+  return useMutation<unknown, ApiError, { documentId: string; versionId: string }>({
+    mutationFn: (input) => apiPost('/barcode/detect', input),
+    ...options,
+  });
+}
+
+export function useVerificationQueueQuery(
+  params: { type?: 'ocr' | 'omr' | 'icr'; limit?: number } = {},
+  options?: Omit<UseQueryOptions<unknown[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<unknown[], ApiError>({
+    queryKey: ['verification-queue', params],
+    queryFn: () => apiGet<unknown[]>('/human-verification', { params }),
+    ...options,
+  });
+}
+
+export function useVerificationStatsQuery(
+  options?: Omit<UseQueryOptions<unknown, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<unknown, ApiError>({
+    queryKey: ['verification-stats'],
+    queryFn: () => apiGet('/human-verification/stats'),
+    staleTime: 30_000,
+    ...options,
+  });
+}
+
+export function useApproveVerificationMutation(
+  options?: UseMutationOptions<{ ok: true }, ApiError, string>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, ApiError, string>({
+    mutationFn: (id) => apiPost<{ ok: true }>(`/human-verification/${id}/approve`, {}),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['verification-queue'] });
+      qc.invalidateQueries({ queryKey: ['verification-stats'] });
+    },
+    ...options,
+  });
+}
+
+export function useCorrectVerificationMutation(
+  options?: UseMutationOptions<{ ok: true }, ApiError, { id: string; correctedValue: string }>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, ApiError, { id: string; correctedValue: string }>({
+    mutationFn: (input) => apiPost<{ ok: true }>(`/human-verification/${input.id}/correct`, { correctedValue: input.correctedValue }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['verification-queue'] });
+      qc.invalidateQueries({ queryKey: ['verification-stats'] });
+    },
+    ...options,
+  });
+}
+
+export function useRejectVerificationMutation(
+  options?: UseMutationOptions<{ ok: true }, ApiError, { id: string; reason: string }>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, ApiError, { id: string; reason: string }>({
+    mutationFn: (input) => apiPost<{ ok: true }>(`/human-verification/${input.id}/reject`, { reason: input.reason }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['verification-queue'] });
+      qc.invalidateQueries({ queryKey: ['verification-stats'] });
+    },
+    ...options,
+  });
+}
+
 // Re-export the error helper for convenience.
 export { toApiError };

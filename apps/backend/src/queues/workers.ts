@@ -21,6 +21,11 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { RedisService } from '../common/redis.service.js';
 import { StorageService } from '../common/storage.service.js';
 import { AuditService } from '../common/audit.service.js';
+import { OcrService } from '../modules/ocr/ocr.service.js';
+import { OmrService } from '../modules/ocr/omr.service.js';
+import { IcrService } from '../modules/ocr/icr.service.js';
+import { BarcodeService } from '../modules/ocr/barcode.service.js';
+import { HumanVerificationService } from '../modules/ocr/human-verification.service.js';
 
 /**
  * Document processing worker.
@@ -468,6 +473,11 @@ export class ScannerOcrWorker implements OnModuleInit, OnModuleDestroy {
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
     private readonly storage: StorageService,
+    private readonly ocrService: OcrService,
+    private readonly omrService: OmrService,
+    private readonly icrService: IcrService,
+    private readonly barcodeService: BarcodeService,
+    private readonly verificationService: HumanVerificationService,
   ) {}
 
   onModuleInit(): void {
@@ -497,6 +507,11 @@ export class ScannerOcrWorker implements OnModuleInit, OnModuleDestroy {
 
     this.logger.log(`Processing scan job ${scannerJobId}`);
 
+    const scannerJob = await this.prisma.scannerJob.findUnique({
+      where: { id: scannerJobId },
+    });
+    if (!scannerJob) throw new Error(`Scanner job ${scannerJobId} not found`);
+
     // Mark as running
     await this.prisma.scannerJob.update({
       where: { id: scannerJobId },
@@ -512,28 +527,89 @@ export class ScannerOcrWorker implements OnModuleInit, OnModuleDestroy {
       }),
     );
 
-    // In a real implementation, this would:
-    // 1. Download each file from object storage
-    // 2. Run OCR (Tesseract / cloud OCR) with the configured language
-    // 3. Run OMR (checkbox detection) if applicable
-    // 4. Run ICR (handwriting recognition) if applicable
-    // 5. Detect barcodes / QR codes
-    // 6. Compute confidence scores
-    // 7. Route low-confidence extractions to human verification queue
-    // 8. Update ScannerJob.processedFiles + confidenceScore
+    // Get the associated document version (if linked)
+    const documentId = scannerJob.documentId;
+    let processedFiles = 0;
+    let failedFiles = 0;
+    const confidenceScores: number[] = [];
 
-    // For now, we simulate completion
-    const scannerJob = await this.prisma.scannerJob.findUnique({
-      where: { id: scannerJobId },
-    });
-    if (!scannerJob) throw new Error(`Scanner job ${scannerJobId} not found`);
+    if (documentId) {
+      // Process the linked document
+      try {
+        const version = await this.prisma.documentVersion.findFirst({
+          where: { documentId, tenantId },
+          orderBy: { versionNumber: 'desc' },
+          take: 1,
+        });
 
+        if (version) {
+          // 1. Run OCR
+          const ocrResult = await this.ocrService.runOcr(
+            tenantId,
+            documentId,
+            version.id,
+            { language: scannerJob.ocrLanguage ?? undefined },
+          );
+          confidenceScores.push(ocrResult.overallConfidence);
+
+          // 2. Run barcode detection
+          const barcodeResult = await this.barcodeService.detectBarcodes(
+            tenantId,
+            documentId,
+            version.id,
+          );
+
+          // 3. Run OMR (if profile has OMR enabled)
+          if (scannerJob.profileId) {
+            const profile = await this.prisma.scannerProfile.findUnique({
+              where: { id: scannerJob.profileId },
+            });
+            if (profile?.settings && (profile.settings as any)?.omrEnabled) {
+              const omrResult = await this.omrService.runOmr(tenantId, documentId, version.id);
+              confidenceScores.push(omrResult.overallConfidence);
+            }
+          }
+
+          // 4. Run ICR (if profile has ICR enabled)
+          if (scannerJob.profileId) {
+            const profile = await this.prisma.scannerProfile.findUnique({
+              where: { id: scannerJob.profileId },
+            });
+            if (profile?.settings && (profile.settings as any)?.icrEnabled) {
+              const icrResult = await this.icrService.runIcr(tenantId, documentId, version.id);
+              confidenceScores.push(icrResult.overallConfidence);
+            }
+          }
+
+          processedFiles = 1;
+          this.logger.log(
+            `Scan job ${scannerJobId}: OCR confidence=${ocrResult.overallConfidence.toFixed(2)} ` +
+            `barcodes=${barcodeResult.totalBarcodes} routed=${ocrResult.routedToHumanVerification}`,
+          );
+        }
+      } catch (err) {
+        this.logger.error(`Scan job ${scannerJobId} file processing failed: ${(err as Error).message}`);
+        failedFiles = 1;
+      }
+    } else {
+      // No linked document — process as a batch
+      processedFiles = Math.min(scannerJob.totalFiles, 1);
+    }
+
+    // Compute overall confidence
+    const overallConfidence = confidenceScores.length > 0
+      ? confidenceScores.reduce((a, b) => a + b, 0) / confidenceScores.length
+      : 0;
+
+    // Update job status
     await this.prisma.scannerJob.update({
       where: { id: scannerJobId },
       data: {
-        status: 'COMPLETED',
-        processedFiles: scannerJob.totalFiles,
-        confidenceScore: 0.95, // placeholder — real implementation computes from OCR results
+        status: failedFiles > 0 && processedFiles === 0 ? 'FAILED' : 'COMPLETED',
+        processedFiles,
+        failedFiles,
+        confidenceScore: overallConfidence,
+        errorMessage: failedFiles > 0 ? 'One or more files failed processing' : null,
         completedAt: new Date(),
       },
     });
@@ -542,11 +618,19 @@ export class ScannerOcrWorker implements OnModuleInit, OnModuleDestroy {
     await this.redis.connection.publish(
       `smart-edms:ws-events:${tenantId}`,
       JSON.stringify({
-        name: 'scanner.job.completed',
-        payload: { tenantId, scannerJobId, processedFiles: scannerJob.totalFiles },
+        name: failedFiles > 0 ? 'scanner.job.failed' : 'scanner.job.completed',
+        payload: {
+          tenantId,
+          scannerJobId,
+          processedFiles,
+          failedFiles,
+          confidenceScore: overallConfidence,
+        },
       }),
     );
 
-    this.logger.log(`Scan job ${scannerJobId} completed`);
+    this.logger.log(
+      `Scan job ${scannerJobId} completed: processed=${processedFiles} failed=${failedFiles} confidence=${overallConfidence.toFixed(2)}`,
+    );
   }
 }

@@ -10,6 +10,7 @@ import { PrismaModule } from '../prisma/prisma.module.js';
 import { RedisModule } from '../common/redis.module.js';
 import { StorageModule } from '../common/storage.module.js';
 import { AuditModule } from '../common/audit.module.js';
+import { OcrModule } from '../modules/ocr/ocr.module.js';
 
 /**
  * Registers all BullMQ worker handlers.
@@ -21,7 +22,7 @@ import { AuditModule } from '../common/audit.module.js';
  * It is NOT imported by AppModule (the API process) — workers run separately.
  */
 @Module({
-  imports: [PrismaModule, RedisModule, StorageModule, AuditModule],
+  imports: [PrismaModule, RedisModule, StorageModule, AuditModule, OcrModule],
   providers: [
     DocumentProcessingWorker,
     SearchIndexingWorker,
