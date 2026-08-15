@@ -43,6 +43,7 @@ import { KnowledgeGraphModule } from './modules/knowledge-graph/knowledge-graph.
 import { CaptureRulesModule } from './modules/capture-rules/capture-rules.module.js';
 import { MigrationModule } from './modules/migration/migration.module.js';
 import { EmailModule } from './modules/email/email.module.js';
+import { OcrModule } from './modules/ocr/ocr.module.js';
 import { PhysicalTwinModule } from './modules/physical-twin/physical-twin.module.js';
 import { QuotaModule } from './modules/quota/quota.module.js';
 import { StepUpAuthModule } from './modules/step-up-auth/step-up-auth.module.js';
@@ -129,6 +130,7 @@ import { environmentSchema } from './config/environment.js';
     CaptureRulesModule,
     MigrationModule,
     EmailModule,
+    OcrModule,
     PhysicalTwinModule,
     QuotaModule,
     StepUpAuthModule,
