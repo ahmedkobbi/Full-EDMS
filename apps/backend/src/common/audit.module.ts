@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { AuditService } from './audit.service.js';
-import { AuditInterceptor } from './audit.interceptor.js';
+import { AuditService } from './audit.service';
+import { AuditInterceptor } from './interceptors/audit.interceptor';
 
 @Global()
 @Module({

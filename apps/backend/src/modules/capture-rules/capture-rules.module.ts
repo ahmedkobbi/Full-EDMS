@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { CaptureRulesController } from './capture-rules.controller.js';
-import { CaptureRulesService } from './capture-rules.service.js';
+import { CaptureRulesController } from './capture-rules.controller';
+import { CaptureRulesService } from './capture-rules.service';
 
 @Global()
 @Module({

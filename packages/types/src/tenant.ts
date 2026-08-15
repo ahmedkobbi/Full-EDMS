@@ -14,8 +14,7 @@ import type {
   UUID,
 } from './common';
 
-/** Branded identifier of a tenant. Carried by every tenant-owned entity. */
-export type TenantId = UUID & { readonly __tenant: 'TenantId' };
+export type TenantId = UUID
 
 /** Tenant lifecycle status. */
 export type TenantStatus = 'active' | 'suspended' | 'decommissioned' | 'provisioning';
@@ -24,10 +23,8 @@ export type TenantStatus = 'active' | 'suspended' | 'decommissioned' | 'provisio
  * Geographic data-residency identifier. Used to route tenant data to the
  * correct on-premise region or sovereignty boundary (spec §9.2).
  */
-export type DataResidencyRegion = Branded<string, 'DataResidencyRegion'>;
+export type DataResidencyRegion = string;
 
-// re-exported helper so consumers can `import { Branded } from '@smart-edms/types/tenant'`
-type Branded<T, B extends string> = T & { readonly __brand: B };
 
 /**
  * Per-tenant locale configuration. Controls which UI locales are exposed

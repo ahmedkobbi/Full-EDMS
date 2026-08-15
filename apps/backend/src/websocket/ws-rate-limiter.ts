@@ -8,7 +8,7 @@
  *           §22.3 (rate limiting per socket).
  */
 import { Injectable, Logger } from '@nestjs/common';
-import { RedisService } from '../common/redis.service.js';
+import { RedisService } from '../common/redis.service';
 import type { Socket } from 'socket.io';
 
 @Injectable()

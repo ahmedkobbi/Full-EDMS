@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Post, Delete, Param, Req, Query } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { Public } from '../../common/decorators/public.decorator.js';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { InvitationService } from './invitation.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Public } from '../../common/decorators/public.decorator';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { InvitationService } from './invitation.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/invitations')
 export class InvitationController {

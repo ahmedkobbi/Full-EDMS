@@ -1,7 +1,7 @@
 import { Body, Controller, Post, Req } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { StepUpAuthService } from './step-up-auth.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { StepUpAuthService } from './step-up-auth.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/auth/step-up')
 export class StepUpAuthController {

@@ -13,7 +13,7 @@
  * Spec ref: §9.10 (3D Knowledge Graph Explorer where enabled).
  */
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
 
 const querySchema = z.object({

@@ -34,10 +34,10 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
-import { TourService } from './tour.service.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import { TourService } from './tour.service';
 import {
   AdminTourListQuerySchema,
   AdminUpdateTourBodySchema,
@@ -59,7 +59,7 @@ import {
   type TourListQuery,
   type TourProgressBody,
   type UserTourStateQuery,
-} from './dto.js';
+} from './dto';
 
 // ---------------------------------------------------------------------------
 // User-facing controller

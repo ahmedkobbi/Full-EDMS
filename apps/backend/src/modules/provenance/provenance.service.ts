@@ -18,10 +18,10 @@
  * manipulated images, or spoofed digital signatures.
  */
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { StorageService } from '../../common/storage.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { AuditService } from '../../common/audit.service';
+import { StorageService } from '../../common/storage.service';
 import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
 

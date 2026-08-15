@@ -7,9 +7,9 @@
  *   POST /v1/ai-intelligence/:documentId/suggest-metadata
  */
 import { Controller, Param, Post, Req } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { PiiDetectionService } from './pii-detection.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { PiiDetectionService } from './pii-detection.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/ai-intelligence')
 export class PiiDetectionController {

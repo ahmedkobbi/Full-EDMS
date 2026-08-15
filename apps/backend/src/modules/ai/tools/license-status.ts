@@ -8,7 +8,7 @@
 
 import type { z } from 'zod';
 import { LicenseGetStatusInputSchema } from '@smart-edms/schemas';
-import type { ToolDefinition, ToolResult } from '../tool-catalog.js';
+import type { ToolDefinition, ToolResult } from '../tool-catalog';
 
 interface LicenseGetStatusOutput {
   readonly state: string;

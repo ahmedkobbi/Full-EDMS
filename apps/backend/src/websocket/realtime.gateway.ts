@@ -10,8 +10,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server as SocketIOServer, type Socket } from 'socket.io';
-import { WebSocketGatewayService } from './gateway.service.js';
-import { PresenceService } from '../modules/presence/presence.service.js';
+import { WebSocketGatewayService } from './gateway.service';
+import { PresenceService } from '../modules/presence/presence.service';
 
 /**
  * Real-time WebSocket gateway.

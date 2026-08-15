@@ -14,13 +14,13 @@
  *   GET  /v1/human-verification/stats         — get queue statistics
  */
 import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { OcrService } from './ocr.service.js';
-import { OmrService } from './omr.service.js';
-import { IcrService } from './icr.service.js';
-import { BarcodeService } from './barcode.service.js';
-import { HumanVerificationService } from './human-verification.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { OcrService } from './ocr.service';
+import { OmrService } from './omr.service';
+import { IcrService } from './icr.service';
+import { BarcodeService } from './barcode.service';
+import { HumanVerificationService } from './human-verification.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1')
 export class OcrController {

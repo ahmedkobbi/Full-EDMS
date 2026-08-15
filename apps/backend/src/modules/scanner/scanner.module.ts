@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ScannerController } from './scanner.controller.js';
-import { ScannerService } from './scanner.service.js';
+import { ScannerController } from './scanner.controller';
+import { ScannerService } from './scanner.service';
 
 @Module({
   controllers: [ScannerController],

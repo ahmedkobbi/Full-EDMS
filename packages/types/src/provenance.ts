@@ -19,16 +19,16 @@ import type { UserId } from './user';
 import type { DocumentId, DocumentVersionId } from './document';
 
 /** Branded provenance-manifest identifier. */
-export type ProvenanceManifestId = UUID & { readonly __provenance: 'ProvenanceManifestId' };
+export type ProvenanceManifestId = UUID
 
 /** Branded evidence-package identifier. */
-export type EvidencePackageId = UUID & { readonly __evidence: 'EvidencePackageId' };
+export type EvidencePackageId = UUID
 
 /** Branded chain-of-custody entry identifier. */
-export type ChainOfCustodyEntryId = UUID & { readonly __custody: 'ChainOfCustodyEntryId' };
+export type ChainOfCustodyEntryId = UUID
 
 /** Branded C2PA manifest identifier. */
-export type C2PAManifestId = UUID & { readonly __c2pa: 'C2PAManifestId' };
+export type C2PAManifestId = UUID
 
 /** Kind of action recorded in a chain-of-custody entry. */
 export type CustodyAction =

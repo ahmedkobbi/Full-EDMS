@@ -17,15 +17,15 @@
  */
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Worker, type Job } from 'bullmq';
-import { PrismaService } from '../prisma/prisma.service.js';
-import { RedisService } from '../common/redis.service.js';
-import { StorageService } from '../common/storage.service.js';
-import { AuditService } from '../common/audit.service.js';
-import { OcrService } from '../modules/ocr/ocr.service.js';
-import { OmrService } from '../modules/ocr/omr.service.js';
-import { IcrService } from '../modules/ocr/icr.service.js';
-import { BarcodeService } from '../modules/ocr/barcode.service.js';
-import { HumanVerificationService } from '../modules/ocr/human-verification.service.js';
+import { PrismaService } from '../prisma/prisma.service';
+import { RedisService } from '../common/redis.service';
+import { StorageService } from '../common/storage.service';
+import { AuditService } from '../common/audit.service';
+import { OcrService } from '../modules/ocr/ocr.service';
+import { OmrService } from '../modules/ocr/omr.service';
+import { IcrService } from '../modules/ocr/icr.service';
+import { BarcodeService } from '../modules/ocr/barcode.service';
+import { HumanVerificationService } from '../modules/ocr/human-verification.service';
 
 /**
  * Document processing worker.

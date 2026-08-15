@@ -37,10 +37,10 @@ import {
   Req,
 } from '@nestjs/common';
 import type { AuditEventCode } from '@smart-edms/types';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
-import { DocumentService } from './document.service.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import { DocumentService } from './document.service';
 import {
   DocumentListQuerySchema,
   LockDocumentBodySchema,
@@ -58,7 +58,7 @@ import {
   type UpdateDocumentBody,
   type UploadCompleteBody,
   type UploadInitBody,
-} from './dto.js';
+} from './dto';
 
 @Controller('v1/documents')
 export class DocumentController {

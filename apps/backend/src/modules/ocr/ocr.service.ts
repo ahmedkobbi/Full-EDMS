@@ -19,9 +19,9 @@
  */
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { StorageService } from '../../common/storage.service.js';
-import { HumanVerificationService } from './human-verification.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { StorageService } from '../../common/storage.service';
+import { HumanVerificationService } from './human-verification.service';
 import type { Readable } from 'node:stream';
 
 export interface OcrWord {

@@ -3,7 +3,7 @@
  * All operations are tenant-scoped.
  */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
 
 const createGroupSchema = z.object({

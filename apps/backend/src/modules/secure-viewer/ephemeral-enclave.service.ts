@@ -9,10 +9,10 @@
  * Spec ref: §9.9 (optional ephemeral burn-after-reading enclaves where approved).
  */
 import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { SecureViewerService } from '../secure-viewer/secure-viewer.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { AuditService } from '../../common/audit.service';
+import { SecureViewerService } from '../secure-viewer/secure-viewer.service';
 import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 

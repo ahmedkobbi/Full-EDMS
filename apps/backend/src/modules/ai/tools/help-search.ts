@@ -14,7 +14,7 @@
 import type { z } from 'zod';
 import { HelpSearchDocumentationInputSchema } from '@smart-edms/schemas';
 import { en, fr, ar, ru, zhCN, de } from '@smart-edms/i18n';
-import type { ToolDefinition, ToolResult } from '../tool-catalog.js';
+import type { ToolDefinition, ToolResult } from '../tool-catalog';
 
 interface HelpSearchDocumentationOutput {
   readonly results: ReadonlyArray<{

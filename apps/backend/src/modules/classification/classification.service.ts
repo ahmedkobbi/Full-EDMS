@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
+import { RedisService } from '../../common/redis.service';
 import { z } from 'zod';
 
 const createLabelSchema = z.object({

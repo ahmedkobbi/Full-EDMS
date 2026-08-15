@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ShareController } from './share.controller.js';
-import { ShareService } from './share.service.js';
+import { ShareController } from './share.controller';
+import { ShareService } from './share.service';
 
 @Module({
   controllers: [ShareController],

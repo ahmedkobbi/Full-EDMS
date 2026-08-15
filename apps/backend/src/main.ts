@@ -9,8 +9,8 @@ import fastifyCompress from '@fastify/compress';
 import fastifyRateLimit from '@fastify/rate-limit';
 import fastifyMultipart from '@fastify/multipart';
 import { Logger as PinoLogger } from 'nestjs-pino';
-import { AppModule } from './app.module.js';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter.js';
+import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
 /**
  * Bootstrap the Smart EDMS on-premise NestJS backend (Fastify adapter).

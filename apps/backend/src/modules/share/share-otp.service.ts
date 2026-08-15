@@ -14,8 +14,8 @@
  * Spec ref: §9.11 (external recipient verification).
  */
 import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
 import { randomInt } from 'node:crypto';
 
 @Injectable()

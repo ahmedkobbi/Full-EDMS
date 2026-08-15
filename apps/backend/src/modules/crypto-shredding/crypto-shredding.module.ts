@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { CryptoShreddingController } from './crypto-shredding.controller.js';
-import { CryptoShreddingService } from './crypto-shredding.service.js';
+import { CryptoShreddingController } from './crypto-shredding.controller';
+import { CryptoShreddingService } from './crypto-shredding.service';
 
 @Global()
 @Module({

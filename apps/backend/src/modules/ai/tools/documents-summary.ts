@@ -15,7 +15,7 @@
 import type { z } from 'zod';
 import type { Citation } from '@smart-edms/types';
 import { DocumentsGetSummaryInputSchema } from '@smart-edms/schemas';
-import type { ToolDefinition, ToolResult } from '../tool-catalog.js';
+import type { ToolDefinition, ToolResult } from '../tool-catalog';
 
 interface DocumentsGetSummaryOutput {
   readonly documentId: string;

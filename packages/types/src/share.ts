@@ -12,10 +12,10 @@ import type { UserId } from './user';
 import type { DocumentId } from './document';
 
 /** Branded share-link identifier. */
-export type ShareLinkId = UUID & { readonly __shareLink: 'ShareLinkId' };
+export type ShareLinkId = UUID
 
 /** Branded share-recipient identifier. */
-export type ShareRecipientId = UUID & { readonly __shareRecipient: 'ShareRecipientId' };
+export type ShareRecipientId = UUID
 
 /**
  * Permission granted to a share recipient. Reflects the document operations

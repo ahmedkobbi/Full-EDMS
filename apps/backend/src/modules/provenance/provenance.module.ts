@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { ProvenanceController } from './provenance.controller.js';
-import { ProvenanceService } from './provenance.service.js';
+import { ProvenanceController } from './provenance.controller';
+import { ProvenanceService } from './provenance.service';
 
 @Global()
 @Module({

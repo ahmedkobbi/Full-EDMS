@@ -1,7 +1,7 @@
 import { Controller, Get, Req } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { AdminService } from './admin.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { AdminService } from './admin.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/admin')
 export class AdminController {

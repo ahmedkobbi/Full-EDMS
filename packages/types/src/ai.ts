@@ -26,21 +26,19 @@ import type { EntitlementModule } from './license';
 import type { TourDefinitionId } from './tour';
 
 /** Branded assistant-session identifier. */
-export type AssistantSessionId = UUID & { readonly __assistantSession: 'AssistantSessionId' };
+export type AssistantSessionId = UUID
 
 /** Branded assistant-message identifier. */
-export type AssistantMessageId = UUID & { readonly __assistantMessage: 'AssistantMessageId' };
+export type AssistantMessageId = UUID
 
 /** Branded assistant-tool-invocation identifier. */
-export type AssistantToolInvocationId = UUID & {
-  readonly __assistantToolInvocation: 'AssistantToolInvocationId';
-};
+export type AssistantToolInvocationId = UUID;
 
 /** Branded assistant-action identifier. */
-export type AssistantActionId = UUID & { readonly __assistantAction: 'AssistantActionId' };
+export type AssistantActionId = UUID
 
 /** Branded assistant-audit-event identifier. */
-export type AssistantAuditEventId = UUID & { readonly __assistantAudit: 'AssistantAuditEventId' };
+export type AssistantAuditEventId = UUID
 
 /**
  * AI model deployment mode (spec §11.11).

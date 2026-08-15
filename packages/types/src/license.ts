@@ -21,62 +21,58 @@ import type { TenantId } from './tenant';
 // ---------------------------------------------------------------------------
 
 /** Branded customer identifier. */
-export type CustomerId = UUID & { readonly __customer: 'CustomerId' };
+export type CustomerId = UUID
 
 /** Branded contact identifier. */
-export type ContactId = UUID & { readonly __contact: 'ContactId' };
+export type ContactId = UUID
 
 /** Branded product identifier. */
-export type ProductId = UUID & { readonly __product: 'ProductId' };
+export type ProductId = UUID
 
 /** Branded plan identifier. */
-export type PlanId = UUID & { readonly __plan: 'PlanId' };
+export type PlanId = UUID
 
 /** Branded license identifier. */
-export type LicenseId = UUID & { readonly __license: 'LicenseId' };
+export type LicenseId = UUID
 
 /** Branded activation identifier. */
-export type ActivationId = UUID & { readonly __activation: 'ActivationId' };
+export type ActivationId = UUID
 
 /** Branded device identifier. */
-export type DeviceId = UUID & { readonly __device: 'DeviceId' };
+export type DeviceId = UUID
 
 /** Branded heartbeat identifier. */
-export type HeartbeatId = UUID & { readonly __heartbeat: 'HeartbeatId' };
+export type HeartbeatId = UUID
 
 /** Branded revocation identifier. */
-export type RevocationId = UUID & { readonly __revocation: 'RevocationId' };
+export type RevocationId = UUID
 
 /** Branded signing-key identifier. */
-export type SigningKeyId = UUID & { readonly __signingKey: 'SigningKeyId' };
+export type SigningKeyId = UUID
 
 /** Branded deployment identifier. */
-export type DeploymentId = UUID & { readonly __deployment: 'DeploymentId' };
+export type DeploymentId = UUID
 
 /** Branded offline-activation-request identifier. */
-export type OfflineActivationRequestId = UUID & {
-  readonly __offlineRequest: 'OfflineActivationRequestId';
-};
+export type OfflineActivationRequestId = UUID;
 
 /** Branded offline-activation-certificate identifier. */
-export type OfflineActivationCertificateId = UUID & {
-  readonly __offlineCert: 'OfflineActivationCertificateId';
-};
+export type OfflineActivationCertificateId = UUID;
 
 /** Branded trial identifier. */
-export type TrialId = UUID & { readonly __trial: 'TrialId' };
+export type TrialId = UUID
 
 /** Branded webhook identifier. */
-export type WebhookId = UUID & { readonly __webhook: 'WebhookId' };
+export type WebhookId = UUID
 
 /** Branded API-key identifier. */
-export type ApiKeyId = UUID & { readonly __apiKey: 'ApiKeyId' };
+export type ApiKeyId = UUID
 
 /** Branded usage-metric identifier. */
-export type UsageMetricId = UUID & { readonly __usageMetric: 'UsageMetricId' };
+export type UsageMetricId = UUID
 
 /** Branded license-audit-log identifier. */
-export type LicenseAuditLogId = UUID & { readonly __licenseAudit: 'LicenseAuditLogId' };
+export type LicenseAuditLogId = UUID
 
 // ---------------------------------------------------------------------------
 // License types and statuses (spec §12.2)

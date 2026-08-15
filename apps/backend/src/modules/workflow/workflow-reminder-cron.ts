@@ -10,9 +10,9 @@
  */
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { NotificationService } from '../notification/notification.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class WorkflowReminderCron {

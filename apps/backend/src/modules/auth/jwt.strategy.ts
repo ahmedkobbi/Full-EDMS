@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import type { JwtPayload } from './types.js';
-import { RedisService } from '../../common/redis.service.js';
+import type { JwtPayload } from './types';
+import { RedisService } from '../../common/redis.service';
 import { createHash } from 'node:crypto';
 
 @Injectable()

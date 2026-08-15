@@ -11,8 +11,8 @@
  *           mapping metadata, and transferring large object stores).
  */
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
 import { z } from 'zod';
 
 const createMigrationSchema = z.object({

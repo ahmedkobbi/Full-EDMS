@@ -9,7 +9,7 @@
  * Spec ref: §9.13 (notification bursts must be throttled).
  */
 import { Injectable, Logger } from '@nestjs/common';
-import { RedisService } from '../../common/redis.service.js';
+import { RedisService } from '../../common/redis.service';
 
 @Injectable()
 export class NotificationThrottleService {

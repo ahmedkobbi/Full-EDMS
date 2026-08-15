@@ -3,17 +3,17 @@ import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
-import { PrismaModule } from './prisma/prisma.module.js';
-import { RedisModule } from './common/redis.module.js';
-import { StorageModule } from './common/storage.module.js';
-import { AuditModule } from './common/audit.module.js';
-import { WorkersModule } from './queues/workers.module.js';
-import { DocumentModule } from './modules/document/document.module.js';
-import { RetentionModule } from './modules/retention/retention.module.js';
-import { ScannerModule } from './modules/scanner/scanner.module.js';
-import { NotificationModule } from './modules/notification/notification.module.js';
-import { SearchModule } from './modules/search/search.module.js';
-import { environmentSchema } from './config/environment.js';
+import { PrismaModule } from './prisma/prisma.module';
+import { RedisModule } from './common/redis.module';
+import { StorageModule } from './common/storage.module';
+import { AuditModule } from './common/audit.module';
+import { WorkersModule } from './queues/workers.module';
+import { DocumentModule } from './modules/document/document.module';
+import { RetentionModule } from './modules/retention/retention.module';
+import { ScannerModule } from './modules/scanner/scanner.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { SearchModule } from './modules/search/search.module';
+import { environmentSchema } from './config/environment';
 
 /**
  * Worker-only module — imports a subset of AppModule that the background

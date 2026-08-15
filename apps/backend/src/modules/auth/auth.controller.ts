@@ -1,8 +1,8 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Delete, Req } from '@nestjs/common';
-import { Public } from '../../common/decorators/public.decorator.js';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { AuthService } from './auth.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Public } from '../../common/decorators/public.decorator';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { AuthService } from './auth.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/auth')
 export class AuthController {

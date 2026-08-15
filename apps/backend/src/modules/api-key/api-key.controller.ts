@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Req } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { ApiKeyService } from './api-key.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { ApiKeyService } from './api-key.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/api-keys')
 export class ApiKeyController {

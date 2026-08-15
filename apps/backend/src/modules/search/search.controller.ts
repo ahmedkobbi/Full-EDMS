@@ -28,9 +28,9 @@ import {
   Req,
 } from '@nestjs/common';
 import { z } from 'zod';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
-import { SearchService } from './search.service.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import { SearchService } from './search.service';
 
 // ---------------------------------------------------------------------------
 // Zod schemas for request bodies / queries

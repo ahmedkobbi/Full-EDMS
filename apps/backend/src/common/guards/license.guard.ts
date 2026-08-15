@@ -7,10 +7,10 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
-import { LICENSE_REQUIRED_KEY, type LicenseRequirement } from '../decorators/license-required.decorator.js';
-import { LicenseService } from '../../modules/license/license.service.js';
-import type { AuthenticatedRequest } from './jwt-auth.guard.js';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { LICENSE_REQUIRED_KEY, type LicenseRequirement } from '../decorators/license-required.decorator';
+import { LicenseService } from '../../modules/license/license.service';
+import type { AuthenticatedRequest } from './jwt-auth.guard';
 import type { LicenseState } from '@smart-edms/types';
 
 /**

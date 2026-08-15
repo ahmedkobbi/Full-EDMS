@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { KnowledgeGraphController } from './knowledge-graph.controller.js';
-import { KnowledgeGraphService } from './knowledge-graph.service.js';
+import { KnowledgeGraphController } from './knowledge-graph.controller';
+import { KnowledgeGraphService } from './knowledge-graph.service';
 
 @Global()
 @Module({

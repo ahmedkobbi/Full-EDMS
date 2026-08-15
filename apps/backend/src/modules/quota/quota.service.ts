@@ -11,8 +11,8 @@
  *           §22.2 (tenant-level and user-level quotas).
  */
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
 
 @Injectable()
 export class QuotaService {

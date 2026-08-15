@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
 import { z } from 'zod';
 
 const querySchema = z.object({

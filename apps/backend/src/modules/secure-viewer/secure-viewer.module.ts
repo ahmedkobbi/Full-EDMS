@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { SecureViewerController } from './secure-viewer.controller.js';
-import { SecureViewerService } from './secure-viewer.service.js';
+import { SecureViewerController } from './secure-viewer.controller';
+import { SecureViewerService } from './secure-viewer.service';
 
 @Global()
 @Module({

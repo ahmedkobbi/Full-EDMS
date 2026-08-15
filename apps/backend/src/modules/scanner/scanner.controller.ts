@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { ScannerService } from './scanner.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { ScannerService } from './scanner.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/scanner')
 export class ScannerController {

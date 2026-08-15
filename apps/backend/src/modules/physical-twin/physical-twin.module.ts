@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { PhysicalTwinController } from './physical-twin.controller.js';
-import { PhysicalTwinService } from './physical-twin.service.js';
+import { PhysicalTwinController } from './physical-twin.controller';
+import { PhysicalTwinService } from './physical-twin.service';
 
 @Global()
 @Module({

@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, Req } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { CaptureRulesService } from './capture-rules.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { CaptureRulesService } from './capture-rules.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/capture-rules')
 export class CaptureRulesController {

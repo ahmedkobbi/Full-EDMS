@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Req } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { KnowledgeGraphService } from './knowledge-graph.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { KnowledgeGraphService } from './knowledge-graph.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/knowledge-graph')
 export class KnowledgeGraphController {

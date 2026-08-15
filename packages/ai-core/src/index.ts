@@ -44,6 +44,10 @@ export {
   type PromptInjectionMode,
 } from './prompt-injection';
 
+export type {
+  PromptInjectionDetection,
+} from '@smart-edms/types';
+
 export {
   buildCitations,
   type CitationInput,

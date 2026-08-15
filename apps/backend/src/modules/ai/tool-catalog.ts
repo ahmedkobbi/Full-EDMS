@@ -31,11 +31,11 @@
 
 import type { z } from 'zod';
 import type { EntitlementModule, ToolName } from '@smart-edms/types';
-import type { PrismaService } from '../../prisma/prisma.service.js';
-import type { AuditService } from '../../common/audit.service.js';
-import type { RedisService } from '../../common/redis.service.js';
-import type { SearchService } from '../search/search.service.js';
-import type { LicenseService } from '../license/license.service.js';
+import type { PrismaService } from '../../prisma/prisma.service';
+import type { AuditService } from '../../common/audit.service';
+import type { RedisService } from '../../common/redis.service';
+import type { SearchService } from '../search/search.service';
+import type { LicenseService } from '../license/license.service';
 import type { Citation } from '@smart-edms/types';
 
 // ---------------------------------------------------------------------------
@@ -169,22 +169,22 @@ export interface ToolDefinition<I = unknown, O = unknown> {
 // Tool registry
 // ---------------------------------------------------------------------------
 
-import { documentsSearchTool } from './tools/documents-search.js';
-import { documentsSummaryTool } from './tools/documents-summary.js';
-import { documentsGetMetadataTool } from './tools/documents-metadata.js';
-import { documentsGetVersionsTool } from './tools/documents-versions.js';
-import { documentsGetLockStateTool } from './tools/documents-lock-state.js';
-import { workflowsStatusTool } from './tools/workflows-status.js';
-import { workflowsPendingApprovalsTool } from './tools/workflows-pending-approvals.js';
-import { auditRecentTool } from './tools/audit-recent.js';
-import { retentionUpcomingExpiryTool } from './tools/retention-expiry.js';
-import { legalHoldStatusTool } from './tools/legal-hold-status.js';
-import { licenseStatusTool } from './tools/license-status.js';
-import { helpSearchTool } from './tools/help-search.js';
-import { uiNavigateTool } from './tools/ui-navigate.js';
-import { tourStartTool } from './tools/tour-start.js';
-import { adminHealthTool } from './tools/admin-health.js';
-import { adminSystemUsageTool } from './tools/admin-system-usage.js';
+import { documentsSearchTool } from './tools/documents-search';
+import { documentsSummaryTool } from './tools/documents-summary';
+import { documentsGetMetadataTool } from './tools/documents-metadata';
+import { documentsGetVersionsTool } from './tools/documents-versions';
+import { documentsGetLockStateTool } from './tools/documents-lock-state';
+import { workflowsStatusTool } from './tools/workflows-status';
+import { workflowsPendingApprovalsTool } from './tools/workflows-pending-approvals';
+import { auditRecentTool } from './tools/audit-recent';
+import { retentionUpcomingExpiryTool } from './tools/retention-expiry';
+import { legalHoldStatusTool } from './tools/legal-hold-status';
+import { licenseStatusTool } from './tools/license-status';
+import { helpSearchTool } from './tools/help-search';
+import { uiNavigateTool } from './tools/ui-navigate';
+import { tourStartTool } from './tools/tour-start';
+import { adminHealthTool } from './tools/admin-health';
+import { adminSystemUsageTool } from './tools/admin-system-usage';
 
 /**
  * Ordered registry of all 16 AI tools. The order is fixed for stable

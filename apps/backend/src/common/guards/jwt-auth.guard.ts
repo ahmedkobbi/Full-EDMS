@@ -8,8 +8,8 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { FastifyRequest } from 'fastify';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
-import type { JwtPayload } from '../../modules/auth/types.js';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import type { JwtPayload } from '../../modules/auth/types';
 
 export interface AuthenticatedRequest extends FastifyRequest {
   user?: JwtPayload;

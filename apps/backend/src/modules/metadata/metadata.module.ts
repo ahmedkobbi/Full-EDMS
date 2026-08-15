@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { MetadataController } from './metadata.controller.js';
-import { MetadataService } from './metadata.service.js';
+import { MetadataController } from './metadata.controller';
+import { MetadataService } from './metadata.service';
 
 @Module({
   controllers: [MetadataController],

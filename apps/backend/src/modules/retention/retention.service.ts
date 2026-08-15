@@ -26,9 +26,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
+import { RedisService } from '../../common/redis.service';
 import { randomUUID } from 'node:crypto';
 
 // ---------------------------------------------------------------------------

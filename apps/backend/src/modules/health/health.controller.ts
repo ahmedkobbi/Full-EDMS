@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
-import { Public } from '../../common/decorators/public.decorator.js';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { Public } from '../../common/decorators/public.decorator';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
 
 /**
  * Public health/readiness endpoints.

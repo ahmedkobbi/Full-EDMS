@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { LicenseService } from '../license/license.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { LicenseService } from '../license/license.service';
 
 /**
  * Tenant admin dashboard service — system usage, storage, health.

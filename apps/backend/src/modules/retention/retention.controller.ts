@@ -23,10 +23,10 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
-import { RetentionService } from './retention.service.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import { RetentionService } from './retention.service';
 import {
   CreateRetentionScheduleBodySchema,
   RetentionListQuerySchema,
@@ -36,8 +36,8 @@ import {
   type RetentionListQuery,
   type UpcomingExpiryQuery,
   type UpdateRetentionScheduleBody,
-} from './retention.service.js';
-import { RetentionCron } from './retention-cron.js';
+} from './retention.service';
+import { RetentionCron } from './retention-cron';
 
 @Controller('v1/retention')
 @Roles('admin', 'records-manager', 'auditor')

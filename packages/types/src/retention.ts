@@ -12,17 +12,13 @@ import type { UserId } from './user';
 import type { DocumentId } from './document';
 
 /** Branded retention-schedule identifier. */
-export type RetentionScheduleId = UUID & {
-  readonly __retentionSchedule: 'RetentionScheduleId';
-};
+export type RetentionScheduleId = UUID;
 
 /** Branded legal-hold identifier. */
-export type LegalHoldId = UUID & { readonly __legalHold: 'LegalHoldId' };
+export type LegalHoldId = UUID
 
 /** Branded disposition-record identifier. */
-export type DispositionRecordId = UUID & {
-  readonly __dispositionRecord: 'DispositionRecordId';
-};
+export type DispositionRecordId = UUID;
 
 /**
  * Event that starts the retention clock (spec §9.7). `custom` allows tenant

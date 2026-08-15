@@ -37,11 +37,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import type { AuditEventCode } from '@smart-edms/types';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { LicenseService } from '../license/license.service.js';
-import { DEFAULT_TOURS, seedDefaultTours } from './tour-seeder.js';
-import { resolveChecklist } from './tour-checklist.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
+import { LicenseService } from '../license/license.service';
+import { DEFAULT_TOURS, seedDefaultTours } from './tour-seeder';
+import { resolveChecklist } from './tour-checklist';
 import type {
   AdminTourListQuery,
   AdminUpdateTourBody,
@@ -53,7 +53,7 @@ import type {
   TourListQuery,
   TourProgressBody,
   UserTourStateQuery,
-} from './dto.js';
+} from './dto';
 
 // ---------------------------------------------------------------------------
 // Helpers

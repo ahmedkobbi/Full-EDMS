@@ -10,9 +10,9 @@
  */
 import { Body, Controller, Delete, Get, Param, Post, Req, Res } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { SecureViewerService } from './secure-viewer.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { SecureViewerService } from './secure-viewer.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1')
 export class SecureViewerController {

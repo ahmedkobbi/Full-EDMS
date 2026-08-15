@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Query, Req, Param, Res, NotFoundException } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { AuditApiService } from './audit.service.js';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { StorageService } from '../../common/storage.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { AuditApiService } from './audit.service';
+import { PrismaService } from '../../prisma/prisma.service';
+import { StorageService } from '../../common/storage.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/audit')
 export class AuditController {

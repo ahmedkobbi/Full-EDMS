@@ -44,16 +44,16 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  TooManyRequestsException,
+  HttpException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomUUID } from 'node:crypto';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { SearchService } from '../search/search.service.js';
-import { LicenseService } from '../license/license.service.js';
-import { detectPromptInjection, isBlocked } from './prompt-injection.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
+import { RedisService } from '../../common/redis.service';
+import { SearchService } from '../search/search.service';
+import { LicenseService } from '../license/license.service';
+import { detectPromptInjection, isBlocked } from './prompt-injection';
 import { DESTRUCTIVE_ACTIONS } from '@smart-edms/ai-core';
 import {
   TOOL_REGISTRY,
@@ -64,7 +64,7 @@ import {
   type SuggestedActionDraft,
   type ToolContext,
   type ToolResult,
-} from './tool-catalog.js';
+} from './tool-catalog';
 import type {
   AiModelMode,
   AssistantActionType,
@@ -80,7 +80,7 @@ import type {
   AdminUsageQuery,
   SessionListQuery,
   SessionFeedbackBody,
-} from './dto.js';
+} from './dto';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -915,7 +915,7 @@ export class AiService {
         tenantId,
         userId,
         category: 'ai_assistant',
-        code: 'ai.action.confirm',
+        code: 'ai.action_confirmed',
         result: 'deny',
         reason: 'not_session_owner',
         resourceType: 'assistant_action',
@@ -943,7 +943,7 @@ export class AiService {
         tenantId,
         userId,
         category: 'ai_assistant',
-        code: 'ai.action.confirm',
+        code: 'ai.action_confirmed',
         result: 'deny',
         reason: 'destructive_action_requires_dedicated_flow',
         resourceType: 'assistant_action',
@@ -986,7 +986,7 @@ export class AiService {
       tenantId,
       userId,
       category: 'ai_assistant',
-      code: 'ai.action.confirm',
+      code: 'ai.action_confirmed',
       result: 'allow',
       resourceType: 'assistant_action',
       resourceId: actionId,
@@ -1157,7 +1157,7 @@ export class AiService {
     }
     if (count > limitPerMinute) {
       const ttl = await this.redis.connection.ttl(key);
-      throw new TooManyRequestsException({
+      throw new HttpException({ status: 429, 
         messageKey: 'ai.errors.rateLimited',
         messageVars: { seconds: Math.max(1, ttl) },
       });
@@ -1176,7 +1176,7 @@ export class AiService {
       await this.redis.connection.expire(key, QUOTA_WINDOW_SECONDS);
     }
     if (count > quotaPerDay) {
-      throw new TooManyRequestsException({
+      throw new HttpException({ status: 429, 
         messageKey: 'ai.errors.quotaExceeded',
       });
     }

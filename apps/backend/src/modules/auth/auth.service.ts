@@ -1,14 +1,14 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
+import { RedisService } from '../../common/redis.service';
 import bcrypt from 'bcryptjs';
 import { authenticator as otplibAuthenticator } from 'otplib';
 import { randomBytes, createHash } from 'node:crypto';
 import { z } from 'zod';
-import type { JwtPayload, LoginResult } from './types.js';
+import type { JwtPayload, LoginResult } from './types';
 
 const loginSchema = z.object({
   email: z.string().email().max(256),

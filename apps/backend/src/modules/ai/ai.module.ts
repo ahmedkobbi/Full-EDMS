@@ -16,10 +16,10 @@
  */
 
 import { Module } from '@nestjs/common';
-import { AiController, AiAdminController } from './ai.controller.js';
-import { AiService } from './ai.service.js';
-import { SearchModule } from '../search/search.module.js';
-import { LicenseModule } from '../license/license.module.js';
+import { AiController, AiAdminController } from './ai.controller';
+import { AiService } from './ai.service';
+import { SearchModule } from '../search/search.module';
+import { LicenseModule } from '../license/license.module';
 
 @Module({
   imports: [SearchModule, LicenseModule],

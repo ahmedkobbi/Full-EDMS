@@ -3,7 +3,7 @@
  * Manages tenant-specific translation overrides stored in the LocaleResource table.
  */
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
 
 const upsertOverrideSchema = z.object({

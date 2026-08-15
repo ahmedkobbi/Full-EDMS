@@ -20,7 +20,7 @@ import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Logger as PinoLogger } from 'nestjs-pino';
-import { WorkerModule } from './worker.module.js';
+import { WorkerModule } from './worker.module';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('worker');

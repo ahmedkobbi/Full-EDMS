@@ -34,11 +34,11 @@ import {
   Res,
 } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { LicenseRequired } from '../../common/decorators/license-required.decorator.js';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
-import { AiService, type AiRequestContext } from './ai.service.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { LicenseRequired } from '../../common/decorators/license-required.decorator';
+import { Audit } from '../../common/decorators/audit.decorator';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import { AiService, type AiRequestContext } from './ai.service';
 import {
   AdminAuditQuerySchema,
   AdminUsageQuerySchema,
@@ -50,7 +50,7 @@ import {
   type SessionFeedbackBody,
   type SessionListQuery,
   type UpdateAssistantSettingsBody,
-} from './dto.js';
+} from './dto';
 import { AssistantChatRequestSchema } from '@smart-edms/schemas';
 
 // ---------------------------------------------------------------------------
@@ -196,7 +196,7 @@ export class AiController {
    * admin UI (spec §11.4).
    */
   @Post('actions/:id/confirm')
-  @Audit({ category: 'ai_assistant', code: 'ai.action.confirm', resourceType: 'assistant_action', resourceIdParam: 'id' })
+  @Audit({ category: 'ai_assistant', code: 'ai.action_confirmed', resourceType: 'assistant_action', resourceIdParam: 'id' })
   @HttpCode(200)
   async confirmAction(@Param('id') id: string, @Req() req: AuthenticatedRequest) {
     return this.ai.confirmAction(req.user!.tid, req.user!.sub, id, {

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { StepUpAuthService } from './step-up-auth.service.js';
+import { StepUpAuthService } from './step-up-auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 

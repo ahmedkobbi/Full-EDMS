@@ -13,7 +13,7 @@
 
 import type { z } from 'zod';
 import { UiNavigateToInputSchema } from '@smart-edms/schemas';
-import type { ToolDefinition, ToolResult } from '../tool-catalog.js';
+import type { ToolDefinition, ToolResult } from '../tool-catalog';
 
 interface UiNavigateToOutput {
   readonly action: 'navigate';

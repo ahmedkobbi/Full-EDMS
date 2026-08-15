@@ -45,9 +45,9 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { SearchIndexer } from './search-indexer.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
+import { SearchIndexer } from './search-indexer';
 
 /** Roles that bypass sensitivity and legal-hold restrictions. */
 const ELEVATED_ROLES = new Set(['admin', 'records-manager', 'compliance-officer']);

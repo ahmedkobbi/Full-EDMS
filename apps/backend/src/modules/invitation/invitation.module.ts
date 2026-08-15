@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
-import { InvitationController } from './invitation.controller.js';
-import { InvitationService } from './invitation.service.js';
-import { AuthModule } from '../auth/auth.module.js';
+import { InvitationController } from './invitation.controller';
+import { InvitationService } from './invitation.service';
+import { AuthModule } from '../auth/auth.module';
 
 @Global()
 @Module({

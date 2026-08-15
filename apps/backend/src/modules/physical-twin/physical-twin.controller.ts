@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post, Req, Query } from '@nestjs/common';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { Public } from '../../common/decorators/public.decorator.js';
-import { PhysicalTwinService } from './physical-twin.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { Public } from '../../common/decorators/public.decorator';
+import { PhysicalTwinService } from './physical-twin.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/physical-twin')
 export class PhysicalTwinController {

@@ -7,7 +7,7 @@
 
 import type { z } from 'zod';
 import { RetentionGetUpcomingExpiryInputSchema } from '@smart-edms/schemas';
-import type { ToolDefinition, ToolResult } from '../tool-catalog.js';
+import type { ToolDefinition, ToolResult } from '../tool-catalog';
 
 interface RetentionGetUpcomingExpiryOutput {
   readonly upcoming: ReadonlyArray<{

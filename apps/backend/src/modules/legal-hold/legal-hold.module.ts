@@ -11,8 +11,8 @@
  */
 
 import { Module } from '@nestjs/common';
-import { LegalHoldController } from './legal-hold.controller.js';
-import { LegalHoldService } from './legal-hold.service.js';
+import { LegalHoldController } from './legal-hold.controller';
+import { LegalHoldService } from './legal-hold.service';
 
 @Module({
   controllers: [LegalHoldController],

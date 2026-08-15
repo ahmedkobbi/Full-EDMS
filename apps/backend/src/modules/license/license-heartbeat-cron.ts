@@ -9,9 +9,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { AuditService } from '../../common/audit.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { AuditService } from '../../common/audit.service';
 import { computeMachineFingerprint } from '@smart-edms/license-core';
 
 @Injectable()

@@ -11,9 +11,9 @@
  * = higher priority) + a Prisma Job record for persistence.
  */
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { AuditService } from '../../common/audit.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { AuditService } from '../../common/audit.service';
 
 export interface VerificationItem {
   id: string;

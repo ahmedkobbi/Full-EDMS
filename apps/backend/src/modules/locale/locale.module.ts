@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { LocaleController } from './locale.controller.js';
-import { LocaleService } from './locale.service.js';
+import { LocaleController } from './locale.controller';
+import { LocaleService } from './locale.service';
 
 @Module({
   controllers: [LocaleController],

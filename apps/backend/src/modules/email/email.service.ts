@@ -11,7 +11,7 @@
  */
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RedisService } from '../../common/redis.service.js';
+import { RedisService } from '../../common/redis.service';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 

@@ -12,20 +12,16 @@ import type { UserId } from './user';
 import type { DocumentId } from './document';
 
 /** Branded workflow-definition identifier. */
-export type WorkflowDefinitionId = UUID & {
-  readonly __workflowDefinition: 'WorkflowDefinitionId';
-};
+export type WorkflowDefinitionId = UUID;
 
 /** Branded workflow-instance identifier. */
-export type WorkflowInstanceId = UUID & {
-  readonly __workflowInstance: 'WorkflowInstanceId';
-};
+export type WorkflowInstanceId = UUID;
 
 /** Branded workflow-step identifier. */
-export type WorkflowStepId = UUID & { readonly __workflowStep: 'WorkflowStepId' };
+export type WorkflowStepId = UUID
 
 /** Branded approval identifier. */
-export type ApprovalId = UUID & { readonly __approval: 'ApprovalId' };
+export type ApprovalId = UUID
 
 /**
  * Standardized process-modeling kinds (spec §9.8).

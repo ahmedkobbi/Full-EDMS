@@ -25,9 +25,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import type { FastifyRequest } from 'fastify';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
-import { ApiKeyService } from '../../modules/api-key/api-key.service.js';
-import type { JwtPayload } from '../../modules/auth/types.js';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { ApiKeyService } from '../../modules/api-key/api-key.service';
+import type { JwtPayload } from '../../modules/auth/types';
 
 export interface ApiKeyAuthenticatedRequest extends FastifyRequest {
   user?: JwtPayload;

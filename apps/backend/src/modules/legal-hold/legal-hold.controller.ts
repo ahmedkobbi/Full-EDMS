@@ -22,10 +22,10 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
-import { LegalHoldService } from './legal-hold.service.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import { LegalHoldService } from './legal-hold.service';
 import {
   CreateLegalHoldBodySchema,
   LegalHoldListQuerySchema,
@@ -33,7 +33,7 @@ import {
   type CreateLegalHoldBody,
   type LegalHoldListQuery,
   type ReleaseLegalHoldBody,
-} from './legal-hold.service.js';
+} from './legal-hold.service';
 
 @Controller('v1/legal-holds')
 @Roles('admin', 'records-manager', 'compliance-officer')

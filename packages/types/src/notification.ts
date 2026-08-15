@@ -12,7 +12,7 @@ import type { TenantId } from './tenant';
 import type { UserId } from './user';
 
 /** Branded notification identifier. */
-export type NotificationId = UUID & { readonly __notification: 'NotificationId' };
+export type NotificationId = UUID
 
 /** Channels through which a notification can be delivered. */
 export type NotificationChannel =

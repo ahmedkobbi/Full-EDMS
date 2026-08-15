@@ -41,28 +41,28 @@ export type Brand = { readonly __brand: string };
  * equivalent sortable globally unique identifiers. The string form is
  * canonical lower-case.
  */
-export type UUID = Branded<string, 'UUID'>;
+export type UUID = string;
 
 /** ISO 8601 UTC timestamp string, e.g. `2025-01-31T08:30:00.000Z`. */
-export type ISODateString = Branded<string, 'ISODateString'>;
+export type ISODateString = string;
 
 /** Opaque pagination cursor — clients must treat this as an opaque token. */
-export type Cursor = Branded<string, 'Cursor'>;
+export type Cursor = string;
 
 /** Stable, machine-readable message key used with `t()` (e.g. `errors.forbidden`). */
-export type MessageKey = Branded<string, 'MessageKey'>;
+export type MessageKey = string;
 
 /** Stable, machine-readable error code, e.g. `LICENSE_EXPIRED`. */
-export type ErrorCode = Branded<string, 'ErrorCode'>;
+export type ErrorCode = string;
 
 /** RFC 5646 / BCP 47 language tag, e.g. `en`, `ar`, `zh-CN`. */
-export type Locale = Branded<string, 'Locale'>;
+export type Locale = string;
 
 /** IANA timezone identifier, e.g. `Europe/Paris`, `Asia/Dubai`. */
-export type Timezone = Branded<string, 'Timezone'>;
+export type Timezone = string;
 
 /** Cryptographic hash digest in hexadecimal lower-case form. */
-export type HashHex = Branded<string, 'HashHex'>;
+export type HashHex = string;
 
 /** SHA-256, SHA-3-256, BLAKE3, etc. — the algorithm name. */
 export type HashAlgorithm = 'sha256' | 'sha384' | 'sha512' | 'sha3-256' | 'sha3-512' | 'blake3';
@@ -219,18 +219,18 @@ export type AuditActorKind = 'user' | 'service_account' | 'system' | 'ai_assista
 /**
  * Opaque JWT or opaque session token. Never logged in plain text.
  */
-export type AuthToken = Branded<string, 'AuthToken'>;
+export type AuthToken = string;
 
 /**
  * Positive integer in the closed range [1, 100]. Useful for confidence
  * scores returned by OCR/OMR/ICR and AI suggestions.
  */
-export type ConfidenceScore = Branded<number, 'ConfidenceScore'>;
+export type ConfidenceScore = number;
 
 /**
  * Byte count (non-negative integer). Used for storage quotas and file sizes.
  */
-export type ByteSize = Branded<number, 'ByteSize'>;
+export type ByteSize = number;
 
 /**
  * Generic JSON-serialisable value. Used only where a structured payload is

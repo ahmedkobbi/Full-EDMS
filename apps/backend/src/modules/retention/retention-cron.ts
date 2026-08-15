@@ -13,7 +13,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { ConfigService } from '@nestjs/config';
-import { RetentionService } from './retention.service.js';
+import { RetentionService } from './retention.service';
 
 /**
  * Scheduled retention evaluator.

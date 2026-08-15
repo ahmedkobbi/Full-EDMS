@@ -34,11 +34,11 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import type { AuditEventCode } from '@smart-edms/types';
 import { randomUUID, createHash, Readable } from 'node:crypto';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { StorageService, sanitizeFilename } from '../../common/storage.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { SearchIndexer } from '../search/search-indexer.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { StorageService, sanitizeFilename } from '../../common/storage.service';
+import { AuditService } from '../../common/audit.service';
+import { RedisService } from '../../common/redis.service';
+import { SearchIndexer } from '../search/search-indexer';
 import {
   ALLOWED_FILE_EXTENSIONS,
   EXTENSION_TO_MIME,
@@ -49,8 +49,8 @@ import {
   type ShareDocumentBody,
   type UploadCompleteBody,
   type UploadInitBody,
-} from './dto.js';
-import { DOCUMENT_WS_EVENTS, wsEventChannel } from './document.gateway-events.js';
+} from './dto';
+import { DOCUMENT_WS_EVENTS, wsEventChannel } from './document.gateway-events';
 
 /** Redis key for in-flight upload state. */
 const uploadStateKey = (uploadId: string): string => `smart-edms:upload:${uploadId}`;

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Req } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { ShareService } from './share.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { ShareService } from './share.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/share')
 export class ShareController {

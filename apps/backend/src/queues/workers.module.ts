@@ -5,12 +5,12 @@ import {
   AuditExportWorker,
   RetentionEvaluationWorker,
   ScannerOcrWorker,
-} from './workers.js';
-import { PrismaModule } from '../prisma/prisma.module.js';
-import { RedisModule } from '../common/redis.module.js';
-import { StorageModule } from '../common/storage.module.js';
-import { AuditModule } from '../common/audit.module.js';
-import { OcrModule } from '../modules/ocr/ocr.module.js';
+} from './workers';
+import { PrismaModule } from '../prisma/prisma.module';
+import { RedisModule } from '../common/redis.module';
+import { StorageModule } from '../common/storage.module';
+import { AuditModule } from '../common/audit.module';
+import { OcrModule } from '../modules/ocr/ocr.module';
 
 /**
  * Registers all BullMQ worker handlers.

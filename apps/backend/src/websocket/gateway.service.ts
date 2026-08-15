@@ -1,11 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RedisService } from '../common/redis.service.js';
+import { RedisService } from '../common/redis.service';
 import { Server as SocketIOServer, type Socket } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
-import type { JwtPayload } from '../modules/auth/types.js';
+import type { JwtPayload } from '../modules/auth/types';
 import type { WebSocketEvent } from '@smart-edms/types';
 
 /**

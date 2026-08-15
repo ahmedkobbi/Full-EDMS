@@ -5,7 +5,7 @@
  * defines fields (code, label key, type, required, controlled vocabulary).
  */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
 
 const metadataFieldSchema = z.object({

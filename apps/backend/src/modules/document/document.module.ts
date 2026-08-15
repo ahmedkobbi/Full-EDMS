@@ -17,9 +17,9 @@
  */
 
 import { Module } from '@nestjs/common';
-import { DocumentController } from './document.controller.js';
-import { DocumentService } from './document.service.js';
-import { SearchModule } from '../search/search.module.js';
+import { DocumentController } from './document.controller';
+import { DocumentService } from './document.service';
+import { SearchModule } from '../search/search.module';
 
 @Module({
   imports: [SearchModule],

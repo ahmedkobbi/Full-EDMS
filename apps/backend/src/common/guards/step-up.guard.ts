@@ -24,10 +24,10 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
-import { RedisService } from '../../common/redis.service.js';
+import { RedisService } from '../../common/redis.service';
 import type { FastifyRequest } from 'fastify';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
-import { STEP_UP_REQUIRED_KEY } from '../decorators/step-up-required.decorator.js';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { STEP_UP_REQUIRED_KEY } from '../decorators/step-up-required.decorator';
 
 export interface StepUpPayload {
   sub: string;

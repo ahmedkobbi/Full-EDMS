@@ -25,9 +25,9 @@
 
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { DOCUMENT_WS_EVENTS, wsEventChannel } from '../document/document.gateway-events.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { DOCUMENT_WS_EVENTS, wsEventChannel } from '../document/document.gateway-events';
 
 /** OpenSearch index name per tenant. */
 const indexName = (tenantId: string): string => `smart-edms-documents-${tenantId.toLowerCase()}`;

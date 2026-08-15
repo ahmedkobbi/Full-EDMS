@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { WebSocketGatewayService } from './gateway.service.js';
-import { RealtimeGateway } from './realtime.gateway.js';
+import { WebSocketGatewayService } from './gateway.service';
+import { RealtimeGateway } from './realtime.gateway';
 
 @Module({
   providers: [WebSocketGatewayService, RealtimeGateway],

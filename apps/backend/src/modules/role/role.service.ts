@@ -3,7 +3,7 @@
  * System roles cannot be deleted; custom roles can be fully managed.
  */
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
 
 const createRoleSchema = z.object({

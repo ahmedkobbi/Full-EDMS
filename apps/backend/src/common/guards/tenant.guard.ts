@@ -6,10 +6,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator.js';
-import { ROLES_KEY } from '../decorators/roles.decorator.js';
-import type { AuthenticatedRequest } from './jwt-auth.guard.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { ROLES_KEY } from '../decorators/roles.decorator';
+import type { AuthenticatedRequest } from './jwt-auth.guard';
 
 /**
  * Enforces tenant isolation: every request is scoped to the tenant in the JWT.

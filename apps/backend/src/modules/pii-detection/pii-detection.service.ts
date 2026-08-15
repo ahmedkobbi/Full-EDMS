@@ -14,8 +14,8 @@
  * decisions").
  */
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
 import { createHash } from 'node:crypto';
 
 export interface PiiDetection {

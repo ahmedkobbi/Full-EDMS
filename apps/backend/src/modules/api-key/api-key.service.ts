@@ -3,8 +3,8 @@
  * API keys are shown ONCE on creation — only the hash is stored.
  */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
 import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 

@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable, tap } from 'rxjs';
-import { AUDIT_KEY, type AuditMetadata } from '../decorators/audit.decorator.js';
-import { AuditService } from './audit.service.js';
-import type { AuthenticatedRequest } from '../guards/jwt-auth.guard.js';
+import { AUDIT_KEY, type AuditMetadata } from '../decorators/audit.decorator';
+import { AuditService } from '../audit.service';
+import type { AuthenticatedRequest } from '../guards/jwt-auth.guard';
 
 /**
  * Intercepts controller methods decorated with @Audit() and records an audit event

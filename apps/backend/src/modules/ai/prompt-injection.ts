@@ -19,6 +19,7 @@
  */
 export {
   detectPromptInjection,
+  isBlocked,
   type PromptInjectionDetection,
-  type PromptInjectionCategory,
+
 } from '@smart-edms/ai-core';

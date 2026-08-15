@@ -19,25 +19,25 @@ import type { UserId } from './user';
 import type { ClassificationLabelId } from './classification';
 
 /** Branded document identifier. */
-export type DocumentId = UUID & { readonly __document: 'DocumentId' };
+export type DocumentId = UUID
 
 /** Branded document-version identifier. */
-export type DocumentVersionId = UUID & { readonly __documentVersion: 'DocumentVersionId' };
+export type DocumentVersionId = UUID
 
 /** Branded metadata-schema identifier. */
-export type MetadataSchemaId = UUID & { readonly __schema: 'MetadataSchemaId' };
+export type MetadataSchemaId = UUID
 
 /** Branded metadata-field identifier. */
-export type MetadataFieldId = UUID & { readonly __field: 'MetadataFieldId' };
+export type MetadataFieldId = UUID
 
 /** Branded document-type identifier. */
-export type DocumentTypeId = UUID & { readonly __documentType: 'DocumentTypeId' };
+export type DocumentTypeId = UUID
 
 /** Branded folder / workspace identifier. */
-export type FolderId = UUID & { readonly __folder: 'FolderId' };
+export type FolderId = UUID
 
 /** Branded tag identifier. */
-export type TagId = UUID & { readonly __tag: 'TagId' };
+export type TagId = UUID
 
 // ---------------------------------------------------------------------------
 // Checksums and hashes

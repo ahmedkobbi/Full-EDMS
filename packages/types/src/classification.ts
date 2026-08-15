@@ -12,14 +12,10 @@ import type { UserId } from './user';
 import type { DocumentId } from './document';
 
 /** Branded classification-label identifier. */
-export type ClassificationLabelId = UUID & {
-  readonly __classificationLabel: 'ClassificationLabelId';
-};
+export type ClassificationLabelId = UUID;
 
 /** Branded classification-history identifier. */
-export type ClassificationHistoryId = UUID & {
-  readonly __classificationHistory: 'ClassificationHistoryId';
-};
+export type ClassificationHistoryId = UUID;
 
 /**
  * Sensitivity level. Higher numbers indicate higher sensitivity. The default

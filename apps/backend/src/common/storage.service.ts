@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client as MinioClient } from 'minio';
-import { createHash, type Readable } from 'node:crypto';
-import { randomUUID } from 'node:crypto';
+import { Readable } from 'node:stream';
+import { randomUUID, createHash } from 'node:crypto';
 
 /**
  * S3-compatible object storage (MinIO in dev / AWS S3 in cloud).

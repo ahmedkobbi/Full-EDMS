@@ -13,7 +13,7 @@
  * Spec ref: §9.11 (Crisis Response Room), §13.4 (presence.updated, crisisRoom.sync).
  */
 import { Injectable, Logger } from '@nestjs/common';
-import { RedisService } from '../../common/redis.service.js';
+import { RedisService } from '../../common/redis.service';
 
 export interface PresenceEntry {
   userId: string;

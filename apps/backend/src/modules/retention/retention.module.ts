@@ -12,9 +12,9 @@
  */
 
 import { Module } from '@nestjs/common';
-import { RetentionController } from './retention.controller.js';
-import { RetentionService } from './retention.service.js';
-import { RetentionCron } from './retention-cron.js';
+import { RetentionController } from './retention.controller';
+import { RetentionService } from './retention.service';
+import { RetentionCron } from './retention-cron';
 
 @Module({
   controllers: [RetentionController],

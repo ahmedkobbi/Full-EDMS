@@ -17,16 +17,16 @@ import type { UserId } from './user';
 import type { EntitlementModule } from './license';
 
 /** Branded tour-definition identifier. */
-export type TourDefinitionId = UUID & { readonly __tour: 'TourDefinitionId' };
+export type TourDefinitionId = UUID
 
 /** Branded tour-step identifier. */
-export type TourStepId = UUID & { readonly __tourStep: 'TourStepId' };
+export type TourStepId = UUID
 
 /** Branded tour-user-state identifier. */
-export type TourUserStateId = UUID & { readonly __tourUserState: 'TourUserStateId' };
+export type TourUserStateId = UUID
 
 /** Branded tour-analytics-event identifier. */
-export type TourAnalyticsEventId = UUID & { readonly __tourAnalytics: 'TourAnalyticsEventId' };
+export type TourAnalyticsEventId = UUID
 
 /**
  * The 14 mandatory tour codes (spec §10.2). Stable across releases.

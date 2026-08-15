@@ -15,19 +15,19 @@ import type { UserId } from './user';
 import type { DocumentId } from './document';
 
 /** Branded scanner-profile identifier. */
-export type ScannerProfileId = UUID & { readonly __scannerProfile: 'ScannerProfileId' };
+export type ScannerProfileId = UUID
 
 /** Branded scanner-job identifier. */
-export type ScannerJobId = UUID & { readonly __scannerJob: 'ScannerJobId' };
+export type ScannerJobId = UUID
 
 /** Branded digitization-batch identifier. */
-export type DigitizationBatchId = UUID & { readonly __digitizationBatch: 'DigitizationBatchId' };
+export type DigitizationBatchId = UUID
 
 /** Branded capture-rule identifier. */
-export type CaptureRuleId = UUID & { readonly __captureRule: 'CaptureRuleId' };
+export type CaptureRuleId = UUID
 
 /** Branded scan-device identifier. */
-export type ScanDeviceId = UUID & { readonly __scanDevice: 'ScanDeviceId' };
+export type ScanDeviceId = UUID
 
 /**
  * Scanner driver / protocol kind (spec §9.16 Phase 2).

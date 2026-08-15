@@ -31,9 +31,9 @@ import {
 import { Prisma } from '@prisma/client';
 import { Queue } from 'bullmq';
 import { randomUUID, createHash } from 'node:crypto';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { AuditService } from '../../common/audit.service';
+import { RedisService } from '../../common/redis.service';
 import {
   computeApprovalAttestation,
   computeInitialStep,
@@ -41,7 +41,7 @@ import {
   type EngineDefinition,
   type EngineInstance,
   type EngineStep,
-} from './workflow-engine.js';
+} from './workflow-engine';
 import type {
   CancelInstanceBody,
   CreateWorkflowBody,
@@ -51,7 +51,7 @@ import type {
   UpdateWorkflowBody,
   WorkflowInstanceListQuery,
   WorkflowListQuery,
-} from './dto.js';
+} from './dto';
 
 // ---------------------------------------------------------------------------
 // Constants

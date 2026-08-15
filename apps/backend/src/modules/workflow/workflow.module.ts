@@ -14,9 +14,9 @@
 
 import { Module, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
 import { Worker } from 'bullmq';
-import { WorkflowController, WorkflowInstanceController } from './workflow.controller.js';
-import { WorkflowService, WORKFLOW_QUEUE_NAME } from './workflow.service.js';
-import { RedisService } from '../../common/redis.service.js';
+import { WorkflowController, WorkflowInstanceController } from './workflow.controller';
+import { WorkflowService, WORKFLOW_QUEUE_NAME } from './workflow.service';
+import { RedisService } from '../../common/redis.service';
 
 @Module({
   controllers: [WorkflowController, WorkflowInstanceController],

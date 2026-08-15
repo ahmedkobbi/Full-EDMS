@@ -8,7 +8,7 @@
 
 import type { z } from 'zod';
 import { DocumentsGetMetadataInputSchema } from '@smart-edms/schemas';
-import type { ToolDefinition, ToolResult } from '../tool-catalog.js';
+import type { ToolDefinition, ToolResult } from '../tool-catalog';
 
 interface DocumentsGetMetadataOutput {
   readonly documentId: string;

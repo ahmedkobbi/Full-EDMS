@@ -11,6 +11,11 @@
     "isolatedModules": false,
     "declaration": false,
     "declarationMap": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": "./",
@@ -19,8 +24,14 @@
       "@smart-edms/types": ["../../packages/types/src"],
       "@smart-edms/schemas": ["../../packages/schemas/src"],
       "@smart-edms/i18n": ["../../packages/i18n/src"],
-      "@smart-edms/license-core": ["../../packages/license-core/src"]
-    }
+      "@smart-edms/license-core": ["../../packages/license-core/src"],
+      "@smart-edms/ai-core": ["../../packages/ai-core/src"],
+      "@smart-edms/utils": ["../../packages/utils/src"],
+      "@smart-edms/config": ["../../packages/config/src"],
+      "@smart-edms/ui": ["../../packages/ui/src"],
+      "@smart-edms/tour-core": ["../../packages/tour-core/src"]
+    },
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "test", "prisma"]

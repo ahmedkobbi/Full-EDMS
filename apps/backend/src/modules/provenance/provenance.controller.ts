@@ -11,9 +11,9 @@
  *   GET  /v1/provenance/evidence/:jobId/status           get evidence package status
  */
 import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { ProvenanceService } from './provenance.service.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { ProvenanceService } from './provenance.service';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 
 @Controller('v1/provenance')
 export class ProvenanceController {

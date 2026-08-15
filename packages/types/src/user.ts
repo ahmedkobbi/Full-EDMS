@@ -19,22 +19,22 @@ import type { TenantId } from './tenant';
 import type { ThemePreference } from './branding';
 
 /** Branded user identifier. */
-export type UserId = UUID & { readonly __user: 'UserId' };
+export type UserId = UUID
 
 /** Branded role identifier. */
-export type RoleId = UUID & { readonly __role: 'RoleId' };
+export type RoleId = UUID
 
 /** Branded group identifier. */
-export type GroupId = UUID & { readonly __group: 'GroupId' };
+export type GroupId = UUID
 
 /** Branded session identifier. */
-export type SessionId = UUID & { readonly __session: 'SessionId' };
+export type SessionId = UUID
 
 /** Branded permission identifier (e.g. `documents.read`). */
 export type PermissionId = string & { readonly __permission: 'PermissionId' };
 
 /** Branded service-account identifier. */
-export type ServiceAccountId = UUID & { readonly __serviceAccount: 'ServiceAccountId' };
+export type ServiceAccountId = UUID
 
 /** Branded device / installation fingerprint. */
 export type DeviceFingerprint = string & { readonly __device: 'DeviceFingerprint' };

@@ -2,32 +2,14 @@ import {
   type ArgumentsHost,
   Catch,
   type ExceptionFilter,
-  HttpAdapterHost,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import type { ApiErrorEnvelope } from '@smart-edms/types';
 
-/**
- * Global exception filter — converts all errors into the standard API error envelope.
- * Spec ref: §14.2 (common error contract), §27.1 (centralize error handling).
- *
- * Envelope:
- *   {
- *     ok: false,
- *     error: {
- *       code: 'VALIDATION_FAILED',
- *       messageKey: 'errors.VALIDATION_FAILED',
- *       messageVars: { field: 'email' },
- *       traceId: 'uuid',
- *       details?: unknown
- *     }
- *   }
- *
- * The client renders user-facing messages via `t(error.messageKey, error.messageVars)`.
- */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
@@ -52,7 +34,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         error: {
           code: (nestResp.code ?? mapStatusToCode(status)) as ApiErrorEnvelope['error']['code'],
           messageKey: nestResp.messageKey ?? 'errors.INTERNAL_ERROR',
-          messageVars: nestResp.messageVars,
+          messageVars: nestResp.messageVars as any,
           traceId,
           details: nestResp.details,
         },
@@ -87,23 +69,14 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
 function mapStatusToCode(status: number): string {
   switch (status) {
-    case 400:
-      return 'VALIDATION_FAILED';
-    case 401:
-      return 'UNAUTHENTICATED';
-    case 403:
-      return 'UNAUTHORIZED';
-    case 404:
-      return 'NOT_FOUND';
-    case 409:
-      return 'CONFLICT';
-    case 422:
-      return 'VALIDATION_FAILED';
-    case 429:
-      return 'RATE_LIMITED';
-    case 503:
-      return 'SERVICE_UNAVAILABLE';
-    default:
-      return 'INTERNAL_ERROR';
+    case 400: return 'VALIDATION_FAILED';
+    case 401: return 'UNAUTHENTICATED';
+    case 403: return 'UNAUTHORIZED';
+    case 404: return 'NOT_FOUND';
+    case 409: return 'CONFLICT';
+    case 422: return 'VALIDATION_FAILED';
+    case 429: return 'RATE_LIMITED';
+    case 503: return 'SERVICE_UNAVAILABLE';
+    default: return 'INTERNAL_ERROR';
   }
 }

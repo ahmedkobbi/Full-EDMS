@@ -18,10 +18,10 @@
  *  - No-download mode sets response headers to prevent browser caching + download
  */
 import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service.js';
-import { RedisService } from '../../common/redis.service.js';
-import { AuditService } from '../../common/audit.service.js';
-import { StorageService } from '../../common/storage.service.js';
+import { PrismaService } from '../../prisma/prisma.service';
+import { RedisService } from '../../common/redis.service';
+import { AuditService } from '../../common/audit.service';
+import { StorageService } from '../../common/storage.service';
 import { randomBytes, createHash } from 'node:crypto';
 import { z } from 'zod';
 

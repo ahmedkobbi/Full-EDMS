@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { PiiDetectionController } from './pii-detection.controller.js';
-import { PiiDetectionService } from './pii-detection.service.js';
+import { PiiDetectionController } from './pii-detection.controller';
+import { PiiDetectionService } from './pii-detection.service';
 
 @Global()
 @Module({

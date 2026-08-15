@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { LicenseController } from './license.controller.js';
-import { LicenseService } from './license.service.js';
-import { LicenseHeartbeatCron } from './license-heartbeat-cron.js';
+import { LicenseController } from './license.controller';
+import { LicenseService } from './license.service';
+import { LicenseHeartbeatCron } from './license-heartbeat-cron';
 import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({

@@ -29,11 +29,11 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import { Audit } from '../../common/decorators/audit.decorator.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { LicenseRequired } from '../../common/decorators/license-required.decorator.js';
-import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
-import { WorkflowService } from './workflow.service.js';
+import { Audit } from '../../common/decorators/audit.decorator';
+import { Roles } from '../../common/decorators/roles.decorator';
+import { LicenseRequired } from '../../common/decorators/license-required.decorator';
+import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import { WorkflowService } from './workflow.service';
 import {
   CancelInstanceBodySchema,
   CreateWorkflowBodySchema,
@@ -51,7 +51,7 @@ import {
   type UpdateWorkflowBody,
   type WorkflowInstanceListQuery,
   type WorkflowListQuery,
-} from './dto.js';
+} from './dto';
 
 @Controller('v1/workflows')
 @Roles('admin', 'workflow-designer', 'records-manager', 'editor')

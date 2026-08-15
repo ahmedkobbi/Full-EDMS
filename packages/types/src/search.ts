@@ -14,7 +14,7 @@ import type { DocumentId } from './document';
 import type { ClassificationLabelId } from './classification';
 
 /** Branded saved-search identifier. */
-export type SavedSearchId = UUID & { readonly __savedSearch: 'SavedSearchId' };
+export type SavedSearchId = UUID
 
 /** Logical operator used to combine filter clauses. */
 export type BooleanOperator = 'and' | 'or' | 'not';
