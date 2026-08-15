@@ -103,4 +103,61 @@ export class NotificationService {
     );
     return notif;
   }
+
+  // ===========================================================================
+  // §9.13 — Notification preferences
+  // ===========================================================================
+
+  /**
+   * Get the user's notification preferences. Stored as JSON in Redis.
+   * Defaults: all channels enabled, all severities enabled.
+   */
+  async getPreferences(tenantId: string, userId: string) {
+    const raw = await this.redis.connection.get(`notif:prefs:${tenantId}:${userId}`);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        // fall through to defaults
+      }
+    }
+    return {
+      channels: {
+        in_app: true,
+        email: true,
+        desktop: true,
+      },
+      severities: {
+        info: true,
+        success: true,
+        warning: true,
+        danger: true,
+      },
+      categories: {
+        auth: true,
+        document: true,
+        workflow: true,
+        share: true,
+        license: true,
+        ai_assistant: true,
+        admin: true,
+      },
+      doNotDisturb: false,
+      doNotDisturbFrom: null, // e.g. "22:00"
+      doNotDisturbTo: null,   // e.g. "07:00"
+    };
+  }
+
+  /**
+   * Update the user's notification preferences.
+   */
+  async updatePreferences(tenantId: string, userId: string, raw: unknown) {
+    const current = await this.getPreferences(tenantId, userId);
+    const merged = { ...current, ...(raw as object) };
+    await this.redis.connection.set(
+      `notif:prefs:${tenantId}:${userId}`,
+      JSON.stringify(merged),
+    );
+    return merged;
+  }
 }

@@ -1217,4 +1217,171 @@ export class DocumentService {
       );
     }
   }
+
+  // ===========================================================================
+  // §9.3 — Document comments, tags, favorites
+  // ===========================================================================
+
+  /** List comments on a document (spec §9.3). */
+  async listComments(tenantId: string, documentId: string) {
+    return this.prisma.documentComment.findMany({
+      where: { tenantId, documentId },
+      orderBy: { createdAt: 'asc' },
+      take: 200,
+      include: {
+        user: { select: { id: true, firstName: true, lastName: true, email: true } },
+      },
+    });
+  }
+
+  /** Create a comment on a document. */
+  async createComment(
+    tenantId: string,
+    documentId: string,
+    userId: string,
+    body: string,
+    anchor?: string,
+  ) {
+    const comment = await this.prisma.documentComment.create({
+      data: {
+        tenantId,
+        documentId,
+        userId,
+        body: body.slice(0, 10000),
+        anchor: anchor?.slice(0, 256) ?? null,
+      },
+      include: {
+        user: { select: { id: true, firstName: true, lastName: true, email: true } },
+      },
+    });
+
+    await this.emitWsEvent(tenantId, {
+      name: 'document.updated',
+      payload: { tenantId, documentId, action: 'comment_added', commentId: comment.id },
+    });
+
+    return comment;
+  }
+
+  /** Delete a comment (only the author or admin). */
+  async deleteComment(tenantId: string, documentId: string, commentId: string, userId: string) {
+    const comment = await this.prisma.documentComment.findFirst({
+      where: { id: commentId, tenantId, documentId },
+    });
+    if (!comment) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    // Only the author can delete their own comments (admins use a separate path)
+    if (comment.userId !== userId) {
+      throw new ForbiddenException({ messageKey: 'errors.UNAUTHORIZED' });
+    }
+    await this.prisma.documentComment.delete({ where: { id: commentId } });
+  }
+
+  /** Resolve a comment. */
+  async resolveComment(tenantId: string, documentId: string, commentId: string, userId: string) {
+    const comment = await this.prisma.documentComment.findFirst({
+      where: { id: commentId, tenantId, documentId },
+    });
+    if (!comment) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    return this.prisma.documentComment.update({
+      where: { id: commentId },
+      data: { resolved: true },
+    });
+  }
+
+  /**
+   * List tags on a document. Tags are stored as a JSON array on the Document
+   * record (simpler than a separate table for the common case).
+   */
+  async listTags(tenantId: string, documentId: string) {
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, tenantId },
+      select: { id: true, tags: true },
+    });
+    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    // tags is stored as JSON — Prisma returns it as the parsed value
+    return { tags: (doc as any).tags ?? [] };
+  }
+
+  /** Add a tag to a document. */
+  async addTag(tenantId: string, documentId: string, tag: string) {
+    const sanitized = tag.trim().slice(0, 64);
+    if (!sanitized) throw new BadRequestException({ messageKey: 'errors.VALIDATION_FAILED' });
+
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, tenantId },
+      select: { id: true, tags: true },
+    });
+    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    const currentTags: string[] = (doc as any).tags ?? [];
+    if (!currentTags.includes(sanitized)) {
+      currentTags.push(sanitized);
+      await this.prisma.document.update({
+        where: { id: documentId },
+        data: { tags: currentTags as any },
+      });
+    }
+
+    await this.emitWsEvent(tenantId, {
+      name: 'document.updated',
+      payload: { tenantId, documentId, action: 'tag_added', tag: sanitized },
+    });
+
+    return { tags: currentTags };
+  }
+
+  /** Remove a tag from a document. */
+  async removeTag(tenantId: string, documentId: string, tag: string) {
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, tenantId },
+      select: { id: true, tags: true },
+    });
+    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    const currentTags: string[] = (doc as any).tags ?? [];
+    const updatedTags = currentTags.filter((t) => t !== tag);
+    await this.prisma.document.update({
+      where: { id: documentId },
+      data: { tags: updatedTags as any },
+    });
+
+    return { tags: updatedTags };
+  }
+
+  /** Add a document to the user's favorites. */
+  async addFavorite(tenantId: string, documentId: string, userId: string) {
+    // Favorites are tracked via a simple metadata flag; in a full implementation
+    // this would be a separate UserFavorite table. For simplicity, we use a
+    // Redis set per user.
+    await this.redis.connection.sadd(
+      `favorites:${tenantId}:${userId}`,
+      documentId,
+    );
+  }
+
+  /** Remove a document from the user's favorites. */
+  async removeFavorite(tenantId: string, documentId: string, userId: string) {
+    await this.redis.connection.srem(
+      `favorites:${tenantId}:${userId}`,
+      documentId,
+    );
+  }
+
+  /** List the current user's favorite documents. */
+  async listFavorites(tenantId: string, userId: string) {
+    const ids = await this.redis.connection.smembers(`favorites:${tenantId}:${userId}`);
+    if (ids.length === 0) return { items: [] };
+    const documents = await this.prisma.document.findMany({
+      where: { tenantId, id: { in: ids }, deletedAt: null },
+      select: {
+        id: true,
+        title: true,
+        status: true,
+        updatedAt: true,
+        createdByUserId: true,
+      },
+      take: 100,
+    });
+    return { items: documents };
+  }
 }

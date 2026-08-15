@@ -356,4 +356,91 @@ export class DocumentController {
       req.headers['user-agent'],
     );
   }
+
+  // ── §9.3 Document comments ──────────────────────────────────────────────
+
+  @Get(':id/comments')
+  async listComments(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.documents.listComments(req.user!.tid, id);
+  }
+
+  @Post(':id/comments')
+  @Audit({ category: 'document', code: 'document.comment.create', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async createComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { body: string; anchor?: string },
+  ) {
+    return this.documents.createComment(req.user!.tid, id, req.user!.sub, body.body, body.anchor);
+  }
+
+  @Delete(':id/comments/:commentId')
+  @Audit({ category: 'document', code: 'document.comment.delete', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async deleteComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Param('commentId') commentId: string,
+  ) {
+    await this.documents.deleteComment(req.user!.tid, id, commentId, req.user!.sub);
+    return { ok: true };
+  }
+
+  @Post(':id/comments/:commentId/resolve')
+  @Audit({ category: 'document', code: 'document.comment.resolve', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async resolveComment(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Param('commentId') commentId: string,
+  ) {
+    return this.documents.resolveComment(req.user!.tid, id, commentId, req.user!.sub);
+  }
+
+  // ── §9.3 Document tags ───────────────────────────────────────────────────
+
+  @Get(':id/tags')
+  async listTags(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.documents.listTags(req.user!.tid, id);
+  }
+
+  @Post(':id/tags')
+  @Audit({ category: 'document', code: 'document.tag.add', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async addTag(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { tag: string },
+  ) {
+    return this.documents.addTag(req.user!.tid, id, body.tag);
+  }
+
+  @Delete(':id/tags/:tag')
+  @Audit({ category: 'document', code: 'document.tag.remove', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async removeTag(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Param('tag') tag: string,
+  ) {
+    await this.documents.removeTag(req.user!.tid, id, tag);
+    return { ok: true };
+  }
+
+  // ── §9.3 Document favorites ──────────────────────────────────────────────
+
+  @Post(':id/favorite')
+  @Audit({ category: 'document', code: 'document.favorite.add', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async addFavorite(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    await this.documents.addFavorite(req.user!.tid, id, req.user!.sub);
+    return { ok: true };
+  }
+
+  @Delete(':id/favorite')
+  @Audit({ category: 'document', code: 'document.favorite.remove', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async removeFavorite(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    await this.documents.removeFavorite(req.user!.tid, id, req.user!.sub);
+    return { ok: true };
+  }
+
+  @Get('favorites/me')
+  async listFavorites(@Req() req: AuthenticatedRequest) {
+    return this.documents.listFavorites(req.user!.tid, req.user!.sub);
+  }
 }

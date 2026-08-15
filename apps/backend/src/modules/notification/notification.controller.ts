@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Patch } from '@nestjs/common';
 import { NotificationService } from './notification.service.js';
 import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
 
@@ -19,5 +19,17 @@ export class NotificationController {
   @Post('mark-all-read')
   markAllRead(@Req() req: AuthenticatedRequest) {
     return this.notifications.markAllRead(req.user!.tid, req.user!.sub);
+  }
+
+  // ── §9.13 Notification preferences ───────────────────────────────────────
+
+  @Get('preferences')
+  getPreferences(@Req() req: AuthenticatedRequest) {
+    return this.notifications.getPreferences(req.user!.tid, req.user!.sub);
+  }
+
+  @Patch('preferences')
+  updatePreferences(@Req() req: AuthenticatedRequest, @Body() body: unknown) {
+    return this.notifications.updatePreferences(req.user!.tid, req.user!.sub, body);
   }
 }

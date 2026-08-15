@@ -287,6 +287,7 @@ model Document {
   sourceSystem      String?  @db.VarChar(128)
   contentLanguage   String?  @db.VarChar(16)
   textDirection     String?  @db.VarChar(8)
+  tags              String[] @default([])
   classificationId  String?  @db.Uuid
   sensitivityLevel  Int      @default(2)
   status            DocumentStatus @default(ACTIVE)

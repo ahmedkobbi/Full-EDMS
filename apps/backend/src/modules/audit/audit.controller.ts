@@ -1,12 +1,19 @@
-import { Controller, Get, Post, Query, Req } from '@nestjs/common';
+import { Controller, Get, Post, Query, Req, Param, Res, NotFoundException } from '@nestjs/common';
+import type { FastifyReply } from 'fastify';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { Audit } from '../../common/decorators/audit.decorator.js';
 import { AuditApiService } from './audit.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
+import { StorageService } from '../../common/storage.service.js';
 import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard.js';
 
 @Controller('v1/audit')
 export class AuditController {
-  constructor(private readonly audit: AuditApiService) {}
+  constructor(
+    private readonly audit: AuditApiService,
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   @Roles('admin', 'auditor', 'security-officer')
   @Get('events')
@@ -25,5 +32,53 @@ export class AuditController {
   @Post('export')
   export(@Req() req: AuthenticatedRequest, @Query() q: unknown) {
     return this.audit.requestExport(req.user!.tid, req.user!.sub, q);
+  }
+
+  /**
+   * Check the status of an audit export job (spec §9.12).
+   */
+  @Roles('admin', 'auditor')
+  @Get('export/:jobId/status')
+  async getExportStatus(@Req() req: AuthenticatedRequest, @Param('jobId') jobId: string) {
+    const job = await this.prisma.job.findFirst({
+      where: { id: jobId, tenantId: req.user!.tid, kind: 'audit_export' },
+    });
+    if (!job) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    return {
+      jobId: job.id,
+      status: job.status,
+      result: job.result,
+      errorMessage: job.errorMessage,
+      createdAt: job.createdAt,
+      completedAt: job.completedAt,
+    };
+  }
+
+  /**
+   * Download a completed audit export (spec §9.12).
+   * Streams the file from object storage.
+   */
+  @Roles('admin', 'auditor')
+  @Audit({ category: 'audit', code: 'audit.export.download', resourceType: 'job', resourceIdParam: 'jobId' })
+  @Get('export/:jobId/download')
+  async downloadExport(
+    @Req() req: AuthenticatedRequest,
+    @Param('jobId') jobId: string,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const job = await this.prisma.job.findFirst({
+      where: { id: jobId, tenantId: req.user!.tid, kind: 'audit_export', status: 'completed' },
+    });
+    if (!job || !job.result || typeof (job.result as any).storageKey !== 'string') {
+      throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    }
+
+    const storageKey = (job.result as any).storageKey as string;
+    const signedUrl = await this.storage.signDownloadUrl(storageKey, 300); // 5min
+
+    // Redirect to the signed URL
+    reply.header('Location', signedUrl);
+    reply.code(302);
+    return { downloadUrl: signedUrl, expiresIn: 300 };
   }
 }

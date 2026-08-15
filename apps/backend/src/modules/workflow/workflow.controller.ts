@@ -137,6 +137,12 @@ export class WorkflowInstanceController {
     return this.workflows.getInstance(req.user!.tid, id);
   }
 
+  /** List pending approvals for the current user (spec §9.8). */
+  @Get('approvals/pending')
+  async listPendingApprovals(@Req() req: AuthenticatedRequest) {
+    return this.workflows.listPendingApprovals(req.user!.tid, req.user!.sub);
+  }
+
   @Post(':id/approve')
   @Audit({ category: 'workflow', code: 'workflow.approval_completed', resourceType: 'workflow_instance', resourceIdParam: 'id' })
   @HttpCode(200)

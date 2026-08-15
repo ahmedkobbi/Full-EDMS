@@ -1130,6 +1130,48 @@ export class WorkflowService {
   }
 
   /**
+   * List pending approvals for a user (spec §9.8).
+   * Returns workflow steps where the user is the assignee and status is pending.
+   */
+  async listPendingApprovals(tenantId: string, userId: string) {
+    const steps = await this.prisma.workflowStep.findMany({
+      where: {
+        tenantId,
+        assigneeId: userId,
+        status: 'pending',
+      },
+      orderBy: { dueAt: 'asc' },
+      take: 50,
+      include: {
+        instance: {
+          include: {
+            definition: { select: { id: true, name: true, code: true, modelKind: true } },
+            document: { select: { id: true, title: true } },
+          },
+        },
+      },
+    });
+    return steps.map((s) => ({
+      stepId: s.id,
+      stepKey: s.stepKey,
+      stepName: s.name,
+      instanceId: s.instanceId,
+      status: s.status,
+      dueAt: s.dueAt,
+      startedAt: s.startedAt,
+      workflow: {
+        id: s.instance.definition.id,
+        name: s.instance.definition.name,
+        code: s.instance.definition.code,
+        modelKind: s.instance.definition.modelKind,
+      },
+      document: s.instance.document
+        ? { id: s.instance.document.id, title: s.instance.document.title }
+        : null,
+    }));
+  }
+
+  /**
    * Emit a WebSocket event via Redis pub/sub (spec §13.4).
    * The WebSocket gateway subscribes to `smart-edms:ws-events:${tenantId}`
    * and fans out to connected sockets in the `tenant:${tenantId}` room.

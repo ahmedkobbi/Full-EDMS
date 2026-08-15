@@ -25,6 +25,12 @@ import { TourModule } from './modules/tour/tour.module.js';
 import { AiModule } from './modules/ai/ai.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { GroupModule } from './modules/group/group.module.js';
+import { RoleModule } from './modules/role/role.module.js';
+import { MetadataModule } from './modules/metadata/metadata.module.js';
+import { WebhookModule } from './modules/webhook/webhook.module.js';
+import { ApiKeyModule } from './modules/api-key/api-key.module.js';
+import { LocaleModule } from './modules/locale/locale.module.js';
 import { WebSocketModule } from './websocket/websocket.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { TenantGuard } from './common/guards/tenant.guard.js';
@@ -87,6 +93,12 @@ import { environmentSchema } from './config/environment.js';
     AiModule,
     AdminModule,
     HealthModule,
+    GroupModule,
+    RoleModule,
+    MetadataModule,
+    WebhookModule,
+    ApiKeyModule,
+    LocaleModule,
     WebSocketModule,
   ],
   providers: [
