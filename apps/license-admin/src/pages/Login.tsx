@@ -30,7 +30,7 @@ import {
 import { ShieldCheck, User, KeyRound, Key } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { BrandedLogo } from '../components/common/BrandedLogo';
+import { BrandedLogo } from '@smart-edms/ui';
 import { LanguageSwitcherInline } from '../components/common/LanguageSwitcherInline';
 import {
   useAdminLoginMutation,

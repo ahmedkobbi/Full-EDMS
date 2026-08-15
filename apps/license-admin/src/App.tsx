@@ -8,7 +8,7 @@
  */
 import { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { LoadingState } from './components/common/LoadingState';
+import { LoadingState } from '@smart-edms/ui';
 import { AdminShell } from './components/layout/AdminShell';
 import { StepUpProvider } from './components/common/StepUpProvider';
 import { GuidedTour } from './components/tour/GuidedTour';

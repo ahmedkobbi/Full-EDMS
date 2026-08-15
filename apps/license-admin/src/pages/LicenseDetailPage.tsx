@@ -10,7 +10,7 @@ import { useLicenseQuery } from '../api/hooks';
 import { PageHeader } from '../components/common/PageHeader';
 import { LicenseDetail } from '../components/licenses/LicenseDetail';
 import { LicenseIssueModal } from '../components/licenses/LicenseIssueModal';
-import { ErrorState } from '../components/common/ErrorState';
+import { ErrorState } from '@smart-edms/ui';
 
 export function LicenseDetailPage() {
   const { t } = useTranslation();

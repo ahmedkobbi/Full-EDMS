@@ -11,7 +11,7 @@ import { useCustomerQuery } from '../api/hooks';
 import { PageHeader } from '../components/common/PageHeader';
 import { CustomerDetail } from '../components/customers/CustomerDetail';
 import { CustomerDrawer } from '../components/customers/CustomerDrawer';
-import { ErrorState } from '../components/common/ErrorState';
+import { ErrorState } from '@smart-edms/ui';
 
 export function CustomerDetailPage() {
   const { t } = useTranslation();

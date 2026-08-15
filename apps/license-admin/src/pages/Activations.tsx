@@ -9,8 +9,8 @@
 import { Stack } from '@mantine/core';
 import { PageHeader } from '../components/common/PageHeader';
 import { ActivationTable } from '../components/activations/ActivationTable';
-import { EmptyState } from '../components/common/EmptyState';
-import { LoadingState } from '../components/common/LoadingState';
+import { EmptyState } from '@smart-edms/ui';
+import { LoadingState } from '@smart-edms/ui';
 import { useLicensesQuery, useLicenseActivationsQuery } from '../api/hooks';
 
 export function ActivationsPage() {

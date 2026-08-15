@@ -28,7 +28,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDashboardKpisQuery } from '../api/hooks';
 import { PageHeader } from '../components/common/PageHeader';
-import { ErrorState } from '../components/common/ErrorState';
+import { ErrorState } from '@smart-edms/ui';
 
 export function DashboardPage() {
   const { t } = useTranslation();

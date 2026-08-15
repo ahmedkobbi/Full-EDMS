@@ -17,22 +17,54 @@
 import { io, type Socket } from 'socket.io-client';
 import { BACKEND_BASE_URL } from './client';
 
-/** Realtime event names (spec §13.4). */
+/**
+ * Realtime event names — must match the backend's emitted event names exactly.
+ *
+ * The backend uses dot.notation (e.g., 'document.updated', 'workflow.approval.completed').
+ * Spec ref: §13.4 (WebSocket event catalogue).
+ */
 export const REALTIME_EVENTS = {
+  // Document events (§9.3)
+  DocumentCreated: 'document.created',
   DocumentUpdated: 'document.updated',
   DocumentDeleted: 'document.deleted',
-  DocumentLocked: 'document.locked',
-  DocumentUnlocked: 'document.unlocked',
-  WorkflowStepUpdated: 'workflow.step_updated',
-  WorkflowCompleted: 'workflow.completed',
-  ApprovalRequired: 'approval.required',
-  ApprovalCompleted: 'approval.completed',
-  AuditEventRecorded: 'audit.event_recorded',
+  DocumentVersionCreated: 'document.version.created',
+  DocumentClassificationChanged: 'document.classification.changed',
+  // Workflow events (§9.8)
+  WorkflowStepUpdated: 'workflow.step.updated',
+  WorkflowApprovalRequested: 'workflow.approval.requested',
+  WorkflowApprovalCompleted: 'workflow.approval.completed',
+  // Audit events (§9.12)
+  AuditAlert: 'audit.alert',
+  // Notification events (§9.13)
   NotificationCreated: 'notification.created',
+  // Sharing events (§9.11)
+  ShareLinkUpdated: 'share.link.updated',
+  // Legal hold events (§9.7)
+  LegalHoldChanged: 'legalHold.changed',
+  // Retention events (§9.7)
+  RetentionChanged: 'retention.changed',
+  // License events (§12)
+  LicenseStatusChanged: 'license.status.changed',
+  // Presence events (§9.11)
+  PresenceUpdated: 'presence.updated',
+  // Crisis room events (§9.11)
+  CrisisRoomSync: 'crisisRoom.sync',
+  // Search events (§9.10)
+  SearchIndexUpdated: 'search.index.updated',
+  // Job events (§22.2)
+  JobProgressUpdated: 'job.progress.updated',
+  // Scanner events (§9.16)
+  ScannerJobStarted: 'scanner.job.started',
+  ScannerJobProgress: 'scanner.job.progress',
+  ScannerJobCompleted: 'scanner.job.completed',
+  ScannerJobFailed: 'scanner.job.failed',
+  // Tour events (§10)
+  TourUpdated: 'tour.updated',
+  // AI events (§11)
   AiResponseChunk: 'ai.response.chunk',
-  AiActionSuggested: 'ai.action.suggested',
-  LicenseStateChanged: 'license.state_changed',
-  TourProgressSynced: 'tour.progress_synced',
+  AiResponseCompleted: 'ai.response.completed',
+  AiResponseFailed: 'ai.response.failed',
 } as const;
 
 export type RealtimeEventName = (typeof REALTIME_EVENTS)[keyof typeof REALTIME_EVENTS];

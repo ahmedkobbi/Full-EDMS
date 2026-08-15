@@ -309,22 +309,46 @@ export function useStartAiSessionMutation(
   });
 }
 
-/** Send a message to the assistant. Returns the assistant's reply. */
+/**
+ * Send a message to the assistant via the chat endpoint.
+ * The backend's POST /v1/ai/assistant/chat accepts { message, sessionId?, locale }
+ * and returns the full response (content, citations, suggestedActions, disclaimerKey).
+ *
+ * Spec ref: §11.6 (AI API Contract — POST /v1/ai/assistant/chat).
+ */
 export function useSendAiMessageMutation(
-  sessionId: string,
+  sessionId: string | null,
   options?: UseMutationOptions<
-    { message: AssistantMessage; citations: Citation[] },
+    {
+      messageId: string;
+      sessionId: string;
+      content: string;
+      citations: Citation[];
+      suggestedActions?: unknown[];
+      disclaimerKey?: string;
+    },
     ApiError,
-    { content: string }
+    { content: string; locale?: string }
   >,
 ) {
   return useMutation<
-    { message: AssistantMessage; citations: Citation[] },
+    {
+      messageId: string;
+      sessionId: string;
+      content: string;
+      citations: Citation[];
+      suggestedActions?: unknown[];
+      disclaimerKey?: string;
+    },
     ApiError,
-    { content: string }
+    { content: string; locale?: string }
   >({
     mutationFn: (input) =>
-      apiPost(`/ai/assistant/sessions/${sessionId}/messages`, input),
+      apiPost('/ai/assistant/chat', {
+        message: input.content,
+        sessionId: sessionId ?? undefined,
+        locale: input.locale,
+      }),
     ...options,
   });
 }
