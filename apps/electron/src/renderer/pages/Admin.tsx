@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { Stack, Title, Text, Tabs, Paper, Group, Button } from '@mantine/core';
 import { IconShieldCheck, IconUsers, IconKey, IconPalette, IconLicense } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { EmptyState } from '../components/common/EmptyState';
+import { EmptyState } from '@smart-edms/ui';
 import { LicenseStatusBadge } from '../components/license/LicenseStatusBadge';
 import { LicenseImportModal } from '../components/license/LicenseImportModal';
 

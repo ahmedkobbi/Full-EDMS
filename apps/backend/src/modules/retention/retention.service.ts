@@ -28,6 +28,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../../common/audit.service.js';
+import { RedisService } from '../../common/redis.service.js';
 import { randomUUID } from 'node:crypto';
 
 // ---------------------------------------------------------------------------
@@ -131,6 +132,7 @@ export class RetentionService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly redis: RedisService,
   ) {}
 
   // -------------------------------------------------------------------------
@@ -630,5 +632,150 @@ export class RetentionService {
       default:
         return null;
     }
+  }
+
+  // ===========================================================================
+  // §9.7 — Disposition approval + execution
+  // ===========================================================================
+
+  /**
+   * Approve a pending disposition record.
+   *
+   * Requires records-manager or admin role. If the document is under legal
+   * hold, the disposition is blocked (status → BLOCKED_LEGAL_HOLD).
+   *
+   * Spec ref: §9.7 (retention, disposition approvals).
+   */
+  async approveDisposition(
+    tenantId: string,
+    dispositionId: string,
+    approvedByUserId: string,
+  ): Promise<{ ok: true; status: string }> {
+    const disposition = await this.prisma.dispositionRecord.findFirst({
+      where: { id: dispositionId, tenantId },
+      include: { retentionSchedule: true },
+    });
+    if (!disposition) {
+      throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    }
+    if (disposition.status !== 'PENDING') {
+      return { ok: true, status: `already_${disposition.status}` };
+    }
+
+    // Check if document is under legal hold
+    const doc = await this.prisma.document.findFirst({
+      where: { id: disposition.documentId, tenantId },
+      select: { id: true, legalHoldActive: true, title: true },
+    });
+    if (!doc) {
+      throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    }
+    if (doc.legalHoldActive) {
+      await this.prisma.dispositionRecord.update({
+        where: { id: dispositionId },
+        data: { status: 'BLOCKED_LEGAL_HOLD' },
+      });
+      return { ok: true, status: 'blocked_legal_hold' };
+    }
+
+    // Mark as approved
+    await this.prisma.dispositionRecord.update({
+      where: { id: dispositionId },
+      data: {
+        status: 'APPROVED',
+        approvedByUserId,
+        approvedAt: new Date(),
+      },
+    });
+
+    void this.audit.record({
+      tenantId,
+      userId: approvedByUserId,
+      category: 'retention',
+      code: 'retention.disposition.approve',
+      result: 'allow',
+      resourceType: 'document',
+      resourceId: disposition.documentId,
+      metadata: {
+        dispositionId,
+        action: disposition.retentionSchedule.dispositionAction,
+      },
+    });
+
+    // Enqueue the actual execution (async — the worker performs the
+    // delete/archive/review based on dispositionAction)
+    await this.redis.connection.publish(
+      'smart-edms:internal:retention-execute',
+      JSON.stringify({ dispositionId, tenantId }),
+    );
+
+    // Emit WebSocket event
+    await this.redis.connection.publish(
+      `smart-edms:ws-events:${tenantId}`,
+      JSON.stringify({
+        name: 'retention.changed',
+        payload: {
+          tenantId,
+          documentId: disposition.documentId,
+          action: 'disposition_approved',
+          dispositionId,
+        },
+      }),
+    );
+
+    return { ok: true, status: 'approved' };
+  }
+
+  /**
+   * Cancel a pending disposition (e.g. document should be retained longer).
+   */
+  async cancelDisposition(
+    tenantId: string,
+    dispositionId: string,
+    cancelledByUserId: string,
+    reason: string,
+  ): Promise<{ ok: true }> {
+    const disposition = await this.prisma.dispositionRecord.findFirst({
+      where: { id: dispositionId, tenantId },
+    });
+    if (!disposition) {
+      throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    }
+    if (disposition.status !== 'PENDING') {
+      throw new Error('DISPOSITION_ALREADY_RESOLVED');
+    }
+
+    await this.prisma.dispositionRecord.update({
+      where: { id: dispositionId },
+      data: { status: 'CANCELLED' },
+    });
+
+    void this.audit.record({
+      tenantId,
+      userId: cancelledByUserId,
+      category: 'retention',
+      code: 'retention.disposition.cancel',
+      result: 'allow',
+      resourceType: 'document',
+      resourceId: disposition.documentId,
+      reason,
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * List pending dispositions for approval (records-manager dashboard).
+   */
+  async listPendingDispositions(tenantId: string, limit = 50) {
+    return this.prisma.dispositionRecord.findMany({
+      where: { tenantId, status: 'PENDING' },
+      orderBy: { scheduledAt: 'asc' },
+      take: Math.min(limit, 200),
+      include: {
+        retentionSchedule: { select: { code: true, name: true, dispositionAction: true } },
+        document: { select: { id: true, title: true, legalHoldActive: true } },
+      },
+    });
   }
 }

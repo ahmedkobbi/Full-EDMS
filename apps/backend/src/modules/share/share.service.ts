@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../../common/audit.service.js';
 import { RedisService } from '../../common/redis.service.js';
@@ -49,8 +49,40 @@ export class ShareService {
 
   async create(tenantId: string, userId: string, raw: unknown) {
     const input = createLinkSchema.parse(raw);
-    const doc = await this.prisma.document.findFirst({ where: { id: input.documentId, tenantId, deletedAt: null } });
+    const doc = await this.prisma.document.findFirst({
+      where: { id: input.documentId, tenantId, deletedAt: null },
+      include: { classification: true },
+    });
     if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    // §9.11 + §9.4 — External sharing policy checks
+    // 1. Documents under legal hold cannot be shared externally
+    if (doc.legalHoldActive) {
+      throw new ForbiddenException({ messageKey: 'errors.LEGAL_HOLD_BLOCKS_SHARING' });
+    }
+
+    // 2. Restricted + Highly Sensitive documents require a password
+    if (
+      doc.classification &&
+      doc.classification.sensitivityLevel >= 4 &&
+      !input.password
+    ) {
+      throw new ForbiddenException({ messageKey: 'errors.RESTRICTED_REQUIRES_PASSWORD' });
+    }
+
+    // 3. External sharing (recipientEmail or no expiry) requires tenant policy
+    //    The tenant's sharing policy is stored in TenantSettings. For now we
+    //    check the classification level — Highly Sensitive documents cannot
+    //    be shared externally at all.
+    if (input.recipientEmail && doc.classification && doc.classification.sensitivityLevel >= 5) {
+      throw new ForbiddenException({ messageKey: 'errors.HIGHLY_SENSITIVE_NO_EXTERNAL_SHARE' });
+    }
+
+    // 4. Anonymous links (no password, no recipient) are strongly restricted
+    if (!input.password && !input.recipientEmail && !input.expiresAt) {
+      // Anonymous + no expiry + no password → reject
+      throw new ForbiddenException({ messageKey: 'errors.ANONYMOUS_LINK_REQUIRES_RESTRICTION' });
+    }
 
     const token = randomBytes(32).toString('hex');
     const passwordHash = input.password ? hashPassword(input.password) : null;

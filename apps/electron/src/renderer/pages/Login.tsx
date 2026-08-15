@@ -37,7 +37,7 @@ import { useForm } from '@mantine/form';
 import { IconAlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { BrandedLogo } from '../components/common/BrandedLogo';
+import { BrandedLogo } from '@smart-edms/ui';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 import { useLoginMutation } from '../api/hooks';
 import { useAuthStore } from '../store/auth';

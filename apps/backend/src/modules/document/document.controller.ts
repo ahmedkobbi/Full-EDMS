@@ -443,4 +443,47 @@ export class DocumentController {
   async listFavorites(@Req() req: AuthenticatedRequest) {
     return this.documents.listFavorites(req.user!.tid, req.user!.sub);
   }
+
+  // ── §9.3 Folder / workspace management ───────────────────────────────────
+
+  @Get('folders')
+  async listFolders(@Req() req: AuthenticatedRequest, @Query('parentId') parentId?: string) {
+    return this.documents.listFolders(req.user!.tid, parentId);
+  }
+
+  @Post('folders')
+  @Audit({ category: 'document', code: 'document.folder.create' })
+  async createFolder(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: { name: string; parentId?: string },
+  ) {
+    return this.documents.createFolder(req.user!.tid, body.name, body.parentId);
+  }
+
+  @Patch('folders/:id')
+  @Audit({ category: 'document', code: 'document.folder.rename', resourceType: 'folder', resourceIdParam: 'id' })
+  async renameFolder(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { name: string },
+  ) {
+    return this.documents.renameFolder(req.user!.tid, id, body.name);
+  }
+
+  @Delete('folders/:id')
+  @Audit({ category: 'document', code: 'document.folder.delete', resourceType: 'folder', resourceIdParam: 'id' })
+  async deleteFolder(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    await this.documents.deleteFolder(req.user!.tid, id);
+    return { ok: true };
+  }
+
+  @Post(':id/move')
+  @Audit({ category: 'document', code: 'document.move', resourceType: 'document', resourceIdParam: 'id', documentIdParam: 'id' })
+  async moveDocument(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { targetFolderId: string | null },
+  ) {
+    return this.documents.moveDocument(req.user!.tid, id, body.targetFolderId);
+  }
 }

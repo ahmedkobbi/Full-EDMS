@@ -15,9 +15,9 @@ import { IconPlay, IconRefresh, IconCompass } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useToursQuery } from '../api/hooks';
 import { useStartTour } from '../components/tour/TourEngine';
-import { LoadingState } from '../components/common/LoadingState';
-import { ErrorState } from '../components/common/ErrorState';
-import { EmptyState } from '../components/common/EmptyState';
+import { LoadingState } from '@smart-edms/ui';
+import { ErrorState } from '@smart-edms/ui';
+import { EmptyState } from '@smart-edms/ui';
 import type { TourCode } from '@smart-edms/types';
 
 export function ToursPage() {

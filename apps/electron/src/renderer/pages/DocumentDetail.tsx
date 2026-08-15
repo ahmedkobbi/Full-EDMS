@@ -30,9 +30,9 @@ import { modals } from '@mantine/modals';
 import { useDocumentQuery, useDeleteDocumentMutation } from '../api/hooks';
 import { DocumentPreview } from '../components/documents/DocumentPreview';
 import { DocumentMetadataPanel } from '../components/documents/DocumentMetadataPanel';
-import { LoadingState } from '../components/common/LoadingState';
-import { ErrorState } from '../components/common/ErrorState';
-import { EmptyState } from '../components/common/EmptyState';
+import { LoadingState } from '@smart-edms/ui';
+import { ErrorState } from '@smart-edms/ui';
+import { EmptyState } from '@smart-edms/ui';
 
 export function DocumentDetailPage() {
   const { t } = useTranslation();

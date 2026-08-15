@@ -11,7 +11,7 @@
  */
 import { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { LoadingState } from './components/common/LoadingState';
+import { LoadingState } from '@smart-edms/ui';
 import { AppShellLayout } from './components/layout/AppShell';
 import { TourEngine } from './components/tour/TourEngine';
 import { AiAssistantBubble } from './components/ai/AiAssistantBubble';

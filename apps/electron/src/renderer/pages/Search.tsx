@@ -26,10 +26,10 @@ import { IconSearch, IconFilter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDocumentsQuery } from '../api/hooks';
-import { LoadingState } from '../components/common/LoadingState';
-import { ErrorState } from '../components/common/ErrorState';
-import { EmptyState } from '../components/common/EmptyState';
-import { LocaleAwareDate } from '../components/common/LocaleAwareDate';
+import { LoadingState } from '@smart-edms/ui';
+import { ErrorState } from '@smart-edms/ui';
+import { EmptyState } from '@smart-edms/ui';
+import { LocaleAwareDate } from '@smart-edms/ui';
 
 export function SearchPage() {
   const { t } = useTranslation();

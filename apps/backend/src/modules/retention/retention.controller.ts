@@ -103,4 +103,44 @@ export class RetentionController {
     await this.cron.runOnce();
     return { triggered: true };
   }
+
+  // ── §9.7 Disposition approval + cancellation ─────────────────────────────
+
+  /**
+   * List pending dispositions for approval (records-manager dashboard).
+   */
+  @Get('dispositions/pending')
+  async listPendingDispositions(@Req() req: AuthenticatedRequest, @Query('limit') limit?: string) {
+    return this.retention.listPendingDispositions(
+      req.user!.tid,
+      limit ? parseInt(limit, 10) : 50,
+    );
+  }
+
+  /**
+   * Approve a pending disposition. If the document is under legal hold,
+   * the disposition is blocked.
+   */
+  @Post('dispositions/:id/approve')
+  @Roles('admin', 'records-manager')
+  @Audit({ category: 'retention', code: 'retention.disposition.approve', resourceType: 'disposition_record', resourceIdParam: 'id' })
+  @HttpCode(200)
+  async approveDisposition(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    return this.retention.approveDisposition(req.user!.tid, id, req.user!.sub);
+  }
+
+  /**
+   * Cancel a pending disposition (document should be retained longer).
+   */
+  @Post('dispositions/:id/cancel')
+  @Roles('admin', 'records-manager')
+  @Audit({ category: 'retention', code: 'retention.disposition.cancel', resourceType: 'disposition_record', resourceIdParam: 'id' })
+  @HttpCode(200)
+  async cancelDisposition(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: { reason: string },
+  ) {
+    return this.retention.cancelDisposition(req.user!.tid, id, req.user!.sub, body.reason);
+  }
 }

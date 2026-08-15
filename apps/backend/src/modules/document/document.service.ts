@@ -1384,4 +1384,154 @@ export class DocumentService {
     });
     return { items: documents };
   }
+
+  // ===========================================================================
+  // §9.3 — Folder / workspace management
+  // ===========================================================================
+
+  /**
+   * List folders. If parentId is null, returns root-level folders.
+   * Spec ref: §9.3 (folder or workspace organization).
+   */
+  async listFolders(tenantId: string, parentId?: string) {
+    return this.prisma.folder.findMany({
+      where: {
+        tenantId,
+        deletedAt: null,
+        parentId: parentId ?? null,
+      },
+      orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        path: true,
+        parentId: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: { select: { documents: { where: { deletedAt: null } } } },
+      },
+    });
+  }
+
+  /**
+   * Create a folder. If parentId is provided, the folder is created as a
+   * child of that parent. The path is computed by appending the folder name
+   * to the parent's path.
+   */
+  async createFolder(
+    tenantId: string,
+    name: string,
+    parentId?: string,
+  ) {
+    const sanitizedName = name.trim().slice(0, 256);
+    if (!sanitizedName) {
+      throw new BadRequestException({ messageKey: 'errors.VALIDATION_FAILED' });
+    }
+
+    let path = `/${sanitizedName}`;
+    if (parentId) {
+      const parent = await this.prisma.folder.findFirst({
+        where: { id: parentId, tenantId, deletedAt: null },
+        select: { path: true },
+      });
+      if (!parent) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+      path = `${parent.path}/${sanitizedName}`;
+    }
+
+    return this.prisma.folder.create({
+      data: {
+        tenantId,
+        parentId: parentId ?? null,
+        name: sanitizedName,
+        path,
+      },
+    });
+  }
+
+  /**
+   * Rename a folder. Updates the path and all child paths.
+   */
+  async renameFolder(tenantId: string, folderId: string, newName: string) {
+    const sanitized = newName.trim().slice(0, 256);
+    if (!sanitized) {
+      throw new BadRequestException({ messageKey: 'errors.VALIDATION_FAILED' });
+    }
+
+    const folder = await this.prisma.folder.findFirst({
+      where: { id: folderId, tenantId, deletedAt: null },
+    });
+    if (!folder) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    const oldPath = folder.path;
+    const parentPath = oldPath.substring(0, oldPath.lastIndexOf('/'));
+    const newPath = `${parentPath}/${sanitized}`;
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.folder.update({
+        where: { id: folderId },
+        data: { name: sanitized, path: newPath },
+      });
+
+      // Update all child folder paths (prefix replacement)
+      const children = await tx.folder.findMany({
+        where: { tenantId, path: { startsWith: oldPath + '/' } },
+      });
+      for (const child of children) {
+        const childNewPath = newPath + child.path.substring(oldPath.length);
+        await tx.folder.update({
+          where: { id: child.id },
+          data: { path: childNewPath },
+        });
+      }
+
+      return updated;
+    });
+  }
+
+  /**
+   * Soft-delete a folder. Documents in the folder are NOT deleted — they
+   * become orphaned (folderId = null) to preserve data integrity.
+   */
+  async deleteFolder(tenantId: string, folderId: string) {
+    const folder = await this.prisma.folder.findFirst({
+      where: { id: folderId, tenantId, deletedAt: null },
+    });
+    if (!folder) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    await this.prisma.$transaction(async (tx) => {
+      // Orphan documents in this folder
+      await tx.document.updateMany({
+        where: { folderId, tenantId, deletedAt: null },
+        data: { folderId: null },
+      });
+
+      // Soft-delete the folder
+      await tx.folder.update({
+        where: { id: folderId },
+        data: { deletedAt: new Date() },
+      });
+    });
+  }
+
+  /**
+   * Move a document to a different folder.
+   */
+  async moveDocument(tenantId: string, documentId: string, targetFolderId: string | null) {
+    const doc = await this.prisma.document.findFirst({
+      where: { id: documentId, tenantId, deletedAt: null },
+    });
+    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+
+    if (targetFolderId) {
+      const folder = await this.prisma.folder.findFirst({
+        where: { id: targetFolderId, tenantId, deletedAt: null },
+      });
+      if (!folder) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    }
+
+    return this.prisma.document.update({
+      where: { id: documentId },
+      data: { folderId: targetFolderId },
+    });
+  }
 }
