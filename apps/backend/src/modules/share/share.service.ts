@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../../common/audit.service.js';
+import { RedisService } from '../../common/redis.service.js';
 import { randomBytes, createHash, scryptSync } from 'node:crypto';
 import { z } from 'zod';
 
@@ -29,7 +30,22 @@ export class ShareService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly redis: RedisService,
   ) {}
+
+  private readonly logger = new Logger(ShareService.name);
+
+  /** Emit a WebSocket event via Redis pub/sub (spec §13.4 — share.link.updated). */
+  private async emitWsEvent(tenantId: string, event: { name: string; payload: unknown }): Promise<void> {
+    try {
+      await this.redis.connection.publish(
+        `smart-edms:ws-events:${tenantId}`,
+        JSON.stringify(event),
+      );
+    } catch (err) {
+      this.logger.warn(`ws event publish failed tenant=${tenantId}: ${(err as Error).message}`);
+    }
+  }
 
   async create(tenantId: string, userId: string, raw: unknown) {
     const input = createLinkSchema.parse(raw);
@@ -64,6 +80,19 @@ export class ShareService {
       metadata: { permission: input.permission, expires: input.expiresAt ?? null },
     });
 
+    // Emit WebSocket event (spec §13.4 — share.link.updated)
+    await this.emitWsEvent(tenantId, {
+      name: 'share.link.updated',
+      payload: {
+        tenantId,
+        documentId: input.documentId,
+        linkId: link.id,
+        action: 'created',
+        permission: input.permission,
+        expiresAt: link.expiresAt,
+      },
+    });
+
     return { id: link.id, token, expiresAt: link.expiresAt };
   }
 
@@ -79,6 +108,16 @@ export class ShareService {
       code: 'share.link.revoke',
       result: 'allow',
       resourceId: linkId,
+    });
+
+    // Emit WebSocket event (spec §13.4 — share.link.updated)
+    await this.emitWsEvent(tenantId, {
+      name: 'share.link.updated',
+      payload: {
+        tenantId,
+        linkId,
+        action: 'revoked',
+      },
     });
   }
 

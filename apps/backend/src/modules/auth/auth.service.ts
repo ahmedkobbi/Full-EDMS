@@ -267,6 +267,375 @@ export class AuthService {
     await this.redis.setJson(`mfa:ticket:${ticket}`, { userId, tenantId }, 300);
     return ticket;
   }
+
+  // ===========================================================================
+  // §9.1 IAM — Password reset, MFA enrollment, session management
+  // ===========================================================================
+
+  /**
+   * Initiate password reset. Generates a reset token (not a JWT — opaque random
+   * token stored in Redis with 30min TTL). Sends a reset email (queued).
+   * Spec ref: §9.1 (profile management, authentication).
+   */
+  async initiatePasswordReset(email: string, ctx: { ip?: string; userAgent?: string }): Promise<{ ok: true }> {
+    const user = await this.prisma.user.findFirst({
+      where: { email: email.toLowerCase(), deletedAt: null, status: 'ACTIVE' },
+    });
+    // Always return ok — don't reveal whether the email exists (spec §21.5)
+    if (!user) {
+      void this.audit.record({
+        tenantId: user?.tenantId ?? 'unknown',
+        category: 'auth',
+        code: 'auth.password.reset.request',
+        result: 'deny',
+        reason: 'user_not_found',
+        ipAddress: ctx.ip,
+        userAgent: ctx.userAgent,
+      });
+      return { ok: true };
+    }
+
+    const token = randomBytes(32).toString('hex');
+    await this.redis.setJson(`password:reset:${token}`, { userId: user.id, tenantId: user.tenantId }, 1800); // 30 min
+
+    void this.audit.record({
+      tenantId: user.tenantId,
+      userId: user.id,
+      category: 'auth',
+      code: 'auth.password.reset.request',
+      result: 'allow',
+      ipAddress: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
+
+    // Email dispatch would be queued via BullMQ here
+    this.logger.log(`Password reset token issued for user ${user.id} (TTL=30min)`);
+    return { ok: true };
+  }
+
+  /**
+   * Complete password reset with token + new password.
+   */
+  async completePasswordReset(
+    token: string,
+    newPassword: string,
+    ctx: { ip?: string; userAgent?: string },
+  ): Promise<{ ok: true }> {
+    const resetData = await this.redis.getJson<{ userId: string; tenantId: string }>(`password:reset:${token}`);
+    if (!resetData) {
+      throw new UnauthorizedException({ messageKey: 'errors.PASSWORD_RESET_TOKEN_EXPIRED' });
+    }
+
+    if (newPassword.length < 8) {
+      throw new UnauthorizedException({ messageKey: 'errors.VALIDATION_FAILED' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, this.config.get<number>('BCRYPT_ROUNDS') ?? 12);
+    await this.prisma.user.update({
+      where: { id: resetData.userId },
+      data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+    });
+
+    // Burn the token
+    await this.redis.invalidate(`password:reset:${token}`);
+
+    // Revoke all existing sessions for this user (force re-login)
+    await this.revokeAllSessions(resetData.userId, resetData.tenantId);
+
+    void this.audit.record({
+      tenantId: resetData.tenantId,
+      userId: resetData.userId,
+      category: 'auth',
+      code: 'auth.password.reset.complete',
+      result: 'allow',
+      ipAddress: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * Change password (authenticated user, knows current password).
+   */
+  async changePassword(
+    tenantId: string,
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+    ctx: { ip?: string; userAgent?: string },
+  ): Promise<{ ok: true }> {
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, tenantId, deletedAt: null },
+    });
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
+    }
+
+    const currentOk = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!currentOk) {
+      void this.audit.record({
+        tenantId,
+        userId,
+        category: 'auth',
+        code: 'auth.password.change',
+        result: 'deny',
+        reason: 'invalid_current_password',
+        ipAddress: ctx.ip,
+        userAgent: ctx.userAgent,
+      });
+      throw new UnauthorizedException({ messageKey: 'errors.INVALID_CURRENT_PASSWORD' });
+    }
+
+    if (newPassword.length < 8) {
+      throw new UnauthorizedException({ messageKey: 'errors.VALIDATION_FAILED' });
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, this.config.get<number>('BCRYPT_ROUNDS') ?? 12);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+
+    void this.audit.record({
+      tenantId,
+      userId,
+      category: 'auth',
+      code: 'auth.password.change',
+      result: 'allow',
+      ipAddress: ctx.ip,
+      userAgent: ctx.userAgent,
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * Start MFA enrollment. Generates a new TOTP secret + QR code URI.
+   * The secret is stored in Redis (NOT on the user record yet) until
+   * the user verifies with a code (confirmEnrollment).
+   * Spec ref: §21.2 (MFA enrollment must be protected).
+   */
+  async startMfaEnrollment(
+    tenantId: string,
+    userId: string,
+  ): Promise<{ secret: string; qrCodeUri: string; backupCodes: string[] }> {
+    const user = await this.prisma.user.findFirst({ where: { id: userId, tenantId } });
+    if (!user) throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
+    if (user.mfaEnabled) {
+      throw new UnauthorizedException({ messageKey: 'errors.MFA_ALREADY_ENABLED' });
+    }
+
+    const secret = otplibAuthenticator.generateSecret();
+    const backupCodes = Array.from({ length: 10 }, () => randomBytes(5).toString('hex'));
+    const qrCodeUri = otplibAuthenticator.keyuri(user.email, 'Smart EDMS', secret);
+
+    // Store pending enrollment in Redis (10min TTL)
+    await this.redis.setJson(`mfa:enrollment:${userId}`, { secret, backupCodes }, 600);
+
+    void this.audit.record({
+      tenantId,
+      userId,
+      category: 'auth',
+      code: 'auth.mfa.enroll.start',
+      result: 'allow',
+    });
+
+    return { secret, qrCodeUri, backupCodes };
+  }
+
+  /**
+   * Confirm MFA enrollment. Verifies the first TOTP code against the pending
+   * secret, then activates MFA on the user record.
+   */
+  async confirmMfaEnrollment(
+    tenantId: string,
+    userId: string,
+    code: string,
+  ): Promise<{ ok: true }> {
+    const pending = await this.redis.getJson<{ secret: string; backupCodes: string[] }>(`mfa:enrollment:${userId}`);
+    if (!pending) {
+      throw new UnauthorizedException({ messageKey: 'errors.MFA_ENROLLMENT_EXPIRED' });
+    }
+
+    const ok = otplibAuthenticator.verify({ token: code, secret: pending.secret });
+    if (!ok) {
+      void this.audit.record({
+        tenantId,
+        userId,
+        category: 'auth',
+        code: 'auth.mfa.enroll.confirm',
+        result: 'deny',
+        reason: 'invalid_code',
+      });
+      throw new UnauthorizedException({ messageKey: 'errors.INVALID_MFA_CODE' });
+    }
+
+    // Hash backup codes before storing
+    const hashedBackupCodes = await Promise.all(
+      pending.backupCodes.map((c) => bcrypt.hash(c, 10)),
+    );
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        mfaEnabled: true,
+        mfaSecret: pending.secret,
+        mfaBackupCodes: hashedBackupCodes,
+      },
+    });
+
+    await this.redis.invalidate(`mfa:enrollment:${userId}`);
+
+    void this.audit.record({
+      tenantId,
+      userId,
+      category: 'auth',
+      code: 'auth.mfa.enroll.confirm',
+      result: 'allow',
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * Disable MFA (requires current password verification).
+   */
+  async disableMfa(
+    tenantId: string,
+    userId: string,
+    currentPassword: string,
+  ): Promise<{ ok: true }> {
+    const user = await this.prisma.user.findFirst({ where: { id: userId, tenantId } });
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
+    }
+
+    const passwordOk = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!passwordOk) {
+      void this.audit.record({
+        tenantId,
+        userId,
+        category: 'auth',
+        code: 'auth.mfa.disable',
+        result: 'deny',
+        reason: 'invalid_password',
+      });
+      throw new UnauthorizedException({ messageKey: 'errors.INVALID_CURRENT_PASSWORD' });
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        mfaEnabled: false,
+        mfaSecret: null,
+        mfaBackupCodes: [],
+      },
+    });
+
+    void this.audit.record({
+      tenantId,
+      userId,
+      category: 'auth',
+      code: 'auth.mfa.disable',
+      result: 'allow',
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * List active sessions for the current user.
+   * Spec ref: §9.1 (session management).
+   */
+  async listSessions(tenantId: string, userId: string) {
+    const sessions = await this.prisma.session.findMany({
+      where: { tenantId, userId, status: 'ACTIVE', revokedAt: null },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        ipAddress: true,
+        userAgent: true,
+        deviceFingerprint: true,
+        expiresAt: true,
+        createdAt: true,
+      },
+    });
+    return sessions;
+  }
+
+  /**
+   * Revoke a specific session (by session ID). Only the session owner or an admin can revoke.
+   */
+  async revokeSession(tenantId: string, userId: string, sessionId: string): Promise<{ ok: true }> {
+    const session = await this.prisma.session.findFirst({
+      where: { id: sessionId, tenantId },
+    });
+    if (!session) throw new UnauthorizedException({ messageKey: 'errors.NOT_FOUND' });
+    // Only the owner can revoke their own sessions (admins use a separate endpoint)
+    if (session.userId !== userId) {
+      throw new UnauthorizedException({ messageKey: 'errors.UNAUTHORIZED' });
+    }
+
+    await this.prisma.session.update({
+      where: { id: sessionId },
+      data: { status: 'REVOKED', revokedAt: new Date() },
+    });
+
+    // Add token hash to Redis revocation list (so the JWT is immediately invalid)
+    if (session.tokenHash) {
+      const ttl = Math.max(0, Math.floor((session.expiresAt.getTime() - Date.now()) / 1000));
+      if (ttl > 0) {
+        await this.redis.connection.set(`jwt:revoked:${session.tokenHash}`, '1', 'EX', ttl);
+      }
+    }
+
+    void this.audit.record({
+      tenantId,
+      userId,
+      category: 'auth',
+      code: 'auth.session.revoke',
+      result: 'allow',
+      resourceId: sessionId,
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * Revoke all sessions for a user (used on password reset/change).
+   */
+  async revokeAllSessions(tenantId: string, userId: string): Promise<{ count: number }> {
+    const sessions = await this.prisma.session.findMany({
+      where: { tenantId, userId, status: 'ACTIVE', revokedAt: null },
+      select: { id: true, tokenHash: true, expiresAt: true },
+    });
+
+    for (const session of sessions) {
+      if (session.tokenHash) {
+        const ttl = Math.max(0, Math.floor((session.expiresAt.getTime() - Date.now()) / 1000));
+        if (ttl > 0) {
+          await this.redis.connection.set(`jwt:revoked:${session.tokenHash}`, '1', 'EX', ttl);
+        }
+      }
+    }
+
+    await this.prisma.session.updateMany({
+      where: { tenantId, userId, status: 'ACTIVE' },
+      data: { status: 'REVOKED', revokedAt: new Date() },
+    });
+
+    void this.audit.record({
+      tenantId,
+      userId,
+      category: 'auth',
+      code: 'auth.session.revoke_all',
+      result: 'allow',
+      metadata: { count: sessions.length },
+    });
+
+    return { count: sessions.length };
+  }
 }
 
 function sha256(s: string): string {

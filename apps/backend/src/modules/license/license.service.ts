@@ -212,6 +212,25 @@ export class LicenseService {
     });
 
     const state = await this.getCurrentState();
+
+    // Emit WebSocket event (spec §13.4 — license.status.changed)
+    try {
+      await this.redis.connection.publish(
+        `smart-edms:ws-events:${payload.tenantId ?? 'default'}`,
+        JSON.stringify({
+          name: 'license.status.changed',
+          payload: {
+            tenantId: payload.tenantId ?? 'default',
+            state,
+            licenseId: payload.licenseId,
+            importedAt: new Date().toISOString(),
+          },
+        }),
+      );
+    } catch (err) {
+      this.logger.warn(`license.status.changed publish failed: ${(err as Error).message}`);
+    }
+
     return { ok: true, state };
   }
 
