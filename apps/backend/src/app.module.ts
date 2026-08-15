@@ -35,6 +35,14 @@ import { PresenceModule } from './modules/presence/presence.module.js';
 import { SecureViewerModule } from './modules/secure-viewer/secure-viewer.module.js';
 import { ProvenanceModule } from './modules/provenance/provenance.module.js';
 import { PiiDetectionModule } from './modules/pii-detection/pii-detection.module.js';
+import { InvitationModule } from './modules/invitation/invitation.module.js';
+import { MalwareScanModule } from './modules/malware-scan/malware-scan.module.js';
+import { CryptoShreddingModule } from './modules/crypto-shredding/crypto-shredding.module.js';
+import { AiWorkflowModule } from './modules/ai-workflow/ai-workflow.module.js';
+import { KnowledgeGraphModule } from './modules/knowledge-graph/knowledge-graph.module.js';
+import { CaptureRulesModule } from './modules/capture-rules/capture-rules.module.js';
+import { MigrationModule } from './modules/migration/migration.module.js';
+import { EmailModule } from './modules/email/email.module.js';
 import { WebSocketModule } from './websocket/websocket.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
 import { ApiKeyAuthGuard } from './common/guards/api-key-auth.guard.js';
@@ -108,6 +116,14 @@ import { environmentSchema } from './config/environment.js';
     SecureViewerModule,
     ProvenanceModule,
     PiiDetectionModule,
+    InvitationModule,
+    MalwareScanModule,
+    CryptoShreddingModule,
+    AiWorkflowModule,
+    KnowledgeGraphModule,
+    CaptureRulesModule,
+    MigrationModule,
+    EmailModule,
     WebSocketModule,
   ],
   providers: [
