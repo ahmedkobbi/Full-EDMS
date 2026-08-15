@@ -130,6 +130,33 @@ pnpm --filter @smart-edms/license-server start
 - `GET /v1/crl` — fetch the latest `.sedmscrl` revocation list (on-prem
   backends fetch this periodically when online)
 
+### Admin authentication (spec §12.10 — secure login, MFA required)
+
+Two-step login flow:
+
+1. `POST /v1/auth/admin/login` — email + password → returns `{ mfaTicket, mfaRequired: true }`
+   - The `mfaTicket` is a random 32-byte hex string stored in Redis with a 5min TTL
+   - It is NOT a JWT — it can only be used for the MFA verify step
+   - Failed logins are tracked; account locked after 5 attempts (15min lockout)
+2. `POST /v1/auth/admin/mfa/verify` — `{ mfaTicket, code }` → returns `{ accessToken, refreshToken, expiresIn, admin }`
+   - Validates the TOTP code (RFC 6238) against the admin's `mfaSecret`
+   - Burns the MFA ticket so it cannot be reused
+   - Access token TTL: 15 minutes
+   - Refresh token TTL: 30 days
+
+Step-up auth for sensitive operations (license revocation, signing key rotation, API key deletion):
+
+- `POST /v1/auth/admin/mfa/step-up` — `{ code }` → returns `{ stepUpToken, expiresIn: 300 }`
+  - Re-verifies the TOTP code
+  - Issues a 5-minute step-up JWT
+  - The client sends this as `X-Step-Up-Token` header on sensitive requests
+  - The `StepUpGuard` verifies the step-up JWT independently of the access JWT
+
+Other admin auth endpoints:
+
+- `POST /v1/auth/admin/refresh` — exchange refresh token for new access + refresh tokens
+- `POST /v1/auth/admin/logout` — revoke the access token (added to Redis revocation list)
+
 ### API key (X-Api-Key header) OR activation code
 
 - `POST /v1/activate/online` — online activation (spec §12.7)

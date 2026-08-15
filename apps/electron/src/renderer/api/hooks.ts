@@ -23,6 +23,7 @@ import type {
   CursorPaginationParams,
   HealthCheck,
   TourDefinition,
+  TourStep,
   TourUserState,
   TourChecklistItem,
   AssistantSession,
@@ -44,6 +45,8 @@ export const queryKeys = {
   health: () => ['health'] as const,
   me: () => ['me'] as const,
   tours: () => ['tours'] as const,
+  tour: (tourId: string) => ['tour', tourId] as const,
+  tourSteps: (tourId: string) => ['tour', tourId, 'steps'] as const,
   tourUserState: (tourId: string) => ['tour', tourId, 'userState'] as const,
   tourChecklist: (tourId: string) => ['tour', tourId, 'checklist'] as const,
   license: () => ['license'] as const,
@@ -190,6 +193,25 @@ export function useToursQuery(
   return useQuery<TourDefinition[], ApiError>({
     queryKey: queryKeys.tours(),
     queryFn: () => apiGet<TourDefinition[]>('/tours'),
+    ...options,
+  });
+}
+
+/**
+ * Fetch a single tour definition with its steps. Used by the TourEngine to
+ * render real step data instead of a stubbed empty list.
+ *
+ * Spec ref: §10.11 (tour data model), §10.12 (tour API — GET /v1/tours/:tourId).
+ */
+export function useTourStepsQuery(
+  tourId: string | undefined,
+  options?: Omit<UseQueryOptions<TourStep[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<TourStep[], ApiError>({
+    queryKey: tourId ? queryKeys.tourSteps(tourId) : ['tour', 'undefined', 'steps'],
+    queryFn: () => apiGet<TourStep[]>(`/tours/${tourId}`),
+    enabled: !!tourId,
+    staleTime: 5 * 60 * 1000, // tour definitions rarely change
     ...options,
   });
 }

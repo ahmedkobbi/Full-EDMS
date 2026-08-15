@@ -14,6 +14,8 @@
     "lint": "echo skip",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts",
     "key:generate": "tsx scripts/generate-signing-key.ts"
   },
   "dependencies": {

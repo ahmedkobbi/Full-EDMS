@@ -28,7 +28,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTourStore } from '../../store/tour';
-import { useToursQuery, useReportTourProgressMutation, useUpdateTourStateMutation } from '../../api/hooks';
+import { useToursQuery, useTourStepsQuery, useReportTourProgressMutation, useUpdateTourStateMutation } from '../../api/hooks';
 import { TourOverlay } from './TourOverlay';
 import { TourStepPopover } from './TourStep';
 import type { TourDefinition, TourStep as TourStepType } from '@smart-edms/types';
@@ -66,11 +66,18 @@ export function TourEngine() {
   const next = useTourStore((s) => s.next);
 
   const [target, setTarget] = useState<HTMLElement | null>(null);
+  const [pendingTourId, setPendingTourId] = useState<string | null>(null);
   const reportProgress = useReportTourProgressMutation(activeTour?.id ?? '');
   const updateState = useUpdateTourStateMutation(activeTour?.id ?? '');
 
+  // Fetch steps for the tour the user just requested via command palette.
+  // The query is disabled until pendingTourId is set, then auto-fetches.
+  const tourStepsQuery = useTourStepsQuery(pendingTourId ?? undefined);
+
   /**
    * Listen for tour-start events from the command palette + help menu.
+   * Sets pendingTourId, which triggers the useTourStepsQuery fetch above.
+   * Once steps arrive, the tour store's `start()` is called with real data.
    */
   useEffect(() => {
     const handler = (e: Event) => {
@@ -78,14 +85,31 @@ export function TourEngine() {
       if (!detail) return;
       const tour = toursQuery.data?.find((t) => t.id === detail.tourId);
       if (!tour) return;
-      // For demo purposes we use a stubbed step list; in production this
-      // would call `GET /v1/tours/:id/steps`. The empty list causes the
-      // engine to no-op gracefully.
-      start(tour, []);
+      setPendingTourId(detail.tourId);
     };
     window.addEventListener('command-palette:start-tour', handler);
     return () => window.removeEventListener('command-palette:start-tour', handler);
-  }, [toursQuery.data, start]);
+  }, [toursQuery.data]);
+
+  /**
+   * When tour steps arrive from the backend, start the tour with real data.
+   * Spec ref: §10.6 (no hardcoded text — content comes from t() keys),
+   *           §10.9 (skip unavailable steps safely).
+   */
+  useEffect(() => {
+    if (!pendingTourId || !tourStepsQuery.data) return;
+    const tour = toursQuery.data?.find((t) => t.id === pendingTourId);
+    if (!tour) {
+      setPendingTourId(null);
+      return;
+    }
+    // Filter out disabled steps + sort by stepOrder
+    const realSteps = tourStepsQuery.data
+      .filter((s) => s.enabled !== false)
+      .sort((a, b) => a.stepOrder - b.stepOrder);
+    start(tour, realSteps as TourStepType[]);
+    setPendingTourId(null);
+  }, [pendingTourId, tourStepsQuery.data, toursQuery.data, start]);
 
   /**
    * Look up the target element when the step changes. Polls briefly so
