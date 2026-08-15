@@ -23,6 +23,8 @@ import { ApiKeysPage } from './pages/ApiKeys';
 import { AuditLogsPage } from './pages/AuditLogs';
 import { SigningKeysPage } from './pages/SigningKeys';
 import { SettingsPage } from './pages/Settings';
+import { UsagePage } from './pages/Usage';
+import { AdminUsersPage } from './pages/AdminUsers';
 
 export interface RouteDef {
   readonly path: string;
@@ -36,6 +38,7 @@ export const publicRoutes: readonly RouteDef[] = [
 
 export const authenticatedRoutes: readonly RouteDef[] = [
   { path: '/dashboard', element: DashboardPage, tour: 'admin.dashboard.page' },
+  { path: '/usage', element: UsagePage },
   { path: '/customers', element: CustomersPage },
   { path: '/customers/:id', element: CustomerDetailPage },
   { path: '/products', element: ProductsPage },
@@ -48,5 +51,6 @@ export const authenticatedRoutes: readonly RouteDef[] = [
   { path: '/api-keys', element: ApiKeysPage },
   { path: '/audit', element: AuditLogsPage },
   { path: '/signing-keys', element: SigningKeysPage },
+  { path: '/admin-users', element: AdminUsersPage },
   { path: '/settings', element: SettingsPage },
 ];

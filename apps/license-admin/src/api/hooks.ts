@@ -944,3 +944,112 @@ export function useDashboardKpisQuery(
     ...options,
   });
 }
+
+// ---------------------------------------------------------------------------
+// Usage metrics (spec §12.1)
+// ---------------------------------------------------------------------------
+
+export interface UsageAggregate {
+  totalLicenses: number;
+  totalActivations: number;
+  totalUsers: number;
+  totalStorageBytes: string;
+  totalDocuments: number;
+  totalAiCalls: number;
+}
+
+export function useUsageAggregateQuery(
+  options?: Omit<UseQueryOptions<UsageAggregate, Error>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<UsageAggregate, Error>({
+    queryKey: ['usage', 'aggregate'],
+    queryFn: () => apiGet<UsageAggregate>('/usage/aggregate'),
+    staleTime: 60_000,
+    ...options,
+  });
+}
+
+export function useLicenseUsageQuery(
+  licenseId: string | undefined,
+  options?: Omit<UseQueryOptions<Array<{ metric: string; value: string; recordedAt: string }>, Error>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<Array<{ metric: string; value: string; recordedAt: string }>, Error>({
+    queryKey: licenseId ? ['usage', 'license', licenseId, 'latest'] : ['usage', 'undefined'],
+    queryFn: () => apiGet(`/usage/license/${licenseId}/latest`),
+    enabled: !!licenseId,
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Admin users (spec §12.1, §12.10)
+// ---------------------------------------------------------------------------
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+  isActive: boolean;
+  mfaEnabled: boolean;
+  lastLoginAt: string | null;
+  lastLoginIp: string | null;
+  createdAt: string;
+}
+
+export function useAdminUsersQuery(
+  options?: Omit<UseQueryOptions<AdminUser[], Error>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<AdminUser[], Error>({
+    queryKey: ['admin-users'],
+    queryFn: () => apiGet<AdminUser[]>('/admin-users'),
+    ...options,
+  });
+}
+
+export function useCreateAdminUserMutation(
+  options?: UseMutationOptions<AdminUser, Error, Record<string, unknown>>,
+) {
+  const qc = useQueryClient();
+  return useMutation<AdminUser, Error, Record<string, unknown>>({
+    mutationFn: (input) => apiPost<AdminUser>('/admin-users', input),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-users'] }),
+    ...options,
+  });
+}
+
+export function useSuspendAdminUserMutation(
+  options?: UseMutationOptions<{ ok: true }, Error, string>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, Error, string>({
+    mutationFn: (id) => apiPost<{ ok: true }>(`/admin-users/${id}/suspend`, {}),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-users'] }),
+    ...options,
+  });
+}
+
+export function useDeleteAdminUserMutation(
+  options?: UseMutationOptions<{ ok: true }, Error, string>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, Error, string>({
+    mutationFn: (id) => apiDelete<{ ok: true }>(`/admin-users/${id}`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-users'] }),
+    ...options,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Webhook test (spec §12.10)
+// ---------------------------------------------------------------------------
+
+export function useWebhookTestMutation(
+  options?: UseMutationOptions<{ ok: true }, Error, string>,
+) {
+  return useMutation<{ ok: true }, Error, string>({
+    mutationFn: (id) => apiPost<{ ok: true }>(`/webhooks/${id}/test`, {}),
+    ...options,
+  });
+}
