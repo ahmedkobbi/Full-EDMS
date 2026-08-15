@@ -2,10 +2,10 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-  ConflictException,
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service.js';
 import { LicenseSigner } from './license-signer.js';
 import type { IssueLicenseInput, RenewLicenseInput, RevokeLicenseInput, ListLicensesInput } from './dto.js';
@@ -103,8 +103,8 @@ export class LicenseService {
         aiUsageAllowance: input.aiUsageAllowance ?? null,
         enabledModules: input.enabledModules ?? (plan.features as string[]) ?? [],
         enabledIntegrations: input.enabledIntegrations ?? [],
-        featuresJson: (input.features as unknown[]) ?? [],
-        limitsJson: input.limits ?? {},
+        featuresJson: (input.features ?? []) as unknown as Prisma.InputJsonValue,
+        limitsJson: {} as Prisma.InputJsonValue,
         offlineMode: input.offlineMode,
         hybridSync: input.hybridSync,
         supportLevel: input.supportLevel,

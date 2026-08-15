@@ -6,12 +6,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service.js';
-import { AuditService } from '../audit/audit.service.js';
 import { LicenseSigner } from '../license/license-signer.js';
 import { WebhookService } from '../webhook/webhook.service.js';
 import {
   buildHeartbeatResponse,
-  serializeSedmslic,
 } from '@smart-edms/license-core';
 import type { HeartbeatRequest } from '@smart-edms/license-core';
 import type { LicensePayload, LicenseState } from '@smart-edms/types';
@@ -41,7 +39,6 @@ export class HeartbeatService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly audit: AuditService,
     private readonly signer: LicenseSigner,
     private readonly webhook: WebhookService,
   ) {}
@@ -231,7 +228,7 @@ export class HeartbeatService {
           aiMonthlyQuota: license.aiUsageAllowance,
           aiDailyQuotaPerUser: null,
         },
-        features: (license.featuresJson as LicensePayload['features']) ?? [],
+        features: (license.featuresJson as unknown as LicensePayload['features']) ?? [],
         renewalCounter: license.renewalCounter,
       });
       const signed = this.signer.signLicense(payload);

@@ -19,9 +19,8 @@ import {
   Button,
   Select,
   Pagination,
-  Badge,
 } from '@mantine/core';
-import { IconSearch, IconFilter } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useSearchQuery } from '../api/hooks';
@@ -53,7 +52,7 @@ export function SearchPage() {
             placeholder={t('common:form.placeholder.search')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            leftSection={<IconSearch size={16} aria-hidden="true" />}
+            leftSection={<Search size={16} aria-hidden="true" />}
             size="md"
             data-tour="app.search.input"
           />
@@ -80,7 +79,7 @@ export function SearchPage() {
               size="sm"
               style={{ maxWidth: 200 }}
             />
-            <Button variant="light" leftSection={<IconFilter size={14} aria-hidden="true" />}>
+            <Button variant="light" leftSection={<Filter size={14} aria-hidden="true" />}>
               {t('common:action.filter')}
             </Button>
           </Group>
@@ -101,12 +100,12 @@ export function SearchPage() {
         <Stack gap="xs">
           {searchResults.data?.items.map((doc) => (
             <Paper
-              key={doc.id}
+              key={doc.documentId}
               p="md"
               withBorder
               radius="md"
               style={{ cursor: 'pointer' }}
-              onClick={() => navigate(`/documents/${doc.id}`)}
+              onClick={() => navigate(`/documents/${doc.documentId}`)}
             >
               <Group justify="space-between">
                 <Stack gap={4}>
@@ -114,7 +113,7 @@ export function SearchPage() {
                     {doc.title}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    {doc.status} · {doc.contentLanguage}
+                    {doc.contentLanguage}
                   </Text>
                 </Stack>
                 <LocaleAwareDate value={doc.updatedAt} variant="relative" size="xs" c="dimmed" />

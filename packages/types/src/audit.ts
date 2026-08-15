@@ -57,7 +57,8 @@ export type AuditCategory =
   | 'metadata'
   | 'share'
   | 'notification'
-  | 'provenance';
+  | 'provenance'
+  | 'audit';
 
 /**
  * Stable, machine-readable audit event codes. These codes are part of the
@@ -217,7 +218,18 @@ export type AuditEventCode =
   | 'user.invite.resend'
   | 'user.create'
   | 'user.update'
-  | 'user.delete';
+  | 'user.delete'
+  | 'auth.mfa.verify'
+  | 'classification.label.create'
+  | 'classification.assign'
+  | 'license.import'
+  | 'license.offline.request'
+  | 'license.heartbeat.failed'
+  | 'scanner.profile.create'
+  | 'scanner.job.create'
+  | 'tenant.update'
+  | 'tenant.create'
+  | 'tenant.delete';
 
 /** Severity of an audit event; drives alerting and retention. */
 export type AuditSeverity = 'info' | 'notice' | 'warning' | 'critical';

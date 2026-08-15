@@ -8,13 +8,14 @@
  *
  * Spec ref: §12.1 (ApiKey entity), §12.10 (API key management in admin panel).
  */
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 
 const createKeySchema = z.object({
+  customerId: z.string().uuid(),
   name: z.string().min(1).max(128),
   scopes: z.array(z.string().max(64)).default(['activate', 'heartbeat']),
   expiresAt: z.string().datetime().optional(),
@@ -22,8 +23,6 @@ const createKeySchema = z.object({
 
 @Injectable()
 export class ApiKeyService {
-  private readonly logger = new Logger(ApiKeyService.name);
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
@@ -53,6 +52,7 @@ export class ApiKeyService {
 
     const apiKey = await this.prisma.apiKey.create({
       data: {
+        customerId: input.customerId,
         name: input.name,
         keyHash,
         keyPrefix,
@@ -68,7 +68,7 @@ export class ApiKeyService {
       target: 'api_key',
       targetId: apiKey.id,
       result: 'allow',
-      metadata: { name: input.name, scopes: input.scopes },
+      metadata: { name: input.name, scopes: input.scopes } as unknown as Record<string, unknown>,
     });
 
     return {

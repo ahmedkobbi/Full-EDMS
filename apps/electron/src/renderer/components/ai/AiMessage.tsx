@@ -15,14 +15,14 @@
  * Read-only default (spec §11.4): no action is auto-executed.
  */
 import { Group, Stack, Text, Box, Avatar, Button } from '@mantine/core';
-import { IconSparkles, IconUser } from 'lucide-react';
+import { Sparkles, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { modals } from '@mantine/modals';
 import type { Citation } from '@smart-edms/types';
 import { AiCitations } from './AiCitations';
 import { AiDisclaimer } from './AiDisclaimer';
-import { LocaleAwareDate } from '../common/LocaleAwareDate';
+import { LocaleAwareDate } from '@smart-edms/ui';
 
 interface LocalMessage {
   readonly id: string;
@@ -61,7 +61,7 @@ export function AiMessage({ message }: AiMessageProps) {
     return (
       <Group align="flex-start" gap="sm">
         <Avatar color="brand" radius="xl" size="sm">
-          <IconSparkles size={14} aria-hidden="true" />
+          <Sparkles size={14} aria-hidden="true" />
         </Avatar>
         <Stack gap={4} style={{ flex: 1, maxWidth: '85%' }}>
           <Box
@@ -113,7 +113,7 @@ export function AiMessage({ message }: AiMessageProps) {
         <LocaleAwareDate value={message.createdAt} variant="datetime" size="xs" c="dimmed" />
       </Stack>
       <Avatar color="gray" radius="xl" size="sm">
-        <IconUser size={14} aria-hidden="true" />
+        <User size={14} aria-hidden="true" />
       </Avatar>
     </Group>
   );

@@ -14,17 +14,12 @@
 import { useMemo, useState } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
 import { Box, Button, Group } from '@mantine/core';
-import { IconUpload, IconRefresh } from 'lucide-react';
+import { Upload, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { Document } from '@smart-edms/types';
 import { useDocumentsQuery } from '../../api/hooks';
-import { LocaleAwareDate } from '../common/LocaleAwareDate';
-import { LoadingState } from '../common/LoadingState';
-import { ErrorState } from '../common/ErrorState';
-import { EmptyState } from '../common/EmptyState';
-import { formatFileSize } from '@smart-edms/i18n';
-import { useI18nStore } from '../../i18n/config';
+import { LocaleAwareDate, LoadingState, ErrorState, EmptyState } from '@smart-edms/ui';
 
 interface DocumentTableProps {
   /** Optional folder filter. */
@@ -36,7 +31,6 @@ interface DocumentTableProps {
 export function DocumentTable({ folderId, onUploadClick }: DocumentTableProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const locale = useI18nStore((s) => s.locale);
   const [cursor, setCursor] = useState<string | undefined>(undefined);
 
   const query = useDocumentsQuery({
@@ -96,7 +90,7 @@ export function DocumentTable({ folderId, onUploadClick }: DocumentTableProps) {
         subtitleKey="documents:library.empty.subtitle"
         actions={
           <Button
-            leftSection={<IconUpload size={16} aria-hidden="true" />}
+            leftSection={<Upload size={16} aria-hidden="true" />}
             onClick={onUploadClick}
             data-tour="documents.upload"
           >
@@ -115,14 +109,14 @@ export function DocumentTable({ folderId, onUploadClick }: DocumentTableProps) {
       <Group justify="flex-end" mb="sm">
         <Button
           variant="light"
-          leftSection={<IconRefresh size={14} aria-hidden="true" />}
+          leftSection={<RefreshCw size={14} aria-hidden="true" />}
           onClick={() => query.refetch()}
           loading={query.isFetching}
         >
           {t('common:action.refresh')}
         </Button>
         <Button
-          leftSection={<IconUpload size={16} aria-hidden="true" />}
+          leftSection={<Upload size={16} aria-hidden="true" />}
           onClick={onUploadClick}
           data-tour="documents.upload"
         >
@@ -131,7 +125,7 @@ export function DocumentTable({ folderId, onUploadClick }: DocumentTableProps) {
       </Group>
       <MantineReactTable<Document>
         columns={columns}
-        data={filtered}
+        data={filtered as Document[]}
         enablePagination={false}
         enableSorting={false}
         enableColumnFilters={false}

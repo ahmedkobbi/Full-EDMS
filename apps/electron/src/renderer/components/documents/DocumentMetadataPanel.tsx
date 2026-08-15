@@ -14,10 +14,10 @@
  *  - Cryptographic checksum (truncated, copyable)
  */
 import { Stack, Group, Text, Box, Badge, CopyButton, Button, Divider } from '@mantine/core';
-import { IconCopy, IconCheck, IconTag, IconLock } from 'lucide-react';
+import { Copy, Check, Tag, Lock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Document } from '@smart-edms/types';
-import { LocaleAwareDate } from '../common/LocaleAwareDate';
+import { LocaleAwareDate } from '@smart-edms/ui';
 
 interface DocumentMetadataPanelProps {
   readonly document: Document;
@@ -47,7 +47,7 @@ export function DocumentMetadataPanel({ document }: DocumentMetadataPanelProps) 
       <MetadataRow
         labelKey="documents:document.classification"
         value={
-          <Badge variant="light" color="warning" leftSection={<IconLock size={10} />}>
+          <Badge variant="light" color="warning" leftSection={<Lock size={10} />}>
             {document.classificationLabelId}
           </Badge>
         }
@@ -62,7 +62,7 @@ export function DocumentMetadataPanel({ document }: DocumentMetadataPanelProps) 
               </Text>
             ) : (
               document.tagIds.map((tag) => (
-                <Badge key={tag} variant="light" size="sm" leftSection={<IconTag size={10} />}>
+                <Badge key={tag} variant="light" size="sm" leftSection={<Tag size={10} />}>
                   {tag}
                 </Badge>
               ))
@@ -88,7 +88,7 @@ export function DocumentMetadataPanel({ document }: DocumentMetadataPanelProps) 
 
       {document.legalHold && (
         <Group gap="sm" mt="sm">
-          <Badge variant="filled" color="error" leftSection={<IconLock size={10} />}>
+          <Badge variant="filled" color="error" leftSection={<Lock size={10} />}>
             {t('documents:document.legalHold', { defaultValue: 'Legal hold' })}
           </Badge>
         </Group>
@@ -111,7 +111,7 @@ export function DocumentMetadataPanel({ document }: DocumentMetadataPanelProps) 
                 variant="subtle"
                 size="xs"
                 onClick={copy}
-                leftSection={copied ? <IconCheck size={12} /> : <IconCopy size={12} aria-hidden="true" />}
+                leftSection={copied ? <Check size={12} /> : <Copy size={12} aria-hidden="true" />}
               >
                 {copied ? t('common:toast.saved') : t('common:action.copy')}
               </Button>

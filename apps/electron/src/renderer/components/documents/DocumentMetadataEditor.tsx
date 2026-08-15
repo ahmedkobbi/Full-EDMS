@@ -16,12 +16,13 @@
  */
 import { useEffect } from 'react';
 import {
-  Stack, Paper, Text, TextInput, Select, Textarea, DatePickerInput,
+  Stack, Paper, Text, TextInput, Select, Textarea,
   Button, Group, Divider, Badge,
 } from '@mantine/core';
-import { useForm, isNotEmpty } from '@mantine/form';
+import { DatePickerInput } from '@mantine/dates';
+import { useForm } from '@mantine/form';
 import { useTranslation } from 'react-i18next';
-import { IconCheck, IconPlus } from '@tabler/icons-react';
+import { IconCheck } from '@tabler/icons-react';
 
 export interface MetadataFieldDef {
   code: string;
@@ -39,7 +40,6 @@ export interface DocumentMetadataEditorProps {
 }
 
 export function DocumentMetadataEditor({
-  documentId,
   fields,
   initialValues,
   onSubmit,

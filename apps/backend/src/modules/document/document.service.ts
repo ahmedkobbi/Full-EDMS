@@ -33,7 +33,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import type { AuditEventCode } from '@smart-edms/types';
-import { randomUUID, createHash, Readable } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
+import { Readable } from 'node:stream';
 import { PrismaService } from '../../prisma/prisma.service';
 import { StorageService, sanitizeFilename } from '../../common/storage.service';
 import { AuditService } from '../../common/audit.service';
@@ -1727,12 +1728,11 @@ export class DocumentService {
 
       // Initialize upload for this file
       const uploadInit = await this.uploadInit(tenantId, userId, {
-        documentId: doc.id,
-        filename: file.filename,
-        contentType: file.contentType,
+        fileName: file.filename,
+        mimeType: file.contentType,
         size: file.size,
-        folderId: options.folderId,
-      });
+        folderId: options.folderId ?? null,
+      } as any);
 
       documents.push({
         documentId: doc.id,

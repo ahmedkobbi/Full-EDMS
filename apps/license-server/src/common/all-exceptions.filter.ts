@@ -2,7 +2,6 @@ import {
   type ArgumentsHost,
   Catch,
   type ExceptionFilter,
-  HttpAdapterHost,
   HttpStatus,
   Logger,
 } from '@nestjs/common';

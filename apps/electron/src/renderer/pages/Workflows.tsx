@@ -25,10 +25,9 @@ import {
   LoadingOverlay,
   Tabs,
 } from '@mantine/core';
-import { IconPlus, IconWorkflow, IconRefresh, IconClock, IconCheck, IconX } from 'lucide-react';
+import { Plus, Workflow, RefreshCw, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useWorkflowDefinitionsQuery, useWorkflowInstancesQuery } from '../api/hooks';
-import { LoadingState } from '@smart-edms/ui';
 import { ErrorState } from '@smart-edms/ui';
 import { EmptyState } from '@smart-edms/ui';
 import { LocaleAwareDate } from '@smart-edms/ui';
@@ -51,16 +50,16 @@ export function WorkflowsPage() {
         <Group gap="xs">
           <Button
             variant="light"
-            leftSection={<IconRefresh size={14} aria-hidden="true" />}
+            leftSection={<RefreshCw size={14} aria-hidden="true" />}
             onClick={() => {
               definitionsQuery.refetch();
               instancesQuery.refetch();
             }}
             loading={definitionsQuery.isFetching || instancesQuery.isFetching}
           >
-            {t('common:action.refresh', { defaultValue: 'Refresh' })}
+            {t('common:action.refresh', { defaultValue: 'RefreshCw' })}
           </Button>
-          <Button leftSection={<IconPlus size={14} aria-hidden="true" />}>
+          <Button leftSection={<Plus size={14} aria-hidden="true" />}>
             {t('workflow.create', { defaultValue: 'New workflow' })}
           </Button>
         </Group>
@@ -68,10 +67,10 @@ export function WorkflowsPage() {
 
       <Tabs defaultValue="instances">
         <Tabs.List>
-          <Tabs.Tab value="instances" leftSection={<IconClock size={14} aria-hidden="true" />}>
+          <Tabs.Tab value="instances" leftSection={<Clock size={14} aria-hidden="true" />}>
             {t('workflow.tabs.instances', { defaultValue: 'Active instances' })}
           </Tabs.Tab>
-          <Tabs.Tab value="definitions" leftSection={<IconWorkflow size={14} aria-hidden="true" />}>
+          <Tabs.Tab value="definitions" leftSection={<Workflow size={14} aria-hidden="true" />}>
             {t('workflow.tabs.definitions', { defaultValue: 'Definitions' })}
           </Tabs.Tab>
         </Tabs.List>
@@ -82,8 +81,9 @@ export function WorkflowsPage() {
             <LoadingOverlay visible={instancesQuery.isLoading} />
             {instancesQuery.isError ? (
               <ErrorState
+                error={instancesQuery.error}
                 titleKey="errors.INTERNAL_ERROR"
-                subtitleKey="workflow.error.instancesLoadFailed"
+                messageKey="workflow.error.instancesLoadFailed"
                 onRetry={() => instancesQuery.refetch()}
               />
             ) : !instancesQuery.data?.items || instancesQuery.data.items.length === 0 ? (
@@ -92,7 +92,7 @@ export function WorkflowsPage() {
                 titleKey="workflow.instances.empty.title"
                 subtitleKey="workflow.instances.empty.subtitle"
                 actions={
-                  <Button leftSection={<IconPlus size={14} aria-hidden="true" />}>
+                  <Button leftSection={<Plus size={14} aria-hidden="true" />}>
                     {t('workflow.create', { defaultValue: 'New workflow' })}
                   </Button>
                 }
@@ -111,9 +111,9 @@ export function WorkflowsPage() {
                 <Table.Tbody>
                   {instancesQuery.data.items.map((instance) => {
                     const statusColor =
-                      instance.status === 'COMPLETED' || instance.status === 'APPROVED' ? 'teal'
-                      : instance.status === 'REJECTED' || instance.status === 'FAILED' || instance.status === 'CANCELLED' ? 'red'
-                      : instance.status === 'RUNNING' ? 'blue'
+                      instance.status === 'completed' ? 'teal'
+                      : instance.status === 'failed' || instance.status === 'cancelled' ? 'red'
+                      : instance.status === 'running' ? 'blue'
                       : 'gray';
                     return (
                       <Table.Tr key={instance.id}>
@@ -124,26 +124,17 @@ export function WorkflowsPage() {
                         </Table.Td>
                         <Table.Td>
                           <Text size="sm" fw={500}>
-                            {instance.definition?.name ?? instance.definitionId.slice(0, 8)}
+                            {instance.definitionId.slice(0, 8)}
                           </Text>
-                          {instance.definition?.modelKind && (
-                            <Badge size="xs" variant="light" mt={2}>
-                              {instance.definition.modelKind}
-                            </Badge>
-                          )}
                         </Table.Td>
                         <Table.Td>
-                          <Text size="xs">{instance.startedByUserId?.slice(0, 8) ?? '—'}</Text>
+                          <Text size="xs">{instance.initiatedBy?.slice(0, 8) ?? '—'}</Text>
                         </Table.Td>
                         <Table.Td>
                           <LocaleAwareDate value={instance.startedAt} size="xs" c="dimmed" />
                         </Table.Td>
                         <Table.Td>
-                          {instance.dueAt ? (
-                            <LocaleAwareDate value={instance.dueAt} size="xs" c={new Date(instance.dueAt) < new Date() ? 'red' : 'dimmed'} />
-                          ) : (
-                            <Text size="xs" c="dimmed">—</Text>
-                          )}
+                          <Text size="xs" c="dimmed">—</Text>
                         </Table.Td>
                       </Table.Tr>
                     );
@@ -167,8 +158,9 @@ export function WorkflowsPage() {
             <LoadingOverlay visible={definitionsQuery.isLoading} />
             {definitionsQuery.isError ? (
               <ErrorState
+                error={definitionsQuery.error}
                 titleKey="errors.INTERNAL_ERROR"
-                subtitleKey="workflow.error.definitionsLoadFailed"
+                messageKey="workflow.error.definitionsLoadFailed"
                 onRetry={() => definitionsQuery.refetch()}
               />
             ) : !definitionsQuery.data?.items || definitionsQuery.data.items.length === 0 ? (
@@ -177,7 +169,7 @@ export function WorkflowsPage() {
                 titleKey="workflow.definitions.empty.title"
                 subtitleKey="workflow.definitions.empty.subtitle"
                 actions={
-                  <Button leftSection={<IconPlus size={14} aria-hidden="true" />}>
+                  <Button leftSection={<Plus size={14} aria-hidden="true" />}>
                     {t('workflow.create', { defaultValue: 'New workflow' })}
                   </Button>
                 }
@@ -189,17 +181,17 @@ export function WorkflowsPage() {
                     <Group justify="space-between" mb="xs">
                       <Group gap="xs">
                         <ThemeIcon size={32} radius="md" variant="light" color="grape">
-                          <IconWorkflow size={16} aria-hidden="true" />
+                          <Workflow size={16} aria-hidden="true" />
                         </ThemeIcon>
                         <Stack gap={0}>
                           <Text fw={500} size="sm">{def.name}</Text>
-                          <Text size="xs" c="dimmed">{def.code}</Text>
+                          <Text size="xs" c="dimmed">{def.modelKind}</Text>
                         </Stack>
                       </Group>
                       <Badge
                         size="xs"
-                        color={def.status === 'PUBLISHED' ? 'teal' : def.status === 'DRAFT' ? 'yellow' : 'gray'}
-                        variant={def.status === 'PUBLISHED' ? 'filled' : 'light'}
+                        color={def.status === 'published' ? 'teal' : def.status === 'draft' ? 'yellow' : 'gray'}
+                        variant={def.status === 'published' ? 'filled' : 'light'}
                       >
                         {def.status}
                       </Badge>
@@ -208,7 +200,7 @@ export function WorkflowsPage() {
                       <Badge size="xs" variant="light" w="fit-content">
                         {def.modelKind}
                       </Badge>
-                      {def.isAiDraft && (
+                      {def.aiGenerated && (
                         <Badge size="xs" color="orange" variant="light" w="fit-content">
                           {t('workflow.aiDraft', { defaultValue: 'AI draft — review required' })}
                         </Badge>
@@ -217,7 +209,6 @@ export function WorkflowsPage() {
                         value={def.createdAt}
                         size="xs"
                         c="dimmed"
-                        prefix={t('common:label.created', { defaultValue: 'Created' }) + ': '}
                       />
                     </Stack>
                   </Card>

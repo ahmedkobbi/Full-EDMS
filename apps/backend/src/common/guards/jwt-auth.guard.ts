@@ -14,6 +14,7 @@ import type { JwtPayload } from '../../modules/auth/types';
 export interface AuthenticatedRequest extends FastifyRequest {
   user?: JwtPayload;
   tenantId?: string;
+  apiKey?: { tenantId: string; keyId: string };
   id: string;
 }
 

@@ -9,19 +9,21 @@ import {
   parseSedmslic,
   parseSedmsreq,
   computeMachineFingerprint,
+  buildInstallationFingerprint,
   computeLicenseState,
   buildOfflineRequest,
   buildHeartbeatRequest,
+  type HeartbeatRequest,
   type SigningKeyPair,
 } from '@smart-edms/license-core';
 import { readFile } from 'node:fs/promises';
 import type {
   LicenseArtifact,
   LicensePayload,
+  LicenseSigningAlgorithm,
   LicenseState,
   LicenseLocalState,
   OfflineRequest,
-  HeartbeatRequest,
 } from '@smart-edms/types';
 import { z } from 'zod';
 
@@ -88,7 +90,7 @@ export class LicenseService {
     const artifact: LicenseArtifact = {
       v: 1,
       type: 'sedms.license',
-      alg: local.alg as 'EdDSA' | 'ES256',
+      alg: local.alg as LicenseSigningAlgorithm,
       kid: local.kid,
       payload: local.payloadJson as unknown as LicensePayload,
       sig: local.signature,
@@ -103,8 +105,8 @@ export class LicenseService {
     const payload = verified.payload;
     const now = new Date();
     const fingerprint = await computeMachineFingerprint();
-    const deviceMatch = payload.deploymentFingerprint
-      ? payload.deploymentFingerprint === fingerprint.hash
+    const deviceMatch = payload.fingerprint
+      ? payload.fingerprint.fingerprintHash === fingerprint.hash
       : true;
 
     return computeLicenseState({
@@ -114,7 +116,7 @@ export class LicenseService {
       environmentMatch: payload.environment === (local.environment ?? 'production'),
       now,
       issuedAt: new Date(payload.issuedAt),
-      expiresAt: new Date(payload.expiresAt),
+      expiresAt: payload.expiresAt ? new Date(payload.expiresAt) : null,
       gracePeriodDays: payload.gracePeriodDays ?? this.config.get<number>('LICENSE_GRACE_PERIOD_DAYS')!,
       lastHeartbeatAt: local.lastHeartbeatAt ?? undefined,
       heartbeatFailures: local.heartbeatFailures,
@@ -154,7 +156,7 @@ export class LicenseService {
 
     const payload = verified.payload;
     const fingerprint = await computeMachineFingerprint();
-    if (payload.deploymentFingerprint && payload.deploymentFingerprint !== fingerprint.hash) {
+    if (payload.fingerprint && payload.fingerprint.fingerprintHash !== fingerprint.hash) {
       void this.audit.record({
         tenantId: 'system',
         userId: input.importedByUserId,
@@ -240,18 +242,19 @@ export class LicenseService {
    * to the License Admin Panel, and receives a `.sedmslic` back.
    */
   async generateOfflineRequest(productId: string, contactEmail?: string): Promise<{ content: string; filename: string }> {
-    const fingerprint = await computeMachineFingerprint();
     const deploymentId = await this.getOrCreateDeploymentId();
+    const installationFingerprint = buildInstallationFingerprint(deploymentId, null);
     const req = buildOfflineRequest({
+      requestId: `req-${cryptoRandomString(16)}` as any,
       productId,
       deploymentId,
       appVersion: process.env.npm_package_version ?? '1.0.0',
       generatedAt: new Date().toISOString(),
-      machineFingerprint: fingerprint.hash,
+      machineFingerprint: installationFingerprint,
       installationPublicKey: '', // optional — could embed an ephemeral public key here
       os: `${process.platform}/${process.arch}`,
       arch: process.arch,
-      contactEmail,
+      contactEmail: contactEmail ?? null,
       nonce: cryptoRandomString(16),
     });
     const content = JSON.stringify(req, null, 2);

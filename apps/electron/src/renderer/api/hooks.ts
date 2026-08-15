@@ -27,7 +27,6 @@ import type {
   TourUserState,
   TourChecklistItem,
   AssistantSession,
-  AssistantMessage,
   Citation,
   LicenseLocalState,
   User,

@@ -26,7 +26,6 @@
  * left/right).
  */
 import { useEffect, useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useTourStore } from '../../store/tour';
 import { useToursQuery, useTourStepsQuery, useReportTourProgressMutation, useUpdateTourStateMutation } from '../../api/hooks';
 import { TourOverlay } from './TourOverlay';
@@ -53,7 +52,6 @@ function lookupTarget(selector: string): HTMLElement | null {
 }
 
 export function TourEngine() {
-  const { t } = useTranslation();
   const toursQuery = useToursQuery();
   const activeTour = useTourStore((s) => s.activeTour);
   const steps = useTourStore((s) => s.steps);

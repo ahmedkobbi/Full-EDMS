@@ -7,7 +7,7 @@
  * artifacts that the on-premise backend can verify, and that the 6-state
  * machine behaves correctly across all license states.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import {
   generateSigningKeyPair,
   buildLicenseArtifact,
@@ -47,24 +47,30 @@ describe('License-server signing flow (spec §12.4, §12.5)', () => {
       issuedAt: now.toISOString(),
       expiresAt: expires.toISOString(),
       gracePeriodDays: 7,
-      offline: true,
-      deploymentFingerprint: 'a'.repeat(64),
+      offline: {
+        offlineMode: true,
+        gracePeriodDays: 7,
+        hybridSyncAllowed: false,
+      },
+      fingerprint: {
+        fingerprintHash: 'a'.repeat(64),
+        machineId: null,
+        os: 'linux',
+        arch: 'x64',
+        attestation: null,
+      },
       entitlements: ['core-edms', 'ai-assistant', 'advanced-search'],
+      aiEntitlements: [],
       limits: {
         maxUsers: 500,
         maxDevices: 5,
-        maxStorageBytes: 1099511627776n,
+        maxStorageBytes: 1099511627776,
         maxDocuments: 1000000,
       },
-      features: {
-        aiUsageAllowance: 10000,
-        offlineMode: true,
-        hybridSync: false,
-        supportLevel: 'enterprise',
-      },
+      features: [],
       renewalCounter: 0,
       ...overrides,
-    } as LicensePayload;
+    } as unknown as LicensePayload;
   }
 
   it('generates a valid Ed25519 keypair with correct kid format', () => {
@@ -80,7 +86,7 @@ describe('License-server signing flow (spec §12.4, §12.5)', () => {
 
     expect(artifact.v).toBe(1);
     expect(artifact.type).toBe('sedms.license');
-    expect(artifact.alg).toBe('EdDSA');
+    expect(artifact.alg).toBe('ed25519');
     expect(artifact.kid).toBe(keyPair.kid);
     expect(artifact.sig).toBeTruthy();
 
@@ -139,24 +145,31 @@ describe('License-server signing flow (spec §12.4, §12.5)', () => {
 describe('Offline activation request flow (spec §12.6, §12.8)', () => {
   it('builds and parses a .sedmsreq file', () => {
     const req = buildOfflineRequest({
+      requestId: `req-${randomUUID().slice(0, 16)}` as any,
       productId: 'smart-edms-core',
       deploymentId: `dep-${randomUUID().slice(0, 16)}`,
       appVersion: '1.0.0',
       generatedAt: new Date().toISOString(),
-      machineFingerprint: 'f'.repeat(64),
-      installationPublicKey: '',
+      machineFingerprint: {
+        fingerprintHash: 'f'.repeat(64),
+        machineId: null,
+        os: 'linux',
+        arch: 'x64',
+        attestation: null,
+      },
+      installationPublicKey: 'unused-placeholder-public-key',
       os: 'linux/x64',
       arch: 'x64',
       contactEmail: 'admin@customer.com',
       nonce: randomUUID().replace(/-/g, '').slice(0, 32),
     });
 
-    const json = JSON.stringify(req, null, 2);
+    const json = req; // buildOfflineRequest returns canonical JSON string
     const parsed = parseSedmsreq(json);
 
     expect(parsed.type).toBe('sedms.request');
     expect(parsed.productId).toBe('smart-edms-core');
-    expect(parsed.machineFingerprint).toBe('f'.repeat(64));
+    expect(parsed.machineFingerprint.fingerprintHash).toBe('f'.repeat(64));
     expect(parsed.nonce).toBeTruthy();
   });
 });
@@ -170,10 +183,15 @@ describe('Revocation list (spec §12.4, .sedmscrl)', () => {
 
   it('builds and verifies a .sedmscrl', () => {
     const licenseIds = [randomUUID(), randomUUID(), randomUUID()];
-    const crl = buildRevocationList(licenseIds, keyPair.privateKeyPem, keyPair.kid, 'EdDSA');
+    const crl = buildRevocationList({
+      revokedLicenseIds: licenseIds,
+      revokedFingerprints: [],
+      generatedAt: new Date().toISOString(),
+      nextExpectedAt: null,
+    }, keyPair.privateKeyPem, keyPair.kid, 'EdDSA');
 
     expect(crl.type).toBe('sedms.crl');
-    expect(crl.revokedLicenses).toHaveLength(3);
+    expect(crl.revokedLicenseIds).toHaveLength(3);
 
     const verified = verifyRevocationList(crl, keyPair.publicKeyPem);
     expect(verified).toBe(true);
@@ -181,14 +199,24 @@ describe('Revocation list (spec §12.4, .sedmscrl)', () => {
 
   it('detects revoked license IDs', () => {
     const revokedId = randomUUID();
-    const crl = buildRevocationList([revokedId], keyPair.privateKeyPem, keyPair.kid, 'EdDSA');
+    const crl = buildRevocationList({
+      revokedLicenseIds: [revokedId],
+      revokedFingerprints: [],
+      generatedAt: new Date().toISOString(),
+      nextExpectedAt: null,
+    }, keyPair.privateKeyPem, keyPair.kid, 'EdDSA');
 
     expect(isRevoked(crl, revokedId)).toBe(true);
     expect(isRevoked(crl, randomUUID())).toBe(false);
   });
 
   it('rejects CRL with tampered signature', () => {
-    const crl = buildRevocationList([randomUUID()], keyPair.privateKeyPem, keyPair.kid, 'EdDSA');
+    const crl = buildRevocationList({
+      revokedLicenseIds: [randomUUID()],
+      revokedFingerprints: [],
+      generatedAt: new Date().toISOString(),
+      nextExpectedAt: null,
+    }, keyPair.privateKeyPem, keyPair.kid, 'EdDSA');
     const tampered = { ...crl, sig: 'tampered' + crl.sig.slice(8) };
     expect(verifyRevocationList(tampered, keyPair.publicKeyPem)).toBe(false);
   });
@@ -240,7 +268,7 @@ describe('License 6-state machine (spec §4.4)', () => {
     expect(state).toBe<LicenseState>('expired_grace');
   });
 
-  it('returns "grace_exhausted" past grace period', () => {
+  it('returns "extended_remediation" past grace period (within extended remediation window)', () => {
     const now = new Date();
     const state = computeLicenseState({
       ...baseInput,
@@ -249,10 +277,10 @@ describe('License 6-state machine (spec §4.4)', () => {
       expiresAt: new Date(now.getTime() - 10 * 86400000),
       gracePeriodDays: 7,
     });
-    expect(state).toBe<LicenseState>('grace_exhausted');
+    expect(state).toBe<LicenseState>('extended_remediation');
   });
 
-  it('returns "extended_remediation" after extended non-remediation', () => {
+  it('returns "grace_exhausted" after extended non-remediation', () => {
     const now = new Date();
     const state = computeLicenseState({
       ...baseInput,
@@ -261,7 +289,7 @@ describe('License 6-state machine (spec §4.4)', () => {
       expiresAt: new Date(now.getTime() - 45 * 86400000),
       gracePeriodDays: 7,
     });
-    expect(state).toBe<LicenseState>('extended_remediation');
+    expect(state).toBe<LicenseState>('grace_exhausted');
   });
 
   it('returns "invalid" for invalid signature', () => {

@@ -230,7 +230,16 @@ export class InvitationService {
 
   async listInvitations(tenantId: string) {
     const keys = await this.redis.connection.keys(`invite:${tenantId}:*`);
-    const invitations = [];
+    const invitations: Array<{
+      invitationId: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      roleCodes: string[];
+      createdAt: string;
+      expiresAt: string;
+      invitedByUserId: string;
+    }> = [];
     for (const key of keys) {
       const data = await this.redis.getJson<any>(key);
       if (data) {

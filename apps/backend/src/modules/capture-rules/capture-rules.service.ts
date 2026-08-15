@@ -138,7 +138,8 @@ export class CaptureRulesService {
       splits.push({
         startIndex: start,
         endIndex: end,
-        documentType: matchingRule?.actions?.find((a: any) => a.type === 'set_metadata' && a.value.startsWith('documentType:'))?.value.split(':')[1] ?? null,
+        documentType: ((matchingRule as { actions?: Array<{ type: string; value: string }> } | null)?.actions ?? [])
+          .find((a) => a.type === 'set_metadata' && a.value.startsWith('documentType:'))?.value.split(':')[1] ?? null,
       });
     }
 

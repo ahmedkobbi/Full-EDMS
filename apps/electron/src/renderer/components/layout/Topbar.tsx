@@ -18,16 +18,15 @@ import {
   Stack,
   SegmentedControl,
   Box,
-  type CSSProperties,
 } from '@mantine/core';
 import {
-  IconSearch,
-  IconSun,
-  IconMoon,
-  IconDeviceDesktop,
-  IconUser,
-  IconSettings,
-  IconLogout,
+  Search,
+  Sun,
+  Moon,
+  Monitor,
+  User,
+  Settings,
+  LogOut,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -58,11 +57,11 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
 
   const themeIcon =
     preference === 'light' ? (
-      <IconSun size={16} aria-hidden="true" />
+      <Sun size={16} aria-hidden="true" />
     ) : preference === 'dark' ? (
-      <IconMoon size={16} aria-hidden="true" />
+      <Moon size={16} aria-hidden="true" />
     ) : (
-      <IconDeviceDesktop size={16} aria-hidden="true" />
+      <Monitor size={16} aria-hidden="true" />
     );
 
   return (
@@ -93,7 +92,7 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
             background: 'var(--mantine-color-body)',
           }}
         >
-          <IconSearch size={16} aria-hidden="true" />
+          <Search size={16} aria-hidden="true" />
           <Text size="sm" c="dimmed" style={{ flex: 1 }}>
             {t('common:form.placeholder.search')}
           </Text>
@@ -162,15 +161,15 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
               </Stack>
             </Menu.Label>
             <Menu.Divider />
-            <Menu.Item leftSection={<IconUser size={14} />} onClick={() => navigate('/settings')}>
+            <Menu.Item leftSection={<User size={14} />} onClick={() => navigate('/settings')}>
               {t('common:menu.profile')}
             </Menu.Item>
-            <Menu.Item leftSection={<IconSettings size={14} />} onClick={() => navigate('/settings')}>
+            <Menu.Item leftSection={<Settings size={14} />} onClick={() => navigate('/settings')}>
               {t('common:menu.settings')}
             </Menu.Item>
             <Menu.Divider />
             <Menu.Item
-              leftSection={<IconLogout size={14} />}
+              leftSection={<LogOut size={14} />}
               color="error"
               onClick={() => void handleSignOut()}
             >

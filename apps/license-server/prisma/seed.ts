@@ -21,7 +21,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { authenticator as otplibAuthenticator } from 'otplib';
-import { randomUUID } from 'node:crypto';
 
 const prisma = new PrismaClient();
 
@@ -143,7 +142,7 @@ async function main(): Promise<void> {
 
   for (const def of planDefs) {
     await prisma.plan.upsert({
-      where: { productId_code: { productId: product.id, code: def.code } },
+      where: { code: def.code },
       update: { features: def.features as any, limits: def.limits as any, name: def.name, description: def.description },
       create: { productId: product.id, ...def, features: def.features as any, limits: def.limits as any },
     });

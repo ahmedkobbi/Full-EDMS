@@ -2,13 +2,12 @@ import {
   type CanActivate,
   type ExecutionContext,
   Injectable,
-  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import type { FastifyRequest } from 'fastify';
-import { IS_PUBLIC_KEY } from '../../common/decorators/public.decorator.js';
+import { IS_PUBLIC_KEY } from '../common/decorators/public.decorator.js';
 
 /**
  * Admin JWT payload — distinct from the on-prem backend's JwtPayload
@@ -58,8 +57,6 @@ export interface AdminAuthenticatedRequest extends FastifyRequest {
  */
 @Injectable()
 export class AdminJwtGuard implements CanActivate {
-  private readonly logger = new Logger(AdminJwtGuard.name);
-
   constructor(
     private readonly jwt: JwtService,
     private readonly reflector: Reflector,

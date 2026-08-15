@@ -83,7 +83,7 @@ export const workflowsStatusTool: ToolDefinition<
           startedAt: true,
           dueAt: true,
           completedAt: true,
-          definition: { select: { nameKey: true } },
+          definition: { select: { code: true, name: true } },
         },
       });
 
@@ -96,7 +96,7 @@ export const workflowsStatusTool: ToolDefinition<
             startedAt: r.startedAt.toISOString(),
             dueAt: r.dueAt?.toISOString() ?? null,
             completedAt: r.completedAt?.toISOString() ?? null,
-            definitionNameKey: (r.definition as { nameKey?: string } | null)?.nameKey ?? null,
+            definitionNameKey: r.definition?.code ?? null,
           })),
         },
       };

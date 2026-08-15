@@ -21,15 +21,12 @@ import {
   Badge,
   Progress,
   Table,
-  ActionIcon,
-  Tooltip,
   ThemeIcon,
   LoadingOverlay,
 } from '@mantine/core';
-import { IconPlus, IconScan, IconRefresh, IconDeviceDesktop, IconFileImport } from 'lucide-react';
+import { Plus, Scan, RefreshCw, FileInput } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useScannerProfilesQuery, useScannerJobsQuery } from '../api/hooks';
-import { LoadingState } from '@smart-edms/ui';
 import { ErrorState } from '@smart-edms/ui';
 import { EmptyState } from '@smart-edms/ui';
 import { LocaleAwareDate } from '@smart-edms/ui';
@@ -52,16 +49,16 @@ export function ScannerPage() {
         <Group gap="xs">
           <Button
             variant="light"
-            leftSection={<IconRefresh size={14} aria-hidden="true" />}
+            leftSection={<RefreshCw size={14} aria-hidden="true" />}
             onClick={() => {
               profilesQuery.refetch();
               jobsQuery.refetch();
             }}
             loading={profilesQuery.isFetching || jobsQuery.isFetching}
           >
-            {t('common:action.refresh', { defaultValue: 'Refresh' })}
+            {t('common:action.refresh', { defaultValue: 'RefreshCw' })}
           </Button>
-          <Button leftSection={<IconPlus size={14} aria-hidden="true" />}>
+          <Button leftSection={<Plus size={14} aria-hidden="true" />}>
             {t('scanner.addProfile', { defaultValue: 'Add scanner profile' })}
           </Button>
         </Group>
@@ -78,8 +75,9 @@ export function ScannerPage() {
         </Group>
         {profilesQuery.isError ? (
           <ErrorState
+            error={profilesQuery.error}
             titleKey="errors.INTERNAL_ERROR"
-            subtitleKey="scanner.error.loadFailed"
+            messageKey="scanner.error.loadFailed"
             onRetry={() => profilesQuery.refetch()}
           />
         ) : !profilesQuery.data || profilesQuery.data.length === 0 ? (
@@ -88,7 +86,7 @@ export function ScannerPage() {
             titleKey="scanner.empty.title"
             subtitleKey="scanner.empty.subtitle"
             actions={
-              <Button leftSection={<IconPlus size={14} aria-hidden="true" />}>
+              <Button leftSection={<Plus size={14} aria-hidden="true" />}>
                 {t('scanner.addProfile', { defaultValue: 'Add scanner profile' })}
               </Button>
             }
@@ -100,26 +98,26 @@ export function ScannerPage() {
                 <Group justify="space-between" mb="xs">
                   <Group gap="xs">
                     <ThemeIcon size={32} radius="md" variant="light" color="blue">
-                      <IconScan size={16} aria-hidden="true" />
+                      <Scan size={16} aria-hidden="true" />
                     </ThemeIcon>
                     <Stack gap={0}>
                       <Text fw={500} size="sm">{profile.name}</Text>
-                      <Text size="xs" c="dimmed">{profile.code}</Text>
+                      <Text size="xs" c="dimmed">{profile.driver}</Text>
                     </Stack>
                   </Group>
                   <Badge
                     size="xs"
-                    color={profile.isActive ? 'teal' : 'gray'}
-                    variant={profile.isActive ? 'filled' : 'light'}
+                    color={profile.deviceId ? 'teal' : 'gray'}
+                    variant={profile.deviceId ? 'filled' : 'light'}
                   >
-                    {profile.isActive
+                    {profile.deviceId
                       ? t('common:status.active', { defaultValue: 'Active' })
                       : t('common:status.inactive', { defaultValue: 'Inactive' })}
                   </Badge>
                 </Group>
                 <Stack gap={4}>
                   <Text size="xs" c="dimmed">
-                    {t('scanner.driver', { defaultValue: 'Driver' })}: {profile.driverKind}
+                    {t('scanner.driver', { defaultValue: 'Driver' })}: {profile.driver}
                   </Text>
                   {profile.deviceId && (
                     <Text size="xs" c="dimmed">
@@ -130,8 +128,10 @@ export function ScannerPage() {
                     value={profile.createdAt}
                     size="xs"
                     c="dimmed"
-                    prefix={t('common:label.created', { defaultValue: 'Created' }) + ': '}
                   />
+                  <Text size="xs" c="dimmed">
+                    {t('common:label.created', { defaultValue: 'Created' })}
+                  </Text>
                 </Stack>
               </Card>
             ))}
@@ -150,8 +150,9 @@ export function ScannerPage() {
         </Group>
         {jobsQuery.isError ? (
           <ErrorState
+            error={jobsQuery.error}
             titleKey="errors.INTERNAL_ERROR"
-            subtitleKey="scanner.error.jobsLoadFailed"
+            messageKey="scanner.error.jobsLoadFailed"
             onRetry={() => jobsQuery.refetch()}
           />
         ) : !jobsQuery.data?.items || jobsQuery.data.items.length === 0 ? (
@@ -173,12 +174,15 @@ export function ScannerPage() {
             </Table.Thead>
             <Table.Tbody>
               {jobsQuery.data.items.map((job) => {
-                const progress = job.totalFiles > 0 ? (job.processedFiles / job.totalFiles) * 100 : 0;
+                const totalFiles = job.pagesAcquired;
+                const processedFiles = job.pagesProcessed;
+                const failedFiles = job.pagesForReview;
+                const progress = totalFiles > 0 ? (processedFiles / totalFiles) * 100 : 0;
                 const statusColor =
-                  job.status === 'COMPLETED' ? 'teal'
-                  : job.status === 'FAILED' ? 'red'
-                  : job.status === 'RUNNING' ? 'blue'
-                  : job.status === 'QUARANTINED' ? 'orange'
+                  job.status === 'completed' ? 'teal'
+                  : job.status === 'failed' ? 'red'
+                  : job.status === 'acquiring' || job.status === 'processing' ? 'blue'
+                  : job.status === 'review_pending' ? 'orange'
                   : 'gray';
                 return (
                   <Table.Tr key={job.id}>
@@ -192,19 +196,19 @@ export function ScannerPage() {
                     </Table.Td>
                     <Table.Td>
                       <Text size="xs">
-                        {job.processedFiles} / {job.totalFiles}
-                        {job.failedFiles > 0 && (
+                        {processedFiles} / {totalFiles}
+                        {failedFiles > 0 && (
                           <Text component="span" size="xs" c="red" ml={4}>
-                            ({job.failedFiles} failed)
+                            ({failedFiles} for review)
                           </Text>
                         )}
                       </Text>
                     </Table.Td>
                     <Table.Td>
-                      <Text size="xs">{job.ocrLanguage ?? '—'}</Text>
+                      <Text size="xs">—</Text>
                     </Table.Td>
                     <Table.Td>
-                      <LocaleAwareDate value={job.createdAt} size="xs" c="dimmed" />
+                      <LocaleAwareDate value={job.startedAt} size="xs" c="dimmed" />
                     </Table.Td>
                   </Table.Tr>
                 );
@@ -218,7 +222,7 @@ export function ScannerPage() {
       <Paper p="md" withBorder radius="md" style={{ borderStyle: 'dashed' }}>
         <Group gap="md">
           <ThemeIcon size={40} radius="md" variant="light" color="indigo">
-            <IconFileImport size={20} aria-hidden="true" />
+            <FileInput size={20} aria-hidden="true" />
           </ThemeIcon>
           <Stack gap={2}>
             <Text fw={500} size="sm">

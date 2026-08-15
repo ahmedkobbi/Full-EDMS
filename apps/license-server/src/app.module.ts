@@ -75,7 +75,7 @@ import { environmentSchema } from './config/environment.js';
           },
           genReqId: (req: { id?: string }) => req.id,
         },
-      }),
+      }) as any,
     }),
     ScheduleModule.forRoot(),
     PrismaModule,

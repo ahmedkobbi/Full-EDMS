@@ -16,7 +16,7 @@ import { createRoot } from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 
-import { initI18n, useI18nStore, useSyncI18n } from './i18n/config';
+import { initI18n, useSyncI18n } from './i18n/config';
 import { ThemeProvider } from './theme/ThemeProvider';
 import { App } from './App';
 import { useAuthStore, selectAccessToken, selectRefreshToken, selectTenantId } from './store/auth';
@@ -78,7 +78,6 @@ function Root() {
   const initialize = useAuthStore((s) => s.initialize);
   const session = useAuthStore((s) => s.session);
   useSyncI18n();
-  const locale = useI18nStore((s) => s.locale);
 
   // Restore credentials from safeStorage on first render.
   useEffect(() => {

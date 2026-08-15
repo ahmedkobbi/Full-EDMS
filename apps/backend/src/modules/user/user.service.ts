@@ -164,8 +164,12 @@ export class UserService {
     const input = updatePreferencesSchema.parse(raw);
     const prefs = await this.prisma.userPreference.upsert({
       where: { userId },
-      create: { userId, tenantId, ...input },
-      update: input,
+      create: {
+        userId,
+        tenantId,
+        ...(input as any),
+      },
+      update: input as any,
     });
     return prefs;
   }

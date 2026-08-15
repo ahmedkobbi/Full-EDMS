@@ -327,7 +327,7 @@ export class TourService {
         placement: s.placement,
         requiresPermission: s.requiresPermission,
         requiresLicenseModule: s.requiresLicenseModule,
-        actionType: s.actionType,
+        actionType: (s.actionType ?? 'none') as any,
         waitForEvent: s.waitForEvent,
       })),
       userState: state
@@ -527,7 +527,7 @@ export class TourService {
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,
       correlationId: ctx.correlationId,
-      reason: body.reasonKey ?? null,
+      reason: body.reasonKey ?? undefined,
       metadata: {
         tourCode: tour.code,
         dropOffStep: body.dropOffStep,
@@ -966,7 +966,7 @@ export class TourService {
     const groups: Array<{ code: string; count: number }> = [];
     for (const code of codes) {
       const count = await this.prisma.auditEvent.count({
-        where: { ...(where as never), code: code as never } as never,
+        where: { ...(where as object), code: code as never } as never,
       });
       if (count > 0) {
         groups.push({ code, count });

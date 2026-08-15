@@ -153,7 +153,7 @@ export interface ToolDefinition<I = unknown, O = unknown> {
   readonly inputSchema: Readonly<Record<string, unknown>>;
   readonly outputSchema: Readonly<Record<string, unknown>>;
   /** Concrete Zod schema the server uses to validate input. */
-  readonly inputZod: z.ZodType<I>;
+  readonly inputZod: z.ZodType<I, z.ZodTypeDef, any>;
   /**
    * Execute the tool. The caller (AiService) is responsible for:
    *   - verifying the user has `requiredPermission` (or one of its aliases);
@@ -190,7 +190,7 @@ import { adminSystemUsageTool } from './tools/admin-system-usage';
  * Ordered registry of all 16 AI tools. The order is fixed for stable
  * iteration in `GET /v1/ai/assistant/tools`.
  */
-export const TOOL_REGISTRY: readonly ToolDefinition[] = [
+export const TOOL_REGISTRY: readonly ToolDefinition<any, any>[] = [
   documentsSearchTool,
   documentsSummaryTool,
   documentsGetMetadataTool,
@@ -210,7 +210,7 @@ export const TOOL_REGISTRY: readonly ToolDefinition[] = [
 ] as const;
 
 /** Map of tool name → definition for O(1) dispatch. */
-const TOOL_MAP: ReadonlyMap<ToolName, ToolDefinition> = new Map(
+const TOOL_MAP: ReadonlyMap<ToolName, ToolDefinition<any, any>> = new Map(
   TOOL_REGISTRY.map((t) => [t.name, t] as const),
 );
 
@@ -218,7 +218,7 @@ const TOOL_MAP: ReadonlyMap<ToolName, ToolDefinition> = new Map(
  * Look up a tool by name. Returns `undefined` for unknown tools (the caller
  * MUST refuse unknown tool calls — they are not in the whitelist).
  */
-export function getToolDefinition(name: ToolName): ToolDefinition | undefined {
+export function getToolDefinition(name: ToolName): ToolDefinition<any, any> | undefined {
   return TOOL_MAP.get(name);
 }
 

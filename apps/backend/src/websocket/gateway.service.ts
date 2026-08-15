@@ -46,7 +46,7 @@ export class WebSocketGatewayService implements OnModuleInit {
         const event = JSON.parse(message) as WebSocketEvent;
         const tenantId = channel.split(':').pop();
         if (!tenantId) return;
-        this.io?.to(`tenant:${tenantId}`).emit(event.name, event.payload);
+        this.io?.to(`tenant:${tenantId}`).emit(event.name, event);
       } catch (err) {
         this.logger.error(`WS fan-out failed: ${(err as Error).message}`);
       }
@@ -72,14 +72,14 @@ export class WebSocketGatewayService implements OnModuleInit {
    * Emit an event to a specific user (across all their connected sockets).
    */
   async emitToUser(tenantId: string, userId: string, event: WebSocketEvent): Promise<void> {
-    this.io?.to(`tenant:${tenantId}`).to(`user:${userId}`).emit(event.name, event.payload);
+    this.io?.to(`tenant:${tenantId}`).to(`user:${userId}`).emit(event.name, event);
   }
 
   /**
    * Emit an event to all sockets watching a specific document.
    */
   async emitToDocumentWatchers(tenantId: string, documentId: string, event: WebSocketEvent): Promise<void> {
-    this.io?.to(`tenant:${tenantId}`).to(`document:${documentId}`).emit(event.name, event.payload);
+    this.io?.to(`tenant:${tenantId}`).to(`document:${documentId}`).emit(event.name, event);
   }
 
   async setupAdapter(io: SocketIOServer): Promise<void> {

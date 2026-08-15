@@ -106,14 +106,14 @@ export class HumanVerificationService {
     return items
       .map((raw) => {
         try {
-          return JSON.parse(raw) as VerificationItem;
+          return JSON.parse(raw ?? 'null') as VerificationItem | null;
         } catch {
           return null;
         }
       })
-      .filter(Boolean)
+      .filter((item): item is VerificationItem => item !== null)
       .filter((item) => item.status === 'pending')
-      .filter((item) => !type || item.type === type) as VerificationItem[];
+      .filter((item) => !type || item.type === type);
   }
 
   /**

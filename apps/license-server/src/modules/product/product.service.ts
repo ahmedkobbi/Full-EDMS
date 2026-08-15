@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service.js';
 import { z } from 'zod';
 import { randomUUID } from 'node:crypto';
@@ -34,8 +35,6 @@ export type CreatePlanInput = z.infer<typeof createPlanSchema>;
  */
 @Injectable()
 export class ProductService {
-  private readonly logger = new Logger(ProductService.name);
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
@@ -100,8 +99,8 @@ export class ProductService {
         code: input.code,
         name: input.name,
         description: input.description,
-        features: input.features,
-        limits: input.limits,
+        features: input.features as unknown as Prisma.InputJsonValue,
+        limits: input.limits as unknown as Prisma.InputJsonValue,
       },
     });
     await this.audit.record({

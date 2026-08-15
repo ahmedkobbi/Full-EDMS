@@ -59,7 +59,6 @@ describe('AdminAuthService (license-server)', () => {
     service = new AdminAuthService(
       mockPrisma as any,
       mockJwt as any,
-      mockConfig as any,
       mockAudit as any,
       mockRedis as any,
     );

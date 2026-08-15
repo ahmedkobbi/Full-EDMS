@@ -86,10 +86,12 @@ export class DeviceService {
    */
   async upsert(input: {
     activationId: string;
+    licenseId: string;
     fingerprintHash: string;
     hostname?: string;
     os?: string;
     arch?: string;
+    appVersion?: string;
   }): Promise<void> {
     await this.prisma.device.upsert({
       where: {
@@ -100,10 +102,12 @@ export class DeviceService {
       },
       create: {
         activationId: input.activationId,
+        licenseId: input.licenseId,
         fingerprintHash: input.fingerprintHash,
         hostname: input.hostname ?? null,
-        os: input.os ?? null,
-        arch: input.arch ?? null,
+        os: input.os ?? 'unknown',
+        arch: input.arch ?? 'unknown',
+        appVersion: input.appVersion ?? 'unknown',
         lastSeenAt: new Date(),
       },
       update: {

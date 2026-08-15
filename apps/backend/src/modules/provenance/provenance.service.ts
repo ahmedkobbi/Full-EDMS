@@ -379,7 +379,7 @@ export class ProvenanceService {
         documentId,
         tenantId,
         manifestKind: 'forgery_detection',
-        chainOfCustody: null,
+        chainOfCustody: undefined,
         forgeryVerdict: verdict,
         forgeryScore: score,
       },

@@ -36,7 +36,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
           messageKey: nestResp.messageKey ?? 'errors.INTERNAL_ERROR',
           messageVars: nestResp.messageVars as any,
           traceId,
-          details: nestResp.details,
+          details: (nestResp.details as Record<string, unknown> | undefined) ?? undefined,
         },
       };
     } else if (exception instanceof Error) {

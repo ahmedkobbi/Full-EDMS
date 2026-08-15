@@ -1,7 +1,7 @@
-import { Controller, Get, HttpCode, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { RevocationService } from './revocation.service.js';
-import { AdminJwtGuard, type AdminAuthenticatedRequest } from '../../security/admin-jwt.guard.js';
+import { AdminJwtGuard } from '../../security/admin-jwt.guard.js';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { AuditAction } from '../../common/decorators/audit-action.decorator.js';
 import { SEDMSCRL_MIME } from '@smart-edms/license-core';
@@ -29,7 +29,7 @@ export class RevocationController {
   @Public()
   @Get('crl')
   @ApiOperation({ summary: 'Fetch the latest .sedmscrl revocation list (public — on-prem backends)' })
-  async getCrl(@Req() req: AdminAuthenticatedRequest) {
+  async getCrl() {
     const result = await this.revocation.getLatest();
     // Mark revocations as propagated (best-effort — the CRL has been
     // served, so the on-prem backend will pick up the revocations on
@@ -46,7 +46,7 @@ export class RevocationController {
   @AuditAction('crl.refresh')
   @HttpCode(200)
   @ApiOperation({ summary: 'Manually rebuild + sign the CRL (admin)' })
-  async refresh(@Req() req: AdminAuthenticatedRequest) {
+  async refresh() {
     const result = await this.revocation.buildAndSign();
     void this.revocation.markPropagated(result.version).catch(() => undefined);
     return {

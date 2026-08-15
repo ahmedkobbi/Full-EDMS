@@ -98,10 +98,10 @@ export const DEFAULT_CHECKLIST_ITEMS: readonly ChecklistItemDef[] = [
 const chooseLanguage: ChecklistResolver = async (ctx) => {
   const user = await ctx.prisma.user.findUnique({
     where: { id: ctx.userId },
-    select: { locale: true, tenant: { select: { defaultLocale: true } } },
+    select: { preferredLocale: true, tenant: { select: { defaultLocale: true } } },
   });
   if (!user) return false;
-  return Boolean(user.locale && user.locale.length > 0);
+  return Boolean(user.preferredLocale && user.preferredLocale.length > 0);
 };
 
 /**
@@ -147,12 +147,12 @@ const uploadFirstDocument: ChecklistResolver = async (ctx) => {
   return count > 0;
 };
 
-/** Add metadata — completed when the user has authored ≥1 MetadataValue. */
+/** Add metadata — completed when the user has authored ≥1 MetadataValue on a document they created. */
 const addMetadata: ChecklistResolver = async (ctx) => {
   const count = await ctx.prisma.metadataValue.count({
     where: {
       tenantId: ctx.tenantId,
-      createdByUserId: ctx.userId,
+      document: { createdByUserId: ctx.userId },
     },
   });
   return count > 0;

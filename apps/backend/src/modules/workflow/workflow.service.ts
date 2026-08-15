@@ -394,7 +394,10 @@ export class WorkflowService {
       metadata: { changes: Object.keys(data) },
     });
 
-    return updated;
+    return {
+      id: updated.id,
+      updatedAt: updated.updatedAt.toISOString(),
+    };
   }
 
   /**
@@ -574,7 +577,7 @@ export class WorkflowService {
             dueAt: step.dueInHours
               ? new Date(now.getTime() + step.dueInHours * 3600_000)
               : null,
-            metadata: { definitionStep: step } as Prisma.InputJsonValue,
+            metadata: { definitionStep: step as unknown as object } as Prisma.InputJsonValue,
           },
         });
       }
@@ -802,10 +805,11 @@ export class WorkflowService {
 
     // Authorization: the caller must be the assignee or delegate, or an admin.
     const isAssignee = currentStep.assigneeId === userId || currentStep.delegateId === userId;
-    const isAdmin = (await this.prisma.user.findUnique({
+    const userWithRoles = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { roles: true },
-    }))?.roles?.some((r: string) => r === 'admin') ?? false;
+      select: { roleAssignments: { select: { role: { select: { code: true } } } } },
+    });
+    const isAdmin = (userWithRoles?.roleAssignments ?? []).some((r) => r.role.code === 'admin');
     if (!isAssignee && !isAdmin) {
       throw new ForbiddenException({ messageKey: 'errors.FORBIDDEN' });
     }
@@ -910,7 +914,7 @@ export class WorkflowService {
 
     const route = routeNext(engineDef, engineInstance);
 
-    let advanced = false;
+    let advanced: { stepKey: string | null; assigneeId: string | null } | false = false;
     let finalStatus = refreshed.status;
 
     if (route.kind === 'advance') {
@@ -918,6 +922,7 @@ export class WorkflowService {
       const nextSteps = engineDef.steps.filter(
         (s) => s.enabled && s.stepOrder === route.nextStepOrder,
       );
+      let lastCreatedStep: { stepKey: string; assigneeId: string | null } | null = null;
       for (const step of nextSteps) {
         const createdStep = await this.prisma.workflowStep.create({
           data: {
@@ -932,7 +937,7 @@ export class WorkflowService {
             dueAt: step.dueInHours
               ? new Date(now.getTime() + step.dueInHours * 3600_000)
               : null,
-            metadata: { definitionStep: step } as Prisma.InputJsonValue,
+            metadata: { definitionStep: step as unknown as object } as Prisma.InputJsonValue,
           },
         });
 
@@ -950,22 +955,25 @@ export class WorkflowService {
             },
           });
         }
+        lastCreatedStep = { stepKey: createdStep.stepKey, assigneeId: createdStep.assigneeId };
       }
-      advanced = true;
+      advanced = lastCreatedStep
+        ? { stepKey: lastCreatedStep.stepKey, assigneeId: lastCreatedStep.assigneeId }
+        : false;
     } else if (route.kind === 'complete') {
       await this.prisma.workflowInstance.update({
         where: { id: instanceId },
         data: { status: route.finalStatus, completedAt: now },
       });
       finalStatus = route.finalStatus;
-      advanced = true;
+      advanced = { stepKey: null, assigneeId: null };
     } else if (route.kind === 'reject') {
       await this.prisma.workflowInstance.update({
         where: { id: instanceId },
         data: { status: 'REJECTED', completedAt: now },
       });
       finalStatus = 'REJECTED';
-      advanced = true;
+      advanced = { stepKey: null, assigneeId: null };
     } else if (route.kind === 'escalate') {
       if (route.escalationStepOrder) {
         // Create the escalation step
@@ -983,10 +991,10 @@ export class WorkflowService {
               status: 'in_progress',
               assigneeId: escStep.assignee.kind === 'user' ? escStep.assignee.userId : null,
               startedAt: now,
-              metadata: { escalation: true, definitionStep: escStep } as Prisma.InputJsonValue,
+              metadata: { escalation: true, definitionStep: escStep as unknown as object } as Prisma.InputJsonValue,
             },
           });
-          advanced = true;
+          advanced = { stepKey: `step-${escStep.stepOrder}`, assigneeId: escStep.assignee.kind === 'user' ? escStep.assignee.userId : null };
         }
       } else {
         await this.prisma.workflowInstance.update({
@@ -994,7 +1002,7 @@ export class WorkflowService {
           data: { status: 'FAILED', completedAt: now },
         });
         finalStatus = 'FAILED';
-        advanced = true;
+        advanced = { stepKey: null, assigneeId: null };
       }
     }
     // route.kind === 'wait' → no-op (parallel branch still in flight)
@@ -1053,7 +1061,7 @@ export class WorkflowService {
       instanceId,
       status: finalStatus,
       decision: body.decision,
-      advanced,
+      advanced: !!advanced,
     };
   }
 
@@ -1105,7 +1113,7 @@ export class WorkflowService {
       result: 'allow',
       resourceType: 'workflow_instance',
       resourceId: instanceId,
-      reason: body.reasonKey ?? null,
+      reason: body.reasonKey ?? undefined,
       metadata: { comment: body.comment },
     });
 

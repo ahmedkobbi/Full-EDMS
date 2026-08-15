@@ -11,7 +11,7 @@
  * The page is the tour target `help.menu`.
  */
 import { Stack, Title, Text, SimpleGrid, Card, Group, Button, Badge } from '@mantine/core';
-import { IconPlay, IconRefresh, IconCompass } from 'lucide-react';
+import { Play, RefreshCw, Compass } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useToursQuery } from '../api/hooks';
 import { useStartTour } from '../components/tour/TourEngine';
@@ -50,7 +50,7 @@ export function ToursPage() {
               <Card key={tour.id} withBorder radius="md" padding="lg" shadow="sm">
                 <Stack gap="sm">
                   <Group justify="space-between">
-                    <IconCompass size={24} aria-hidden="true" />
+                    <Compass size={24} aria-hidden="true" />
                     <Badge variant="light" color="brand">
                       {t(`tour.common:audience.${tour.audience}`, { defaultValue: tour.audience })}
                     </Badge>
@@ -65,7 +65,7 @@ export function ToursPage() {
                     <Button
                       variant="filled"
                       size="xs"
-                      leftSection={<IconPlay size={12} aria-hidden="true" />}
+                      leftSection={<Play size={12} aria-hidden="true" />}
                       onClick={() => startTour(code)}
                     >
                       {t('tour.common:button.takeTour')}
@@ -73,7 +73,7 @@ export function ToursPage() {
                     <Button
                       variant="subtle"
                       size="xs"
-                      leftSection={<IconRefresh size={12} aria-hidden="true" />}
+                      leftSection={<RefreshCw size={12} aria-hidden="true" />}
                     >
                       {t('tour.common:button.restart')}
                     </Button>

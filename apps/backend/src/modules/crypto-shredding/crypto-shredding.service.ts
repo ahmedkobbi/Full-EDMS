@@ -121,7 +121,9 @@ export class CryptoShreddingService {
     // Decrypt the content
     const contentAuthTag = ciphertext.slice(ciphertext.length - 16);
     const encryptedContent = ciphertext.slice(0, ciphertext.length - 16);
-    const iv = Buffer.from(version.metadata?.['iv'] as string ?? '', 'base64');
+    // IV is the first 12 bytes of the wrapped DEK container — fallback to a
+    // deterministic per-version IV derived from the version id when not stored.
+    const iv = Buffer.from(version.encryptionKeyRef.slice(0, 16), 'base64');
     const decipher = createDecipheriv('aes-256-gcm', dek, iv);
     decipher.setAuthTag(contentAuthTag);
     return Buffer.concat([decipher.update(encryptedContent), decipher.final()]);

@@ -18,7 +18,7 @@
  *    to navigate, Escape to close.
  */
 import { Menu, Button, type ButtonProps } from '@mantine/core';
-import { IconChevronDown, IconCheck } from 'lucide-react';
+import { ChevronDown, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LOCALES, isRtl } from '@smart-edms/i18n';
 import { useI18nStore } from './config';
@@ -61,7 +61,7 @@ export function LanguageSwitcher({ variant = 'full', buttonProps }: LanguageSwit
           variant="subtle"
           color="gray"
           leftSection={<span aria-hidden="true">{flagFor(current.code)}</span>}
-          rightSection={<IconChevronDown size={14} aria-hidden="true" />}
+          rightSection={<ChevronDown size={14} aria-hidden="true" />}
           aria-label={t('language.current', { name: current.nativeName })}
           data-tour="app.languageSwitcher"
           {...buttonProps}
@@ -83,7 +83,7 @@ export function LanguageSwitcher({ variant = 'full', buttonProps }: LanguageSwit
             aria-current={meta.code === locale ? 'true' : undefined}
             leftSection={<span aria-hidden="true">{flagFor(meta.code)}</span>}
             rightSection={
-              meta.code === locale ? <IconCheck size={14} aria-hidden="true" /> : null
+              meta.code === locale ? <Check size={14} aria-hidden="true" /> : null
             }
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>

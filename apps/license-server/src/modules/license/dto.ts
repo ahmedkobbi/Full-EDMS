@@ -48,7 +48,7 @@ export const issueLicenseSchema = z.object({
   supportLevel: z.string().max(32).default('standard'),
 });
 
-export type IssueLicenseInput = z.infer<typeof issueLicenseSchema>;
+export type IssueLicenseInput = z.input<typeof issueLicenseSchema>;
 
 export const renewLicenseSchema = z.object({
   newEndDate: z.string().datetime().nullable().optional(),

@@ -10,14 +10,14 @@
  * reads as guidance rather than an error.
  */
 import { Alert, Text } from '@mantine/core';
-import { IconInfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export function AiDisclaimer() {
   const { t } = useTranslation();
   return (
     <Alert
-      icon={<IconInfoCircle size={14} aria-hidden="true" />}
+      icon={<Info size={14} aria-hidden="true" />}
       color="gray"
       variant="light"
       py={6}

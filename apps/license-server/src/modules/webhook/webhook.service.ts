@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -18,7 +18,8 @@ export type WebhookEvent =
   | 'trial.started'
   | 'trial.expired'
   | 'heartbeat.failed'
-  | 'activation.created';
+  | 'activation.created'
+  | 'webhook.test';
 
 export const webhookEvents: readonly WebhookEvent[] = [
   'license.issued',
@@ -29,6 +30,7 @@ export const webhookEvents: readonly WebhookEvent[] = [
   'trial.expired',
   'heartbeat.failed',
   'activation.created',
+  'webhook.test',
 ];
 
 export const createWebhookSchema = z.object({

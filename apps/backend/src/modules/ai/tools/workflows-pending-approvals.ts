@@ -68,17 +68,17 @@ export const workflowsPendingApprovalsTool: ToolDefinition<
       const rows = await ctx.prisma.approval.findMany({
         where: {
           tenantId: ctx.tenantId,
-          assigneeUserId: targetUserId,
+          approverId: targetUserId,
           decision: 'PENDING' as never,
         },
         orderBy: { createdAt: 'asc' },
         take: input.limit,
         select: {
           id: true,
-          workflowInstanceId: true,
-          stepLabelKey: true,
-          dueAt: true,
+          instanceId: true,
+          comment: true,
           createdAt: true,
+          instance: { select: { id: true, dueAt: true, documentId: true } },
         },
       });
 
@@ -87,9 +87,9 @@ export const workflowsPendingApprovalsTool: ToolDefinition<
         output: {
           approvals: rows.map((r) => ({
             approvalId: r.id,
-            workflowInstanceId: r.workflowInstanceId,
-            stepLabelKey: (r as { stepLabelKey?: string | null }).stepLabelKey ?? null,
-            dueAt: (r as { dueAt?: Date | null }).dueAt?.toISOString() ?? null,
+            workflowInstanceId: r.instanceId,
+            stepLabelKey: r.comment ?? null,
+            dueAt: r.instance?.dueAt?.toISOString() ?? null,
             requestedAt: r.createdAt.toISOString(),
           })),
         },

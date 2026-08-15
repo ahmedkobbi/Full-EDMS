@@ -12,7 +12,7 @@
  * client just displays the result.
  */
 import { Stack, Group, Text, ThemeIcon, Button, Box, Progress } from '@mantine/core';
-import { IconCheck, IconCircle, IconArrowRight } from 'lucide-react';
+import { Check, Circle, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TourDefinitionId, TourChecklistItem } from '@smart-edms/types';
 import { useTourChecklistQuery } from '../../api/hooks';
@@ -78,9 +78,9 @@ export function TourChecklist({ tourId }: TourChecklistProps) {
               radius="xl"
             >
               {item.completed ? (
-                <IconCheck size={14} aria-hidden="true" />
+                <Check size={14} aria-hidden="true" />
               ) : (
-                <IconCircle size={10} aria-hidden="true" />
+                <Circle size={10} aria-hidden="true" />
               )}
             </ThemeIcon>
             <Stack gap={2} style={{ flex: 1 }}>
@@ -97,7 +97,7 @@ export function TourChecklist({ tourId }: TourChecklistProps) {
               <Button
                 variant="subtle"
                 size="xs"
-                rightSection={<IconArrowRight size={12} aria-hidden="true" />}
+                rightSection={<ArrowRight size={12} aria-hidden="true" />}
                 onClick={() => {
                   window.dispatchEvent(
                     new CustomEvent('command-palette:start-tour', {

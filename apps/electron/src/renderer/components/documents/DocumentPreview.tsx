@@ -10,12 +10,11 @@
  */
 import { useState, useEffect } from 'react';
 import { Box, Stack, Text, Button, Image, Center } from '@mantine/core';
-import { IconDownload, IconFile } from 'lucide-react';
+import { Download, File } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Document } from '@smart-edms/types';
 import { apiClient } from '../../api/client';
-import { LoadingState } from '../common/LoadingState';
-import { ErrorState } from '../common/ErrorState';
+import { LoadingState, ErrorState } from '@smart-edms/ui';
 
 interface DocumentPreviewProps {
   readonly document: Document;
@@ -58,11 +57,11 @@ export function DocumentPreview({ document }: DocumentPreviewProps) {
   if (!previewUrl) {
     return (
       <Stack align="center" py="xl" gap="md">
-        <IconFile size={48} aria-hidden="true" />
+        <File size={48} aria-hidden="true" />
         <Text size="sm" c="dimmed">
           {t('documents:document.preview.noPreview')}
         </Text>
-        <Button variant="light" leftSection={<IconDownload size={14} aria-hidden="true" />}>
+        <Button variant="light" leftSection={<Download size={14} aria-hidden="true" />}>
           {t('documents:document.preview.downloadInstead')}
         </Button>
       </Stack>
@@ -87,11 +86,11 @@ export function DocumentPreview({ document }: DocumentPreviewProps) {
 
   return (
     <Stack align="center" py="xl" gap="md">
-      <IconFile size={48} aria-hidden="true" />
+      <File size={48} aria-hidden="true" />
       <Text size="sm" c="dimmed">
         {t('documents:document.preview.noPreview')}
       </Text>
-      <Button variant="light" leftSection={<IconDownload size={14} aria-hidden="true" />}>
+      <Button variant="light" leftSection={<Download size={14} aria-hidden="true" />}>
         {t('documents:document.preview.downloadInstead')}
       </Button>
     </Stack>

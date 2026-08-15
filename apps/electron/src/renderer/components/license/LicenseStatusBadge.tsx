@@ -12,8 +12,8 @@
  *  - extended_remediation → warning (amber)
  *  - invalid          → error (red)
  */
-import { Badge, type MantineColor, Tooltip, Group } from '@mantine/core';
-import { IconShieldCheck, IconAlertTriangle } from 'lucide-react';
+import { Badge, type MantineColor, Tooltip } from '@mantine/core';
+import { ShieldCheck, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { LicenseState } from '@smart-edms/types';
 import { useLicenseStateQuery } from '../../api/hooks';
@@ -32,12 +32,12 @@ export function LicenseStatusBadge() {
   const query = useLicenseStateQuery();
 
   if (query.isLoading) {
-    return <Badge variant="light" color="gray" loading />;
+    return <Badge variant="light" color="gray">…</Badge>;
   }
 
   if (query.isError || !query.data) {
     return (
-      <Badge variant="light" color="gray" leftSection={<IconAlertTriangle size={12} />}>
+      <Badge variant="light" color="gray" leftSection={<AlertTriangle size={12} />}>
         {t('license:state.generic.short')}
       </Badge>
     );
@@ -52,7 +52,7 @@ export function LicenseStatusBadge() {
       <Badge
         variant="light"
         color={color}
-        leftSection={<IconShieldCheck size={12} />}
+        leftSection={<ShieldCheck size={12} />}
         data-tour="license.statusBadge"
       >
         {t(labelKey)}

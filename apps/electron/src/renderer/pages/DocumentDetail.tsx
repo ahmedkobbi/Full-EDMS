@@ -18,13 +18,13 @@
 import { useState } from 'react';
 import {
   Stack, Title, Text, Group, Button, Paper, Tabs, Badge, Table, Textarea,
-  ActionIcon, ThemeIcon, Divider, LoadingOverlay, Modal, TextInput,
-  SimpleGrid, Card, Menu, Code,
+  ActionIcon, ThemeIcon, Divider, LoadingOverlay, TextInput,
+  SimpleGrid, Menu, Code,
 } from '@mantine/core';
 import {
   IconArrowLeft, IconDownload, IconLock, IconLockOpen, IconShare, IconTrash,
   IconHistory, IconMessageCircle, IconTag, IconFileInfo, IconShieldCheck,
-  IconRefresh, IconPlus, IconCheck, IconDots,
+  IconRefresh, IconPlus, IconDots,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -44,7 +44,7 @@ export function DocumentDetailPage() {
   const [activeTab, setActiveTab] = useState('versions');
 
   const docQuery = useDocumentQuery(id!);
-  const deleteDoc = useDeleteDocumentMutation(id!);
+  const deleteDoc = useDeleteDocumentMutation();
   const lockDoc = useLockDocumentMutation(id!);
   const unlockDoc = useUnlockDocumentMutation(id!);
   const declareRecord = useDeclareRecordMutation(id!);
@@ -52,7 +52,7 @@ export function DocumentDetailPage() {
   const doc = docQuery.data as any;
 
   if (docQuery.isLoading) return <LoadingState variant="skeleton" />;
-  if (docQuery.isError) return <ErrorState titleKey="errors.NOT_FOUND" subtitleKey="document.notFound" onRetry={() => docQuery.refetch()} />;
+  if (docQuery.isError) return <ErrorState error={docQuery.error} titleKey="errors.NOT_FOUND" messageKey="document.notFound" onRetry={() => docQuery.refetch()} />;
   if (!doc) return null;
 
   return (
@@ -92,7 +92,7 @@ export function DocumentDetailPage() {
                 {t('common:action.refresh', { defaultValue: 'Refresh' })}
               </Menu.Item>
               <Divider />
-              <Menu.Item color="red" leftSection={<IconTrash size={14} aria-hidden="true" />} onClick={() => { if (confirm(t('document.confirmDelete', { defaultValue: 'Delete this document?' }))) { deleteDoc.mutate(undefined, { onSuccess: () => navigate('/documents') }); } }}>
+              <Menu.Item color="red" leftSection={<IconTrash size={14} aria-hidden="true" />} onClick={() => { if (confirm(t('document.confirmDelete', { defaultValue: 'Delete this document?' }))) { deleteDoc.mutate(id ?? '', { onSuccess: () => navigate('/documents') }); } }}>
                 {t('common:action.delete', { defaultValue: 'Delete' })}
               </Menu.Item>
             </Menu.Dropdown>
@@ -132,7 +132,7 @@ export function DocumentDetailPage() {
       </Paper>
 
       {/* Tabs: versions, comments, tags, metadata */}
-      <Tabs value={activeTab} onChange={setActiveTab}>
+      <Tabs value={activeTab} onChange={(v) => setActiveTab(v ?? 'versions')}>
         <Tabs.List>
           <Tabs.Tab value="versions" leftSection={<IconHistory size={14} aria-hidden="true" />}>
             {t('document.versions', { defaultValue: 'Versions' })}
@@ -158,7 +158,7 @@ export function DocumentDetailPage() {
           <TagsTab documentId={id!} />
         </Tabs.Panel>
         <Tabs.Panel value="metadata" pt="md">
-          <MetadataTab documentId={id!} doc={doc} />
+          <MetadataTab doc={doc} />
         </Tabs.Panel>
       </Tabs>
     </Stack>
@@ -204,7 +204,7 @@ function VersionsTab({ documentId }: { documentId: string }) {
               <Table.Tr key={v.id}>
                 <Table.Td><Badge variant="light">v{v.versionNumber}</Badge></Table.Td>
                 <Table.Td><Text size="xs">{formatBytes(Number(v.sizeBytes))}</Text></Table.Td>
-                <Table.Td><Code size="xs">{v.checksum?.slice(0, 12)}…</Code></Table.Td>
+                <Table.Td><Code>{v.checksum?.slice(0, 12)}…</Code></Table.Td>
                 <Table.Td><Text size="xs">{v.changeReason ?? '—'}</Text></Table.Td>
                 <Table.Td><LocaleAwareDate value={v.createdAt} size="xs" c="dimmed" /></Table.Td>
                 <Table.Td>
@@ -336,7 +336,7 @@ function TagsTab({ documentId }: { documentId: string }) {
 
 // ── Metadata Tab ────────────────────────────────────────────────────────────
 
-function MetadataTab({ documentId, doc }: { documentId: string; doc: any }) {
+function MetadataTab({ doc }: { doc: any }) {
   const { t } = useTranslation();
 
   const metadataFields = [

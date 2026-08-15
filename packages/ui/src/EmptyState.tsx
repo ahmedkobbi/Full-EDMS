@@ -24,6 +24,15 @@ export interface EmptyStateProps {
     | 'workflow'
     | 'audit'
     | 'license'
+    | 'activations'
+    | 'customers'
+    | 'products'
+    | 'licenses'
+    | 'trials'
+    | 'webhooks'
+    | 'apiKeys'
+    | 'signingKeys'
+    | 'offline'
     | 'generic';
   /** Title translation key (e.g. `'documents:library.empty.title'`). */
   readonly titleKey: string;
@@ -45,6 +54,15 @@ const ILLUSTRATION_COLORS: Record<EmptyStateProps['illustration'], MantineColor>
   workflow: 'success',
   audit: 'gray',
   license: 'brand',
+  activations: 'success',
+  customers: 'brand',
+  products: 'info',
+  licenses: 'brand',
+  trials: 'warning',
+  webhooks: 'info',
+  apiKeys: 'brand',
+  signingKeys: 'success',
+  offline: 'warning',
   generic: 'gray',
 };
 

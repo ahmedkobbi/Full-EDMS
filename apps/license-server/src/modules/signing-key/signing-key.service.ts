@@ -8,7 +8,7 @@ import {
   type SigningAlg,
   type SigningKeyPair,
 } from '@smart-edms/license-core';
-import { PrismaService } from '../prisma/prisma.service.js';
+import { PrismaService } from '../../prisma/prisma.service.js';
 
 /**
  * Signing-key service — loads, holds, and rotates the Ed25519 / ES256

@@ -183,7 +183,11 @@ export class RetentionService {
       metadata: { code: body.code, triggerKind: body.triggerKind, retentionDays: body.retentionDays },
     });
 
-    return schedule;
+    return {
+      id: schedule.id,
+      code: schedule.code,
+      createdAt: schedule.createdAt.toISOString(),
+    };
   }
 
   async listSchedules(
@@ -269,7 +273,10 @@ export class RetentionService {
       metadata: { changes: Object.keys(data) },
     });
 
-    return updated;
+    return {
+      id: updated.id,
+      updatedAt: updated.updatedAt.toISOString(),
+    };
   }
 
   /**

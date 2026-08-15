@@ -21,7 +21,12 @@ interface EmptyStateProps {
     | 'audit'
     | 'signingKeys'
     | 'offline'
-    | 'generic';
+    | 'generic'
+    | 'workflow'
+    | 'license'
+    | 'documents'
+    | 'search'
+    | 'notifications';
   readonly titleKey: string;
   readonly subtitleKey?: string;
   readonly actions?: ReactNode;
@@ -40,6 +45,11 @@ const ILLUSTRATION_COLORS: Record<EmptyStateProps['illustration'], MantineColor>
   signingKeys: 'success',
   offline: 'warning',
   generic: 'gray',
+  workflow: 'brand',
+  license: 'brand',
+  documents: 'info',
+  search: 'brand',
+  notifications: 'warning',
 };
 
 function Illustration({
@@ -143,6 +153,12 @@ function Illustration({
           <>
             <rect x="32" y="32" width="56" height="56" rx="8" stroke="currentColor" strokeWidth="3" strokeDasharray="6 6" />
             <circle cx="60" cy="60" r="8" stroke="currentColor" strokeWidth="3" />
+          </>
+        )}
+        {(kind === 'workflow' || kind === 'documents' || kind === 'license' || kind === 'search' || kind === 'notifications') && (
+          <>
+            <rect x="32" y="32" width="56" height="56" rx="8" stroke="currentColor" strokeWidth="3" />
+            <path d="M48 56h24M48 64h16" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
           </>
         )}
       </svg>

@@ -15,12 +15,10 @@
     "rootDir": "./src",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
-      "@smart-edms/types": ["../../packages/types/src"],
-      "@smart-edms/schemas": ["../../packages/schemas/src"],
-      "@smart-edms/license-core": ["../../packages/license-core/src"]
-    }
+      "@/*": ["src/*"]
+    },
+    "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "prisma/**/*.ts"],
-  "exclude": ["node_modules", "dist", "scripts"]
+  "include": ["src/**/*.ts", "types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "scripts", "prisma"]
 }

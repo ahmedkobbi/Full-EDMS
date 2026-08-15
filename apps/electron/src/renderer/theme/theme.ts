@@ -11,7 +11,7 @@
  *  - Semantic status colors (success/warning/error/info) used consistently.
  *  - Logical CSS properties (start/end) so RTL works without overrides.
  */
-import { createTheme, type MantineTheme, type MantineColorsTuple } from '@mantine/core';
+import { createTheme, type MantineThemeOverride, type MantineColorsTuple } from '@mantine/core';
 import {
   TYPOGRAPHY,
   SPACING,
@@ -36,7 +36,7 @@ function toTuple(arr: readonly string[]): MantineColorsTuple {
  * Build the base theme shared by light + dark variants. The variant only
  * overrides the color scheme and the resolvable colors.
  */
-function buildBaseTheme(colorScheme: 'light' | 'dark'): MantineTheme {
+function buildBaseTheme(colorScheme: 'light' | 'dark'): MantineThemeOverride {
   const colors = buildColorScale(colorScheme);
   const colorsRecord: Record<string, MantineColorsTuple> = {};
   for (const [name, ramp] of Object.entries(colors)) {
@@ -46,7 +46,6 @@ function buildBaseTheme(colorScheme: 'light' | 'dark'): MantineTheme {
   return createTheme({
     primaryColor: 'brand',
     primaryShade: { light: 5, dark: 4 },
-    colorScheme,
     colors: colorsRecord,
     fontFamily: TYPOGRAPHY.fontFamily,
     headings: {
@@ -163,23 +162,24 @@ function buildBaseTheme(colorScheme: 'light' | 'dark'): MantineTheme {
   });
 }
 
-export const lightTheme: MantineTheme = buildBaseTheme('light');
-export const darkTheme: MantineTheme = buildBaseTheme('dark');
+export const lightTheme: MantineThemeOverride = buildBaseTheme('light');
+export const darkTheme: MantineThemeOverride = buildBaseTheme('dark');
 
 /**
  * Build a theme variant for a specific color scheme. Used by ThemeProvider
  * when the user toggles between light and dark.
  */
-export function buildTheme(colorScheme: 'light' | 'dark'): MantineTheme {
+export function buildTheme(colorScheme: 'light' | 'dark'): MantineThemeOverride {
   return colorScheme === 'dark' ? darkTheme : lightTheme;
 }
 
 /**
  * Build a theme variant for a specific color scheme AND direction. Mantine
- * uses the `dir` property to flip logical CSS properties automatically when
- * paired with the `rtl` plugin.
+ * v7 handles `dir` via the `<html dir="rtl">` attribute set by the
+ * ThemeProvider; the theme object itself does not carry a `dir` property.
  */
-export function buildRtlTheme(colorScheme: 'light' | 'dark', dir: 'ltr' | 'rtl'): MantineTheme {
-  const base = buildTheme(colorScheme);
-  return { ...base, dir };
+export function buildRtlTheme(colorScheme: 'light' | 'dark', _dir: 'ltr' | 'rtl'): MantineThemeOverride {
+  // Direction is applied at the document level by ThemeProvider via the
+  // `<html dir="rtl|ltr">` attribute. Mantine v7 reads it from there.
+  return buildTheme(colorScheme);
 }

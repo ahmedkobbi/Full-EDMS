@@ -21,7 +21,7 @@
  */
 import { useState, useEffect } from 'react';
 import { ActionIcon, Box, Tooltip } from '@mantine/core';
-import { IconMessageCircle, IconSparkles } from 'lucide-react';
+import { MessageCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLicenseStateQuery } from '../../api/hooks';
 import { AiChatDrawer } from './AiChatDrawer';
@@ -71,9 +71,9 @@ export function AiAssistantBubble() {
             }}
           >
             {opened ? (
-              <IconMessageCircle size={24} aria-hidden="true" />
+              <MessageCircle size={24} aria-hidden="true" />
             ) : (
-              <IconSparkles size={24} aria-hidden="true" />
+              <Sparkles size={24} aria-hidden="true" />
             )}
           </ActionIcon>
         </Tooltip>

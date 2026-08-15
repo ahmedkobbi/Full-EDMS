@@ -31,7 +31,6 @@ import {
   Bolt,
   ListChecks,
   ChartBar,
-  UserShield,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -90,7 +89,7 @@ const NAV_GROUPS: readonly NavGroup[] = [
     labelKey: 'admin:nav.security',
     items: [
       { to: '/signing-keys', labelKey: 'admin:nav.signingKeys', icon: ShieldCheck, tour: 'admin.sidebar.signingKeys' },
-      { to: '/admin-users', labelKey: 'admin:nav.adminUsers', icon: UserShield, tour: 'admin.sidebar.adminUsers' },
+      { to: '/admin-users', labelKey: 'admin:nav.adminUsers', icon: ShieldCheck, tour: 'admin.sidebar.adminUsers' },
       { to: '/settings', labelKey: 'admin:nav.settings', icon: Settings, tour: 'admin.sidebar.settings' },
     ],
   },

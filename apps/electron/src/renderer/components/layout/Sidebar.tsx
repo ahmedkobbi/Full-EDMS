@@ -24,39 +24,39 @@
  */
 import { NavLink, ScrollArea, Stack, Box, Group } from '@mantine/core';
 import {
-  IconLayoutDashboard,
-  IconFiles,
-  IconSearch,
-  IconWorkflow,
-  IconHistory,
-  IconScan,
-  IconCompass,
-  IconSettings,
-  IconShieldCheck,
+  LayoutDashboard,
+  Files,
+  Search,
+  Workflow,
+  History,
+  Scan,
+  Compass,
+  Settings,
+  ShieldCheck,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BrandedLogo } from '../common/BrandedLogo';
+import { BrandedLogo } from '@smart-edms/ui';
 import { LicenseStatusBadge } from '../license/LicenseStatusBadge';
 
 interface NavItem {
   readonly to: string;
   readonly labelKey: string;
-  readonly icon: typeof IconLayoutDashboard;
+  readonly icon: typeof LayoutDashboard;
   readonly tour?: string;
   readonly adminOnly?: boolean;
 }
 
 const NAV_ITEMS: readonly NavItem[] = [
-  { to: '/dashboard', labelKey: 'nav.dashboard', icon: IconLayoutDashboard, tour: 'app.sidebar.dashboard' },
-  { to: '/documents', labelKey: 'nav.documents', icon: IconFiles, tour: 'app.sidebar.documents' },
-  { to: '/search', labelKey: 'nav.search', icon: IconSearch, tour: 'app.sidebar.search' },
-  { to: '/workflows', labelKey: 'nav.workflows', icon: IconWorkflow, tour: 'app.sidebar.workflows' },
-  { to: '/audit', labelKey: 'nav.audit', icon: IconHistory, tour: 'app.sidebar.audit' },
-  { to: '/scanner', labelKey: 'nav.scanner', icon: IconScan, tour: 'app.sidebar.scanner' },
-  { to: '/tours', labelKey: 'nav.tours', icon: IconCompass, tour: 'app.sidebar.tours' },
-  { to: '/admin', labelKey: 'nav.admin', icon: IconShieldCheck, tour: 'app.sidebar.admin', adminOnly: true },
-  { to: '/settings', labelKey: 'nav.settings', icon: IconSettings, tour: 'app.sidebar.settings' },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, tour: 'app.sidebar.dashboard' },
+  { to: '/documents', labelKey: 'nav.documents', icon: Files, tour: 'app.sidebar.documents' },
+  { to: '/search', labelKey: 'nav.search', icon: Search, tour: 'app.sidebar.search' },
+  { to: '/workflows', labelKey: 'nav.workflows', icon: Workflow, tour: 'app.sidebar.workflows' },
+  { to: '/audit', labelKey: 'nav.audit', icon: History, tour: 'app.sidebar.audit' },
+  { to: '/scanner', labelKey: 'nav.scanner', icon: Scan, tour: 'app.sidebar.scanner' },
+  { to: '/tours', labelKey: 'nav.tours', icon: Compass, tour: 'app.sidebar.tours' },
+  { to: '/admin', labelKey: 'nav.admin', icon: ShieldCheck, tour: 'app.sidebar.admin', adminOnly: true },
+  { to: '/settings', labelKey: 'nav.settings', icon: Settings, tour: 'app.sidebar.settings' },
 ] as const;
 
 export function Sidebar() {

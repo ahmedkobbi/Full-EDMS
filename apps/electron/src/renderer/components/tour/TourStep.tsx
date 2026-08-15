@@ -22,7 +22,7 @@
  */
 import { useEffect, type ReactNode } from 'react';
 import { Popover, Stack, Text, Group, Button, Progress, Checkbox, Box } from '@mantine/core';
-import { IconX, IconArrowLeft, IconArrowRight, IconCheck } from 'lucide-react';
+import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TourStep } from '@smart-edms/types';
 import { resolvePlacement, useTourStore } from '../../store/tour';
@@ -136,7 +136,7 @@ export function TourStepPopover({
             <Button
               variant="subtle"
               size="sm"
-              leftSection={<IconArrowLeft size={14} aria-hidden="true" />}
+              leftSection={<ArrowLeft size={14} aria-hidden="true" />}
               onClick={previous}
               aria-label={t('tour.common:button.previous')}
             >
@@ -148,7 +148,7 @@ export function TourStepPopover({
               variant="filled"
               size="sm"
               color="brand"
-              rightSection={<IconCheck size={14} aria-hidden="true" />}
+              rightSection={<Check size={14} aria-hidden="true" />}
               onClick={finish}
               aria-label={t('tour.common:button.finish')}
             >
@@ -159,7 +159,7 @@ export function TourStepPopover({
               variant="filled"
               size="sm"
               color="brand"
-              rightSection={<IconArrowRight size={14} aria-hidden="true" />}
+              rightSection={<ArrowRight size={14} aria-hidden="true" />}
               onClick={next}
               aria-label={t('tour.common:button.next')}
             >
@@ -234,7 +234,7 @@ function ActionIconSkip({ onSkip }: { readonly onSkip: () => void }) {
         alignItems: 'center',
       }}
     >
-      <IconX size={14} aria-hidden="true" />
+      <X size={14} aria-hidden="true" />
     </button>
   );
 }

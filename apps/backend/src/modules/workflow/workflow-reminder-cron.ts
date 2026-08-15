@@ -9,7 +9,7 @@
  * Spec ref: §9.8 (escalation, reminders, due dates).
  */
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
 import { NotificationService } from '../notification/notification.service';
@@ -27,7 +27,7 @@ export class WorkflowReminderCron {
   /**
    * Check for due/overdue workflow steps every 15 minutes.
    */
-  @Cron(CronExpression.EVERY_15_MINUTES)
+  @Cron('*/15 * * * *')
   async checkOverdueSteps(): Promise<void> {
     this.logger.debug('Checking for overdue workflow steps...');
     const now = new Date();

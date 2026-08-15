@@ -11,15 +11,15 @@
  * highlight the upload area (spec §10.13).
  */
 import { useState, useCallback } from 'react';
-import { Dropzone, IMAGE_MIME_TYPE, PDF_MIME_TYPE, MS_WORD_MIME_TYPE } from '@mantine/dropzone';
-import { Group, Text, Stack, Progress, Box, Button, type MantineColor } from '@mantine/core';
-import { IconUpload, IconFile, IconX, IconCheck, IconAlertCircle } from 'lucide-react';
+import { Dropzone, IMAGE_MIME_TYPE, PDF_MIME_TYPE, MS_WORD_MIME_TYPE, type FileWithPath } from '@mantine/dropzone';
+import { Group, Text, Stack, Progress, type MantineColor } from '@mantine/core';
+import { Upload, File, X, Check, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { useUploadDocumentMutation } from '../../api/hooks';
 
 interface UploadItem {
-  readonly file: File;
+  readonly file: FileWithPath;
   readonly status: 'pending' | 'uploading' | 'success' | 'error';
   readonly progress: number;
   readonly error?: string;
@@ -44,7 +44,7 @@ export function DocumentUpload({ folderId, onComplete }: DocumentUploadProps) {
   const uploadMutation = useUploadDocumentMutation();
 
   const handleDrop = useCallback(
-    async (files: File[]) => {
+    async (files: FileWithPath[]) => {
       const newItems: UploadItem[] = files.map((file) => ({
         file,
         status: 'pending',
@@ -61,7 +61,7 @@ export function DocumentUpload({ folderId, onComplete }: DocumentUploadProps) {
             ),
           );
 
-          await uploadMutation.mutateAsync({ file, folderId });
+          await uploadMutation.mutateAsync({ file: file as File, folderId });
 
           // Update status to success.
           setItems((prev) =>
@@ -101,13 +101,13 @@ export function DocumentUpload({ folderId, onComplete }: DocumentUploadProps) {
       <Dropzone onDrop={handleDrop} accept={ACCEPTED_MIME_TYPES} multiple>
         <Group justify="center" gap="sm" p="xl">
           <Dropzone.Accept>
-            <IconUpload size={36} aria-hidden="true" />
+            <Upload size={36} aria-hidden="true" />
           </Dropzone.Accept>
           <Dropzone.Reject>
-            <IconX size={36} aria-hidden="true" />
+            <X size={36} aria-hidden="true" />
           </Dropzone.Reject>
           <Dropzone.Idle>
-            <IconFile size={36} aria-hidden="true" />
+            <File size={36} aria-hidden="true" />
           </Dropzone.Idle>
           <Stack gap={2} align="center">
             <Text size="sm" fw={500}>
@@ -145,7 +145,7 @@ function UploadRow({ item }: { readonly item: UploadItem }) {
 
   return (
     <Group gap="sm" align="center">
-      <IconFile size={16} aria-hidden="true" />
+      <File size={16} aria-hidden="true" />
       <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
         <Text size="xs" truncate>
           {item.file.name}
@@ -159,8 +159,8 @@ function UploadRow({ item }: { readonly item: UploadItem }) {
           </Text>
         )}
       </Stack>
-      {item.status === 'success' && <IconCheck size={16} aria-hidden="true" />}
-      {item.status === 'error' && <IconAlertCircle size={16} aria-hidden="true" />}
+      {item.status === 'success' && <Check size={16} aria-hidden="true" />}
+      {item.status === 'error' && <AlertCircle size={16} aria-hidden="true" />}
     </Group>
   );
 }

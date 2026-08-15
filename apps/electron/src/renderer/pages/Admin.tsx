@@ -24,16 +24,13 @@ import {
   SimpleGrid,
   Card,
   ThemeIcon,
-  Progress,
   Badge,
   Table,
-  ActionIcon,
   LoadingOverlay,
 } from '@mantine/core';
-import { IconShieldCheck, IconUsers, IconKey, IconPalette, IconLicense, IconFiles, IconWorkflow, IconDatabase, IconRefresh, IconPlus } from '@tabler/icons-react';
+import { IconShieldCheck, IconUsers, IconLicense, IconFiles, IconSubtask, IconDatabase, IconRefresh, IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useAdminDashboardQuery, useAuditEventsQuery } from '../api/hooks';
-import { LoadingState } from '@smart-edms/ui';
 import { ErrorState } from '@smart-edms/ui';
 import { EmptyState } from '@smart-edms/ui';
 import { LocaleAwareDate } from '@smart-edms/ui';
@@ -70,7 +67,7 @@ export function AdminPage() {
         </Button>
       </Group>
 
-      <Tabs value={activeTab} onChange={setActiveTab}>
+      <Tabs value={activeTab} onChange={(v) => setActiveTab(v ?? 'overview')}>
         <Tabs.List>
           <Tabs.Tab value="overview">
             {t('admin.tab.overview', { defaultValue: 'Overview' })}
@@ -91,8 +88,9 @@ export function AdminPage() {
           <LoadingOverlay visible={dashboardQuery.isLoading} />
           {dashboardQuery.isError ? (
             <ErrorState
+              error={dashboardQuery.error}
               titleKey="errors.INTERNAL_ERROR"
-              subtitleKey="admin.error.loadFailed"
+              messageKey="admin.error.loadFailed"
               onRetry={() => dashboardQuery.refetch()}
             />
           ) : stats ? (
@@ -110,7 +108,7 @@ export function AdminPage() {
                   value={stats.counts?.documents ?? '—'}
                 />
                 <StatCard
-                  icon={IconWorkflow}
+                  icon={IconSubtask}
                   label={t('admin.stats.workflows', { defaultValue: 'Active workflows' })}
                   value={stats.counts?.workflows ?? '—'}
                 />

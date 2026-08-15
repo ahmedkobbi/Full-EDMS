@@ -133,7 +133,7 @@ export class DocumentController {
       req.user!.tid,
       req.user!.sub,
       parsed,
-      chunkStream as unknown as import('node:crypto').Readable,
+      chunkStream as unknown as import('node:stream').Readable,
     );
   }
 

@@ -128,16 +128,20 @@ export const environmentSchema = z
     // ── bcrypt rounds for admin password hashing ──────────────────────
     BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(15).default(12),
   })
-  .superRefine((env: Environment, ctx: z.RefinementCtx) => {
-    if (env.NODE_ENV === 'production') {
-      if (env.JWT_SECRET.length < 64) {
+  .superRefine((env: Record<string, unknown>, ctx: z.RefinementCtx) => {
+    const nodeEnv = env.NODE_ENV;
+    const jwtSecret = env.JWT_SECRET;
+    const alg = env.LICENSE_SIGNING_ALG;
+    const kmsProvider = env.KMS_PROVIDER;
+    if (nodeEnv === 'production') {
+      if (typeof jwtSecret === 'string' && jwtSecret.length < 64) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: 'JWT_SECRET must be at least 64 chars in production',
           path: ['JWT_SECRET'],
         });
       }
-      if (env.LICENSE_SIGNING_ALG === 'ES256' && !env.KMS_PROVIDER) {
+      if (alg === 'ES256' && !kmsProvider) {
         // ES256 in production SHOULD use KMS (FIPS-mode requirement).
         // Not enforced; just a warning via stdout.
       }

@@ -838,22 +838,22 @@ export class AiService {
       where: { tenantId },
       _count: { _all: true },
       take: q.limit,
-      orderBy: { _count: { _all: 'desc' } },
+      orderBy: { userId: 'desc' as const },
     });
     const messageRows = await this.prisma.assistantMessage.groupBy({
       by: ['userId'],
       where: { tenantId },
       _count: { _all: true },
       take: q.limit,
-      orderBy: { _count: { _all: 'desc' } },
+      orderBy: { userId: 'desc' as const },
     });
     const toolRows = await this.prisma.assistantToolInvocation.groupBy({
       by: ['tenantId'],
       where: { tenantId },
       _count: { _all: true },
     });
-    const msgByUser = new Map<string, number>(messageRows.map((r) => [r.userId, r._count._all]));
-    const toolCount = toolRows[0]?._count._all ?? 0;
+    const msgByUser = new Map<string, number>(messageRows.map((r) => [r.userId, (r._count as any)._all ?? 0]));
+    const toolCount = (toolRows[0]?._count as any)?._all ?? 0;
 
     return {
       totalSessions: sessions,
@@ -861,7 +861,7 @@ export class AiService {
       totalToolInvocations: tools,
       byUser: sessionRows.map((r) => ({
         userId: r.userId,
-        sessions: r._count._all,
+        sessions: (r._count as any)._all ?? 0,
         messages: msgByUser.get(r.userId) ?? 0,
         tools: toolCount, // Prisma cannot group by userId on a table without that column; this is approximate.
       })),
@@ -934,7 +934,7 @@ export class AiService {
     }
 
     // Block destructive actions (spec §11.4) — uses the shared catalog from @smart-edms/ai-core
-    if (DESTRUCTIVE_ACTIONS.has(action.actionType)) {
+    if (DESTRUCTIVE_ACTIONS.has(action.actionType as AssistantActionType)) {
       await this.prisma.assistantAction.update({
         where: { id: actionId },
         data: { status: 'blocked_destructive', confirmedAt: new Date() },
@@ -1160,7 +1160,7 @@ export class AiService {
       throw new HttpException({ status: 429, 
         messageKey: 'ai.errors.rateLimited',
         messageVars: { seconds: Math.max(1, ttl) },
-      });
+      }, 429);
     }
   }
 
@@ -1178,7 +1178,7 @@ export class AiService {
     if (count > quotaPerDay) {
       throw new HttpException({ status: 429, 
         messageKey: 'ai.errors.quotaExceeded',
-      });
+      }, 429);
     }
   }
 
@@ -1236,7 +1236,7 @@ export class AiService {
 
     if (tryExternal && externalUrl) {
       try {
-        const response = await this.callHttpProvider(externalUrl, externalKey, message, reqCtx, timeoutMs);
+        const response = await this.callHttpProvider(externalUrl, externalKey ?? null, message, reqCtx, timeoutMs);
         return { ...response, modelProvider: response.modelProvider ?? 'external' };
       } catch (err) {
         this.logger.warn(`External AI provider failed: ${(err as Error).message}`);

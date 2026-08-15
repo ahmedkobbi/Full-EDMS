@@ -62,7 +62,7 @@ export class CronService {
    * Every 15 minutes: flag deployments that have missed heartbeats.
    * Spec ref: §12.9 — "Repeated heartbeat failures flag the license for review."
    */
-  @Cron(CronExpression.EVERY_15_MINUTES)
+  @Cron('0 */15 * * * *')
   async flagStaleDeployments(): Promise<void> {
     try {
       const result = await this.heartbeatService.flagStaleDeployments();

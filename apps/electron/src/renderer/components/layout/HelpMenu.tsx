@@ -13,7 +13,7 @@
  *
  * Spec ref: §10.14 (help menu launch), §10.13 (stable selectors).
  */
-import { Menu, ActionIcon, Stack, Text, Group, ThemeIcon, Divider } from '@mantine/core';
+import { Menu, ActionIcon, Stack, Text, Divider } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import {
   IconHelp,

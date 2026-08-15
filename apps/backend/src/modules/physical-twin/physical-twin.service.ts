@@ -127,7 +127,7 @@ export class PhysicalTwinService {
    */
   async listTags(tenantId: string) {
     const keys = await this.redis.connection.keys(`physical-tag:${tenantId}:*`);
-    const tags = [];
+    const tags: Array<{ taggedAt: string; [k: string]: unknown }> = [];
     for (const key of keys) {
       const data = await this.redis.getJson<any>(key);
       if (data) tags.push(data);

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
+import { Prisma } from '@prisma/client';
 import { createHash, randomUUID } from 'node:crypto';
 
 /**
@@ -62,10 +63,13 @@ export class AuditService {
     adminId?: string;
     action: string;
     target?: string;
+    targetId?: string;
     customerId?: string;
     metadata?: Record<string, unknown>;
     ipAddress?: string;
     userAgent?: string;
+    result?: string;
+    reason?: string;
   }): Promise<void> {
     try {
       // Wait for rehydration if it hasn't completed.
@@ -77,12 +81,18 @@ export class AuditService {
 
       const sequenceNumber = this.lastSequence + 1;
       const occurredAt = new Date().toISOString();
+      const metadata: Record<string, unknown> = {
+        ...(input.metadata ?? {}),
+        ...(input.targetId ? { targetId: input.targetId } : {}),
+        ...(input.result ? { result: input.result } : {}),
+        ...(input.reason ? { reason: input.reason } : {}),
+      };
       const canonical = canonicalizeForAudit({
         adminId: input.adminId ?? null,
         action: input.action,
         target: input.target ?? null,
         customerId: input.customerId ?? null,
-        metadata: input.metadata ? JSON.stringify(input.metadata) : null,
+        metadata: JSON.stringify(metadata),
         ipAddress: input.ipAddress ?? null,
         userAgent: input.userAgent ?? null,
         occurredAt,
@@ -96,9 +106,9 @@ export class AuditService {
           id: randomUUID(),
           adminId: input.adminId ?? null,
           action: input.action,
-          target: input.target ?? null,
+          target: input.target ?? input.targetId ?? null,
           customerId: input.customerId ?? null,
-          metadata: (input.metadata as Record<string, unknown>) ?? {},
+          metadata: metadata as unknown as Prisma.InputJsonValue,
           ipAddress: input.ipAddress ?? null,
           userAgent: input.userAgent ?? null,
           occurredAt: new Date(occurredAt),

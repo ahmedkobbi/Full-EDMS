@@ -217,7 +217,7 @@ export class SearchService {
 
     if (q.documentType) where.documentType = q.documentType;
     if (q.classificationId) where.classificationId = q.classificationId;
-    if (q.status) where.status = q.status;
+    if (q.status) where.status = q.status as any;
     if (q.createdByUserId) where.createdByUserId = q.createdByUserId;
     if (q.folderId) where.folderId = q.folderId;
 
@@ -570,32 +570,32 @@ export class SearchService {
         where,
         _count: { _all: true },
         take: 50,
-        orderBy: { _count: { _all: 'desc' } },
-      });
+        orderBy: { classificationId: 'desc' as const },
+      } as any) as any;
     } else if (field === 'documentType') {
       grouped = await this.prisma.document.groupBy({
         by: ['documentType'],
         where,
         _count: { _all: true },
         take: 50,
-        orderBy: { _count: { _all: 'desc' } },
-      });
+        orderBy: { documentType: 'desc' as const },
+      } as any) as any;
     } else if (field === 'createdByUserId') {
       grouped = await this.prisma.document.groupBy({
         by: ['createdByUserId'],
         where,
         _count: { _all: true },
         take: 50,
-        orderBy: { _count: { _all: 'desc' } },
-      });
+        orderBy: { createdByUserId: 'desc' as const },
+      } as any) as any;
     } else {
       grouped = await this.prisma.document.groupBy({
         by: ['status'],
         where,
         _count: { _all: true },
         take: 50,
-        orderBy: { _count: { _all: 'desc' } },
-      });
+        orderBy: { status: 'desc' as const },
+      } as any) as any;
     }
     return grouped
       .map((g) => ({

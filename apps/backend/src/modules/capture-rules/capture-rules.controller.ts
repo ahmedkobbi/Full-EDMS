@@ -25,8 +25,8 @@ export class CaptureRulesController {
   @Post('process/:scannerJobId')
   async process(
     @Req() req: AuthenticatedRequest,
-    @Body() body: { detectedTriggers: Array<{ pageIndex: number; triggerType: string; triggerValue: string; confidence: number }> },
+    @Body() body: { detectedTriggers: Array<{ pageIndex: number; triggerType: 'barcode' | 'qr_code' | 'page_count' | 'ocr_keyword' | 'omr_pattern'; triggerValue: string; confidence: number }> },
   ) {
-    return this.rules.processScanJob(req.user!.tid, body.detectedTriggers[0]?.pageIndex?.toString() ?? 'unknown', body.detectedTriggers);
+    return this.rules.processScanJob(req.user!.tid, body.detectedTriggers[0]?.pageIndex?.toString() ?? 'unknown', body.detectedTriggers as never);
   }
 }

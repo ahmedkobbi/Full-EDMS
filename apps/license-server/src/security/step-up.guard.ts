@@ -2,7 +2,6 @@ import {
   type CanActivate,
   type ExecutionContext,
   Injectable,
-  Logger,
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -36,8 +35,6 @@ import type { AdminAuthenticatedRequest, AdminJwtPayload } from './admin-jwt.gua
  */
 @Injectable()
 export class StepUpGuard implements CanActivate {
-  private readonly logger = new Logger(StepUpGuard.name);
-
   constructor(
     private readonly config: ConfigService,
     private readonly reflector: Reflector,

@@ -1,5 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis.service.js';
 import { Worker, type Job } from 'bullmq';
@@ -213,7 +214,7 @@ export class WebhookWorker implements OnModuleInit {
     await this.prisma.webhookDelivery.update({
       where: { id: deliveryId },
       data: {
-        attempts,
+        attempts: attempts as unknown as Prisma.InputJsonValue,
         attemptsCount: attempt.attempt,
         nextRetryAt: new Date(Date.now() + Math.pow(2, attempt.attempt - 1) * 1000),
       },

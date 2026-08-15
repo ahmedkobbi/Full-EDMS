@@ -47,7 +47,7 @@ export class AdminUserService {
         lastName: true,
         roles: true,
         isActive: true,
-        mfaEnabled: true,
+        mfaSecret: true,
         lastLoginAt: true,
         lastLoginIp: true,
         createdAt: true,
@@ -65,7 +65,7 @@ export class AdminUserService {
         lastName: true,
         roles: true,
         isActive: true,
-        mfaEnabled: true,
+        mfaSecret: true,
         lastLoginAt: true,
         lastLoginIp: true,
         createdAt: true,
@@ -106,7 +106,7 @@ export class AdminUserService {
         firstName: true,
         lastName: true,
         roles: true,
-        mfaEnabled: true,
+        mfaSecret: true,
         createdAt: true,
       },
     });
@@ -124,7 +124,7 @@ export class AdminUserService {
     return admin;
   }
 
-  async update(id: string, adminId: string, raw: unknown) {
+  async update(id: string, _adminId: string, raw: unknown) {
     const input = updateAdminSchema.parse(raw);
     const existing = await this.prisma.adminUser.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });

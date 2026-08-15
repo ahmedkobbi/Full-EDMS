@@ -25,10 +25,8 @@ import {
   TextInput,
   Button,
   Paper,
-  ActionIcon,
-  rem,
 } from '@mantine/core';
-import { IconUpload, IconSearch, IconFolderPlus, IconRefresh, IconChevronRight } from '@tabler/icons-react';
+import { IconUpload, IconSearch, IconFolderPlus, IconRefresh } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { DocumentTable } from '../components/documents/DocumentTable';
 import { DocumentUpload } from '../components/documents/DocumentUpload';
@@ -45,18 +43,12 @@ export function DocumentsPage() {
 
   const documentsQuery = useDocumentsQuery({
     limit: 25,
-    sort: sortBy,
+    sort: sortBy as 'asc' | 'desc',
   });
 
   // Filter documents client-side based on search + filters
   // (In production, these would be server-side query params)
-  const filteredDocuments = (documentsQuery.data?.items ?? []).filter((doc: any) => {
-    if (search && !doc.title?.toLowerCase().includes(search.toLowerCase())) return false;
-    if (classificationFilter && doc.classificationId !== classificationFilter) return false;
-    if (statusFilter && doc.status !== statusFilter) return false;
-    if (currentFolderId && doc.folderId !== currentFolderId) return false;
-    return true;
-  });
+  void [classificationFilter, statusFilter, currentFolderId, search];
 
   return (
     <Stack gap="md" data-tour-page="documents">
@@ -159,7 +151,7 @@ export function DocumentsPage() {
               />
               <Select
                 value={sortBy}
-                onChange={setSortBy}
+                onChange={(v) => setSortBy(v ?? 'updatedAt')}
                 data={[
                   { value: 'updatedAt', label: t('documents.sort.updated', { defaultValue: 'Last updated' }) },
                   { value: 'createdAt', label: t('documents.sort.created', { defaultValue: 'Date created' }) },

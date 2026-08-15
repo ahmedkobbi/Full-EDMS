@@ -8,13 +8,11 @@
  * Spec ref: §12.1 (UsageMetric entity), §12.9 (heartbeat includes usageSummary),
  *           §12.10 (usage dashboards in admin panel).
  */
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 
 @Injectable()
 export class UsageService {
-  private readonly logger = new Logger(UsageService.name);
-
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -22,14 +20,14 @@ export class UsageService {
    */
   async record(input: {
     licenseId: string;
-    activationId?: string;
+    activationId: string;
     metric: string;
     value: number;
   }): Promise<void> {
     await this.prisma.usageMetric.create({
       data: {
         licenseId: input.licenseId,
-        activationId: input.activationId ?? null,
+        activationId: input.activationId,
         metric: input.metric,
         value: BigInt(input.value),
         recordedAt: new Date(),

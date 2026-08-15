@@ -36,7 +36,16 @@ export class ScannerService {
 
   async createProfile(tenantId: string, raw: unknown) {
     const input = createProfileSchema.parse(raw);
-    return this.prisma.scannerProfile.create({ data: { tenantId, ...input } });
+    return this.prisma.scannerProfile.create({
+      data: {
+        tenantId,
+        code: input.code,
+        name: input.name,
+        driverKind: input.driverKind,
+        deviceId: input.deviceId ?? null,
+        settings: input.settings as any,
+      },
+    });
   }
 
   async listJobs(tenantId: string, userId: string, rawQuery: unknown) {

@@ -30,7 +30,6 @@ import { DatesProvider } from '@mantine/dates';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
-import '@mantine/modals/styles.css';
 import '@mantine/dropzone/styles.css';
 import 'dayjs/locale/en';
 import 'dayjs/locale/fr';
@@ -125,11 +124,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return unsubscribe;
   }, []);
 
-  const dir = isRtl(locale as Parameters<typeof isRtl>[0]) ? 'rtl' : 'ltr';
-  const theme = buildTheme(resolvedScheme);
+  const theme = buildTheme(resolvedScheme as 'light' | 'dark');
 
   return (
-    <MantineProvider theme={{ ...theme, dir }} forceColorScheme={resolvedScheme}>
+    <MantineProvider theme={theme} forceColorScheme={resolvedScheme as 'light' | 'dark'}>
       <DatesProvider settings={{ locale, firstDayOfWeek: 1 }}>
         <ModalsProvider>
           <Notifications position="top-right" />

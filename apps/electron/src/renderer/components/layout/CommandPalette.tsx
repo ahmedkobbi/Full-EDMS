@@ -14,7 +14,7 @@
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { Modal, TextInput, Stack, Group, Text, UnstyledButton, Box } from '@mantine/core';
-import { IconSearch, IconArrowRight } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useHotkeys } from '@mantine/hooks';
@@ -125,7 +125,7 @@ export function CommandPalette({ opened, onClose }: CommandPaletteProps) {
             placeholder={t('commandPalette.search.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            leftSection={<IconSearch size={16} aria-hidden="true" />}
+            leftSection={<Search size={16} aria-hidden="true" />}
             variant="unstyled"
           />
         </Box>

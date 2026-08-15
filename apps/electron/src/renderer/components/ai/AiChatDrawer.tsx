@@ -32,7 +32,7 @@ import {
   Title,
   Button,
 } from '@mantine/core';
-import { IconSend, IconTrash, IconSettings, IconSparkles } from 'lucide-react';
+import { Send, Trash, Settings, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useI18nStore } from '../../i18n/config';
 import {
@@ -41,9 +41,7 @@ import {
 } from '../../api/hooks';
 import { AiMessage } from './AiMessage';
 import { AiDisclaimer } from './AiDisclaimer';
-import { EmptyState } from '../common/EmptyState';
-import { LoadingState } from '../common/LoadingState';
-import { ErrorState } from '../common/ErrorState';
+import { EmptyState, LoadingState, ErrorState } from '@smart-edms/ui';
 import type { Citation } from '@smart-edms/types';
 
 interface AiChatDrawerProps {
@@ -74,11 +72,11 @@ export function AiChatDrawer({ opened, onClose }: AiChatDrawerProps) {
       setMessages((prev) => [
         ...prev,
         {
-          id: response.message.id,
+          id: response.messageId,
           role: 'assistant',
-          content: response.message.contentSummary,
+          content: response.content,
           citations: response.citations,
-          createdAt: response.message.createdAt,
+          createdAt: new Date().toISOString(),
         },
       ]);
     },
@@ -126,28 +124,28 @@ export function AiChatDrawer({ opened, onClose }: AiChatDrawerProps) {
       padding={0}
       title={
         <Group gap="sm">
-          <IconSparkles size={20} aria-hidden="true" />
+          <Sparkles size={20} aria-hidden="true" />
           <Stack gap={0}>
             <Title order={5}>{t('ai:bubble.panel.title')}</Title>
             <Text size="xs" c="dimmed">
               {t('ai:bubble.panel.subtitle')}
             </Text>
           </Stack>
+          <Group gap={4} ml="auto">
+            <ActionIcon key="settings" variant="subtle" aria-label={t('ai:bubble.panel.settings')}>
+              <Settings size={16} aria-hidden="true" />
+            </ActionIcon>
+            <ActionIcon
+              key="clear"
+              variant="subtle"
+              aria-label={t('ai:bubble.panel.clear')}
+              onClick={handleClear}
+            >
+              <Trash size={16} aria-hidden="true" />
+            </ActionIcon>
+          </Group>
         </Group>
       }
-      actions={[
-        <ActionIcon key="settings" variant="subtle" aria-label={t('ai:bubble.panel.settings')}>
-          <IconSettings size={16} aria-hidden="true" />
-        </ActionIcon>,
-        <ActionIcon
-          key="clear"
-          variant="subtle"
-          aria-label={t('ai:bubble.panel.clear')}
-          onClick={handleClear}
-        >
-          <IconTrash size={16} aria-hidden="true" />
-        </ActionIcon>,
-      ]}
     >
       <Stack gap={0} style={{ height: '100%' }}>
         <ScrollArea flex={1} p="md">
@@ -206,7 +204,7 @@ export function AiChatDrawer({ opened, onClose }: AiChatDrawerProps) {
               loading={sendMessage.isPending}
               aria-label={t('ai:bubble.input.send')}
             >
-              <IconSend size={18} aria-hidden="true" />
+              <Send size={18} aria-hidden="true" />
             </ActionIcon>
           </Group>
           <Box mt="xs">

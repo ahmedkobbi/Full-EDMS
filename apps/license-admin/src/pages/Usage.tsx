@@ -11,7 +11,7 @@
  *
  * All data fetched from GET /v1/usage/aggregate.
  */
-import { Stack, SimpleGrid, Card, Text, ThemeIcon, Group, Badge, LoadingOverlay, Button } from '@mantine/core';
+import { Stack, SimpleGrid, Card, Text, ThemeIcon, Group, LoadingOverlay, Button } from '@mantine/core';
 import { IconUsers, IconServer, IconDatabase, IconFileText, IconBrain, IconLicense } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useUsageAggregateQuery } from '../api/hooks';

@@ -5,7 +5,7 @@
  * to the dashboard.
  */
 import { Stack, Title, Text, Button, Container } from '@mantine/core';
-import { IconHome } from 'lucide-react';
+import { Home } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +24,7 @@ export function NotFoundPage() {
           {t('errors:notFound.body', { defaultValue: 'The page you are looking for does not exist.' })}
         </Text>
         <Button
-          leftSection={<IconHome size={14} aria-hidden="true" />}
+          leftSection={<Home size={14} aria-hidden="true" />}
           onClick={() => navigate('/dashboard')}
         >
           {t('errors:notFound.backHome', { defaultValue: 'Back to dashboard' })}

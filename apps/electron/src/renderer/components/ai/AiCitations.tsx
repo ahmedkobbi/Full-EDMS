@@ -14,8 +14,8 @@
  *  - Each citation is a link with a descriptive aria-label.
  *  - The list has role="list" for screen reader announcement.
  */
-import { Stack, Group, Text, ActionIcon, Badge, UnstyledButton } from '@mantine/core';
-import { IconFileText, IconExternalLink } from 'lucide-react';
+import { Stack, Group, Text, Badge, UnstyledButton } from '@mantine/core';
+import { FileText, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Citation } from '@smart-edms/types';
 import { formatPercent } from '@smart-edms/i18n';
@@ -56,7 +56,7 @@ export function AiCitations({ citations, onSelect }: AiCitationsProps) {
             textAlign: 'start',
           }}
         >
-          <IconFileText size={14} aria-hidden="true" />
+          <FileText size={14} aria-hidden="true" />
           <Group gap={4} style={{ flex: 1, minWidth: 0 }} wrap="nowrap">
             <Text size="xs" truncate fw={500}>
               {citation.title}
@@ -67,7 +67,7 @@ export function AiCitations({ citations, onSelect }: AiCitationsProps) {
               </Badge>
             )}
           </Group>
-          <IconExternalLink size={12} aria-hidden="true" />
+          <ExternalLink size={12} aria-hidden="true" />
         </UnstyledButton>
       ))}
     </Stack>

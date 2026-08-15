@@ -47,7 +47,7 @@ export class AuditService {
       const previousHash = this.lastHashByTenant.get(tenantKey) ?? null;
 
       // Acquire next sequence number atomically (per-tenant monotonic counter)
-      const lastSeq = this.lastSequenceByTenant.get(BigInt(tenantId.replace(/-/g, '').slice(0, 15), 16)) ?? 0n;
+      const lastSeq = this.lastSequenceByTenant.get(BigInt(parseInt(tenantId.replace(/-/g, '').slice(0, 15), 16))) ?? 0n;
       const sequenceNumber = lastSeq + 1n;
 
       const canonical = canonicalizeForAudit({
@@ -94,7 +94,7 @@ export class AuditService {
       });
 
       this.lastHashByTenant.set(tenantKey, eventHash);
-      this.lastSequenceByTenant.set(BigInt(tenantId.replace(/-/g, '').slice(0, 15), 16), sequenceNumber);
+      this.lastSequenceByTenant.set(BigInt(parseInt(tenantId.replace(/-/g, '').slice(0, 15), 16)), sequenceNumber);
     } catch (err) {
       this.logger.error(`Audit write failed: ${(err as Error).message}`);
       // Never rethrow — audit failure must not break the request flow.

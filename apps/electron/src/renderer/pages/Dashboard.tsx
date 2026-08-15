@@ -13,11 +13,11 @@
  * Spec ref: §9.15 (admin dashboard — paginated queries), §17 (Mantine v7).
  */
 import { Stack, Grid, Paper, Title, Text, Group, Button, SimpleGrid, Card, ThemeIcon, Badge, LoadingOverlay } from '@mantine/core';
-import { IconFiles, IconWorkflow, IconHistory, IconUsers } from '@tabler/icons-react';
+import { IconFiles, IconSubtask, IconHistory, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useDocumentsQuery, useHealthQuery, useAdminDashboardQuery } from '../api/hooks';
-import { LoadingState, ErrorState, LocaleAwareDate } from '@smart-edms/ui';
+import { ErrorState, LocaleAwareDate } from '@smart-edms/ui';
 
 export function DashboardPage() {
   const { t } = useTranslation();
@@ -57,7 +57,7 @@ export function DashboardPage() {
           onClick={() => navigate('/documents')}
         />
         <StatCard
-          icon={IconWorkflow}
+          icon={IconSubtask}
           label={t('dashboard.workflows', { defaultValue: 'Workflows' })}
           value={counts?.workflows ?? '—'}
           loading={dashboard.isLoading}
@@ -91,8 +91,9 @@ export function DashboardPage() {
             </Group>
             {documents.isError ? (
               <ErrorState
+                error={documents.error}
                 titleKey="errors.INTERNAL_ERROR"
-                subtitleKey="dashboard.error.documentsLoadFailed"
+                messageKey="dashboard.error.documentsLoadFailed"
                 onRetry={() => documents.refetch()}
               />
             ) : documents.data?.items?.length === 0 ? (
@@ -146,7 +147,7 @@ export function DashboardPage() {
                 <Stack gap="xs">
                   <Group justify="space-between">
                     <Text size="sm">{t('dashboard.status', { defaultValue: 'Status' })}</Text>
-                    <Badge color={health.data?.status === 'ok' ? 'teal' : 'red'} variant="filled" size="sm">
+                    <Badge color={health.data?.status === 'healthy' ? 'teal' : 'red'} variant="filled" size="sm">
                       {health.data?.status ?? '—'}
                     </Badge>
                   </Group>

@@ -26,7 +26,6 @@ import { DatesProvider } from '@mantine/dates';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
-import '@mantine/modals/styles.css';
 import 'dayjs/locale/en';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/ar';

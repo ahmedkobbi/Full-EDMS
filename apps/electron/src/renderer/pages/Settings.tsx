@@ -16,20 +16,18 @@ import { useState } from 'react';
 import {
   Stack, Title, Text, Tabs, Paper, Group, Button, TextInput, PasswordInput,
   Select, SegmentedControl, Switch, Badge, Table, ActionIcon, Code,
-  Alert, ThemeIcon, Modal, Divider, LoadingOverlay, Timeline,
+  Alert, ThemeIcon, Modal, LoadingOverlay,
 } from '@mantine/core';
 import { useForm, hasLength, matchesField, isNotEmpty } from '@mantine/form';
-import { IconUser, IconSettings, IconShieldCheck, IconBell, IconKey, IconTrash, IconRefresh, IconCheck, IconAlertCircle } from '@tabler/icons-react';
+import { IconSettings, IconShieldCheck, IconBell, IconKey, IconTrash, IconCheck, IconAlertCircle } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/theme';
-import { LOCALES } from '@smart-edms/i18n';
 import type { ThemePreference } from '@smart-edms/types';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
-import { LicenseStatusBadge } from '../components/license/LicenseStatusBadge';
 import {
   useCurrentUser, useSessionsQuery, useRevokeSessionMutation, useRevokeAllSessionsMutation,
   useChangePasswordMutation, useStartMfaEnrollmentMutation, useConfirmMfaEnrollmentMutation,
-  useDisableMfaMutation, useNotificationPreferencesQuery, useUpdateNotificationPreferencesMutation,
+  useNotificationPreferencesQuery, useUpdateNotificationPreferencesMutation,
 } from '../api/hooks';
 import { LocaleAwareDate } from '@smart-edms/ui';
 
@@ -46,7 +44,7 @@ export function SettingsPage() {
         </Text>
       </Stack>
 
-      <Tabs value={activeTab} onChange={setActiveTab}>
+      <Tabs value={activeTab} onChange={(v) => setActiveTab(v ?? 'security')}>
         <Tabs.List>
           <Tabs.Tab value="security" leftSection={<IconShieldCheck size={14} aria-hidden="true" />}>
             {t('settings.tab.security', { defaultValue: 'Security' })}
@@ -234,7 +232,7 @@ function SessionsSection() {
           <Table.Tbody>
             {sessions.map((s) => (
               <Table.Tr key={s.id}>
-                <Table.Td><Code size="xs">{s.ipAddress ?? '—'}</Code></Table.Td>
+                <Table.Td><Code>{s.ipAddress ?? '—'}</Code></Table.Td>
                 <Table.Td><Text size="xs" lineClamp={1}>{s.userAgent ?? '—'}</Text></Table.Td>
                 <Table.Td><LocaleAwareDate value={s.createdAt} size="xs" c="dimmed" /></Table.Td>
                 <Table.Td><LocaleAwareDate value={s.expiresAt} size="xs" c="dimmed" /></Table.Td>

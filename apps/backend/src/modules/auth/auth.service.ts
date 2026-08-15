@@ -4,11 +4,17 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../common/audit.service';
 import { RedisService } from '../../common/redis.service';
+import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { authenticator as otplibAuthenticator } from 'otplib';
 import { randomBytes, createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { JwtPayload, LoginResult } from './types';
+
+const USER_WITH_RELATIONS = Prisma.validator<Prisma.UserDefaultArgs>()({
+  include: { tenant: true, preferences: true, roleAssignments: { include: { role: true } } },
+});
+type UserWithRelations = Prisma.UserGetPayload<typeof USER_WITH_RELATIONS>;
 
 const loginSchema = z.object({
   email: z.string().email().max(256),
@@ -49,7 +55,7 @@ export class AuthService {
 
     const user = await this.prisma.user.findFirst({
       where: { email: input.email.toLowerCase(), deletedAt: null },
-      include: { tenant: true, preferences: true, roleAssignments: { include: { role: true } } },
+      ...USER_WITH_RELATIONS,
     });
 
     if (!user || user.status !== 'ACTIVE' || !user.passwordHash) {
@@ -156,7 +162,7 @@ export class AuthService {
     }
     const user = await this.prisma.user.findFirst({
       where: { id: payload.sub, tenantId: payload.tid, deletedAt: null, status: 'ACTIVE' },
-      include: { tenant: true, preferences: true, roleAssignments: { include: { role: true } } },
+      ...USER_WITH_RELATIONS,
     });
     if (!user) throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
     return this.issueTokens(user, { userAgent: undefined, ip: undefined });
@@ -181,7 +187,7 @@ export class AuthService {
   }
 
   private async issueTokens(
-    user: Awaited<ReturnType<PrismaService['user']['findFirst']>> & object,
+    user: UserWithRelations,
     ctx: { ip?: string; userAgent?: string },
   ): Promise<LoginResult> {
     if (!user) throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
@@ -284,7 +290,7 @@ export class AuthService {
     // Always return ok — don't reveal whether the email exists (spec §21.5)
     if (!user) {
       void this.audit.record({
-        tenantId: user?.tenantId ?? 'unknown',
+        tenantId: 'unknown',
         category: 'auth',
         code: 'auth.password.reset.request',
         result: 'deny',

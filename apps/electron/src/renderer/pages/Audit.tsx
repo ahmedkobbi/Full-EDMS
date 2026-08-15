@@ -25,16 +25,14 @@ import {
   Timeline,
   ThemeIcon,
   Select,
-  TextInput,
   Button,
   Code,
   Divider,
   LoadingOverlay,
 } from '@mantine/core';
-import { IconHistory, IconCheck, IconX, IconShield, IconFilter, IconRefresh } from 'lucide-react';
+import { Check, X, Shield, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuditEventsQuery } from '../api/hooks';
-import { LoadingState } from '@smart-edms/ui';
 import { ErrorState } from '@smart-edms/ui';
 import { EmptyState } from '@smart-edms/ui';
 import { LocaleAwareDate } from '@smart-edms/ui';
@@ -99,7 +97,7 @@ export function AuditPage() {
           />
           <Button
             variant="light"
-            leftSection={<IconRefresh size={14} aria-hidden="true" />}
+            leftSection={<RefreshCw size={14} aria-hidden="true" />}
             onClick={() => {
               setCursor(undefined);
               query.refetch();
@@ -107,7 +105,7 @@ export function AuditPage() {
             loading={query.isFetching}
             mt={22}
           >
-            {t('common:action.refresh', { defaultValue: 'Refresh' })}
+            {t('common:action.refresh', { defaultValue: 'RefreshCw' })}
           </Button>
         </Group>
       </Paper>
@@ -117,8 +115,9 @@ export function AuditPage() {
         <LoadingOverlay visible={query.isLoading} />
         {query.isError ? (
           <ErrorState
+            error={query.error}
             titleKey="errors.INTERNAL_ERROR"
-            subtitleKey="audit.error.loadFailed"
+            messageKey="audit.error.loadFailed"
             onRetry={() => query.refetch()}
           />
         ) : events.length === 0 && !query.isLoading ? (
@@ -136,11 +135,11 @@ export function AuditPage() {
                   count: query.data?.total ?? 0,
                 })}
               </Text>
-              {query.data?.cursor && (
+              {query.data?.nextCursor && (
                 <Button
                   variant="subtle"
                   size="xs"
-                  onClick={() => setCursor(query.data!.cursor!)}
+                  onClick={() => setCursor(query.data!.nextCursor ?? undefined)}
                   loading={query.isFetching}
                 >
                   {t('common:action.showMore', { defaultValue: 'Load more' })}
@@ -159,9 +158,9 @@ export function AuditPage() {
                       variant={event.result === 'deny' ? 'filled' : 'light'}
                     >
                       {event.result === 'deny' ? (
-                        <IconX size={14} aria-hidden="true" />
+                        <X size={14} aria-hidden="true" />
                       ) : (
-                        <IconCheck size={14} aria-hidden="true" />
+                        <Check size={14} aria-hidden="true" />
                       )}
                     </ThemeIcon>
                   }
@@ -181,22 +180,24 @@ export function AuditPage() {
                 >
                   <Stack gap={4}>
                     <LocaleAwareDate value={event.occurredAt} size="xs" c="dimmed" />
-                    {event.reason && (
+                    {event.reasonText && (
                       <Text size="xs" c="dimmed">
-                        {t('audit.reason', { defaultValue: 'Reason' })}: {event.reason}
+                        {t('audit.reason', { defaultValue: 'Reason' })}: {event.reasonText}
                       </Text>
                     )}
-                    {event.resourceType && (
+                    {event.resource && (
                       <Text size="xs" c="dimmed">
-                        {t('audit.resource', { defaultValue: 'Resource' })}: {event.resourceType}
-                        {event.resourceId && (
-                          <Code ml={4} size="xs">{event.resourceId.slice(0, 8)}</Code>
+                        {t('audit.resource', { defaultValue: 'Resource' })}: {event.resource.kind}
+                        {event.resource.id && (
+                          <Text component="span" size="xs" c="dimmed" ml={4}>
+                            <Code>{event.resource.id.slice(0, 8)}</Code>
+                          </Text>
                         )}
                       </Text>
                     )}
-                    {event.ipAddress && (
+                    {event.actor.ip && (
                       <Text size="xs" c="dimmed">
-                        {t('audit.ip', { defaultValue: 'IP' })}: <Code size="xs">{event.ipAddress}</Code>
+                        {t('audit.ip', { defaultValue: 'IP' })}: <Code>{event.actor.ip}</Code>
                       </Text>
                     )}
                   </Stack>
@@ -212,7 +213,7 @@ export function AuditPage() {
       <Paper p="md" withBorder radius="md">
         <Group gap="md">
           <ThemeIcon size={36} radius="md" variant="light" color="indigo">
-            <IconShield size={18} aria-hidden="true" />
+            <Shield size={18} aria-hidden="true" />
           </ThemeIcon>
           <Stack gap={2}>
             <Text fw={500} size="sm">

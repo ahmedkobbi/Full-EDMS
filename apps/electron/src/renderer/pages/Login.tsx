@@ -34,7 +34,7 @@ import {
   Checkbox,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconAlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { BrandedLogo } from '@smart-edms/ui';
@@ -147,7 +147,7 @@ export function LoginPage() {
 
                 {login.isError && (
                   <Alert
-                    icon={<IconAlertCircle size={16} />}
+                    icon={<AlertCircle size={16} />}
                     color="error"
                     variant="light"
                     aria-live="assertive"

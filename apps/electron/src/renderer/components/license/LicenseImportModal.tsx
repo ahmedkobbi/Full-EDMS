@@ -15,7 +15,7 @@
  */
 import { useState, useCallback, type DragEvent } from 'react';
 import { Modal, Stack, Text, Button, Group, Alert, FileButton } from '@mantine/core';
-import { IconUpload, IconFileCheck, IconAlertCircle } from 'lucide-react';
+import { Upload, FileCheck, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { parseSedmslic, SEDMSLIC_MIME } from '@smart-edms/license-core';
@@ -107,7 +107,7 @@ export function LicenseImportModal({ opened, onClose }: LicenseImportModalProps)
           }}
         >
           <Stack align="center" gap="sm">
-            <IconUpload size={36} aria-hidden="true" />
+            <Upload size={36} aria-hidden="true" />
             <Text size="sm">{t('license:action.importSedmslic.dragDrop')}</Text>
             <FileButton
               accept={SEDMSLIC_MIME}
@@ -115,7 +115,7 @@ export function LicenseImportModal({ opened, onClose }: LicenseImportModalProps)
               aria-label={t('license:action.importSedmslic.browse')}
             >
               {(props) => (
-                <Button variant="light" leftSection={<IconFileCheck size={16} />} {...props}>
+                <Button variant="light" leftSection={<FileCheck size={16} />} {...props}>
                   {t('license:action.importSedmslic.browse')}
                 </Button>
               )}
@@ -125,14 +125,14 @@ export function LicenseImportModal({ opened, onClose }: LicenseImportModalProps)
 
         {selectedFile && (
           <Group gap="sm">
-            <IconFileCheck size={16} aria-hidden="true" />
+            <FileCheck size={16} aria-hidden="true" />
             <Text size="sm">{selectedFile.name}</Text>
           </Group>
         )}
 
         {parseError && (
           <Alert
-            icon={<IconAlertCircle size={16} />}
+            icon={<AlertCircle size={16} />}
             color="error"
             variant="light"
             aria-live="assertive"
