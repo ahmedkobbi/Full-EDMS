@@ -7,12 +7,12 @@
  * effective color scheme.
  *
  * The store is intentionally tiny — it holds only the preference and the
- * resolved scheme. Mantine's `ColorSchemeProvider` does the actual
- * theme switching.
+ * resolved scheme. Mantine v7's `MantineProvider` with `forceColorScheme`
+ * does the actual theme switching (ColorSchemeProvider was removed in v7).
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ColorScheme } from '@mantine/core';
+import type { MantineColorScheme } from '@mantine/core';
 import type { ThemePreference } from '@smart-edms/types';
 
 const STORAGE_KEY = 'smart-edms:theme';
@@ -21,10 +21,10 @@ interface ThemeStoreState {
   /** User-chosen preference. `system` follows the OS. */
   preference: ThemePreference;
   /** Resolved scheme after applying the OS preference. */
-  resolvedScheme: ColorScheme;
+  resolvedScheme: MantineColorScheme;
 
   setPreference: (pref: ThemePreference) => void;
-  setResolvedScheme: (scheme: ColorScheme) => void;
+  setResolvedScheme: (scheme: MantineColorScheme) => void;
   toggleResolvedScheme: () => void;
 }
 
@@ -33,7 +33,7 @@ interface ThemeStoreState {
  * `index.html` bootstrap script sets `data-mantine-color-scheme` before
  * React mounts, so we can read it synchronously here (no FOUC).
  */
-function readInitialScheme(): ColorScheme {
+function readInitialScheme(): MantineColorScheme {
   if (typeof document === 'undefined') return 'light';
   const attr = document.documentElement.getAttribute('data-mantine-color-scheme');
   return attr === 'dark' ? 'dark' : 'light';
@@ -79,7 +79,7 @@ export const useThemeStore = create<ThemeStoreState>()(
       setResolvedScheme: (scheme) => set({ resolvedScheme: scheme }),
 
       toggleResolvedScheme: () => {
-        const next: ColorScheme = get().resolvedScheme === 'dark' ? 'light' : 'dark';
+        const next: MantineColorScheme = get().resolvedScheme === 'dark' ? 'light' : 'dark';
         set({ resolvedScheme: next });
       },
     }),
@@ -92,4 +92,4 @@ export const useThemeStore = create<ThemeStoreState>()(
   ),
 );
 
-export type { ColorScheme, ThemePreference };
+export type { MantineColorScheme, ThemePreference };

@@ -1,10 +1,14 @@
 /**
  * Smart EDMS theme provider (spec §4.7, §18).
  *
- * Wraps Mantine v7's `MantineProvider` + `ColorSchemeProvider` and reads
- * the user preference from the Zustand `useThemeStore`. The preference is
- * persisted to `localStorage` (immediate, synchronous) AND to Electron
- * `safeStorage` (asynchronous, OS-encrypted) per spec §18.
+ * Wraps Mantine v7's `MantineProvider` and reads the user preference from the
+ * Zustand `useThemeStore`. The preference is persisted to `localStorage`
+ * (immediate, synchronous) AND to Electron `safeStorage` (asynchronous,
+ * OS-encrypted) per spec §18.
+ *
+ * Mantine v7 NOTE: `ColorSchemeProvider` was REMOVED in v7. The correct
+ * pattern is to use `MantineProvider` with the `forceColorScheme` prop +
+ * `data-mantine-color-scheme` attribute on the document element.
  *
  * System preference detection uses `window.matchMedia('(prefers-color-scheme:
  * dark)')`. When the user chooses `system`, the theme follows the OS, and a
@@ -19,14 +23,15 @@
  * end-) are used everywhere in the renderer so no extra plugin is needed.
  */
 import { useEffect, type ReactNode } from 'react';
-import {
-  MantineProvider,
-  ColorSchemeProvider,
-  type ColorScheme,
-} from '@mantine/core';
+import { MantineProvider, type MantineColorScheme } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { DatesProvider } from '@mantine/dates';
+import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/modals/styles.css';
+import '@mantine/dropzone/styles.css';
 import 'dayjs/locale/en';
 import 'dayjs/locale/fr';
 import 'dayjs/locale/ar';
@@ -46,8 +51,11 @@ interface ThemeProviderProps {
 /**
  * Apply the resolved color scheme to the document element. Called whenever
  * the user preference or OS preference changes.
+ *
+ * Mantine v7: sets the `data-mantine-color-scheme` attribute which
+ * MantineProvider reads to apply the correct CSS variables.
  */
-function applyColorScheme(scheme: ColorScheme): void {
+function applyColorScheme(scheme: MantineColorScheme): void {
   document.documentElement.setAttribute('data-mantine-color-scheme', scheme);
   document.documentElement.style.colorScheme = scheme;
 }
@@ -63,7 +71,13 @@ function applyDirection(locale: string): void {
 }
 
 /**
- * ThemeProvider — wraps the app with Mantine + the color scheme controller.
+ * ThemeProvider — wraps the app with Mantine v7 + color scheme management.
+ *
+ * Mantine v7 pattern:
+ *   - NO ColorSchemeProvider (removed in v7)
+ *   - Use MantineProvider with `forceColorScheme` prop
+ *   - Set `data-mantine-color-scheme` attribute on <html> manually
+ *   - Import CSS: `@mantine/core/styles.css` (required in v7)
  */
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const preference = useThemeStore((s) => s.preference);
@@ -115,15 +129,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const theme = buildTheme(resolvedScheme);
 
   return (
-    <ColorSchemeProvider colorScheme={resolvedScheme} onChange={(scheme) => setResolvedScheme(scheme)}>
-      <MantineProvider theme={{ ...theme, dir }} forceColorScheme={resolvedScheme}>
-        <DatesProvider settings={{ locale, firstDayOfWeek: 1 }}>
-          <ModalsProvider>
-            <Notifications position="top-right" />
-            {children}
-          </ModalsProvider>
-        </DatesProvider>
-      </MantineProvider>
-    </ColorSchemeProvider>
+    <MantineProvider theme={{ ...theme, dir }} forceColorScheme={resolvedScheme}>
+      <DatesProvider settings={{ locale, firstDayOfWeek: 1 }}>
+        <ModalsProvider>
+          <Notifications position="top-right" />
+          {children}
+        </ModalsProvider>
+      </DatesProvider>
+    </MantineProvider>
   );
 }
