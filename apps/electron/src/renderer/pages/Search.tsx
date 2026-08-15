@@ -25,7 +25,7 @@ import {
 import { IconSearch, IconFilter } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useDocumentsQuery } from '../api/hooks';
+import { useSearchQuery } from '../api/hooks';
 import { LoadingState } from '@smart-edms/ui';
 import { ErrorState } from '@smart-edms/ui';
 import { EmptyState } from '@smart-edms/ui';
@@ -37,7 +37,7 @@ export function SearchPage() {
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
 
-  const documents = useDocumentsQuery({ limit: 20 });
+  const searchResults = useSearchQuery(query, { limit: 25 });
 
   return (
     <Stack gap="md" data-tour-page="search" data-tour="app.search">
@@ -88,11 +88,11 @@ export function SearchPage() {
         </Stack>
       </Paper>
 
-      {documents.isLoading ? (
+      {searchResults.isLoading ? (
         <LoadingState variant="skeleton" />
-      ) : documents.isError ? (
-        <ErrorState error={documents.error} onRetry={() => documents.refetch()} />
-      ) : documents.data?.items.length === 0 ? (
+      ) : searchResults.isError ? (
+        <ErrorState error={searchResults.error} onRetry={() => searchResults.refetch()} />
+      ) : searchResults.data?.items.length === 0 ? (
         <EmptyState
           illustration="search"
           titleKey="common:table.noResults"
@@ -100,7 +100,7 @@ export function SearchPage() {
         />
       ) : (
         <Stack gap="xs">
-          {documents.data?.items.map((doc) => (
+          {searchResults.data?.items.map((doc) => (
             <Paper
               key={doc.id}
               p="md"

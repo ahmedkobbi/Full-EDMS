@@ -35,6 +35,8 @@ import { useNavigate } from 'react-router-dom';
 import { LanguageSwitcher } from '../../i18n/LanguageSwitcher';
 import { useThemeStore } from '../../store/theme';
 import { useAuthStore } from '../../store/auth';
+import { NotificationCenter } from './NotificationCenter';
+import { HelpMenu } from './HelpMenu';
 import type { ThemePreference } from '@smart-edms/types';
 
 interface TopbarProps {
@@ -104,9 +106,10 @@ export function Topbar({ onOpenCommandPalette }: TopbarProps) {
 
       <Group gap="sm">
         {/* Notifications */}
-        <ActionIcon variant="subtle" color="gray" aria-label={t('common:aria.notifications')} data-tour="app.notifications">
-          <IconBell size={18} aria-hidden="true" />
-        </ActionIcon>
+        <NotificationCenter />
+
+        {/* Help menu */}
+        <HelpMenu />
 
         {/* Language switcher */}
         <LanguageSwitcher variant="compact" />
