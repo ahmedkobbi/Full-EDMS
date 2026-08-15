@@ -31,8 +31,10 @@ import { MetadataModule } from './modules/metadata/metadata.module.js';
 import { WebhookModule } from './modules/webhook/webhook.module.js';
 import { ApiKeyModule } from './modules/api-key/api-key.module.js';
 import { LocaleModule } from './modules/locale/locale.module.js';
+import { PresenceModule } from './modules/presence/presence.module.js';
 import { WebSocketModule } from './websocket/websocket.module.js';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard.js';
+import { ApiKeyAuthGuard } from './common/guards/api-key-auth.guard.js';
 import { TenantGuard } from './common/guards/tenant.guard.js';
 import { LicenseGuard } from './common/guards/license.guard.js';
 import { AuditInterceptor } from './common/interceptors/audit.interceptor.js';
@@ -99,9 +101,11 @@ import { environmentSchema } from './config/environment.js';
     WebhookModule,
     ApiKeyModule,
     LocaleModule,
+    PresenceModule,
     WebSocketModule,
   ],
   providers: [
+    { provide: APP_GUARD, useClass: ApiKeyAuthGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: TenantGuard },
     { provide: APP_GUARD, useClass: LicenseGuard },

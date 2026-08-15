@@ -22,6 +22,8 @@
     "@smart-edms/i18n": "workspace:*",
     "@smart-edms/schemas": "workspace:*",
     "@smart-edms/types": "workspace:*",
+    "@smart-edms/ui": "workspace:*",
+    "@smart-edms/utils": "workspace:*",
     "@tanstack/react-query": "^5.59.0",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",

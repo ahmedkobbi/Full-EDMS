@@ -1,6 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../../common/audit.service.js';
+import { RedisService } from '../../common/redis.service.js';
 import { z } from 'zod';
 
 const createLabelSchema = z.object({
@@ -26,12 +27,16 @@ const assignSchema = z.object({
  * - Documents under legal hold cannot be silently downgraded
  * - All classification changes audited
  * - Labels displayed in UI via t(nameKey) — never hardcoded text
+ * - Emits `document.classification.changed` WebSocket event (§13.4)
  */
 @Injectable()
 export class ClassificationService {
+  private readonly logger = new Logger(ClassificationService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
+    private readonly redis: RedisService,
   ) {}
 
   async list(tenantId: string) {
@@ -65,7 +70,7 @@ export class ClassificationService {
       }
     }
 
-    return this.prisma.$transaction(async (tx) => {
+    const result = await this.prisma.$transaction(async (tx) => {
       const updated = await tx.document.update({
         where: { id: documentId },
         data: { classificationId: input.classificationId, sensitivityLevel: newLabel.sensitivityLevel },
@@ -82,6 +87,22 @@ export class ClassificationService {
       });
       return updated;
     });
+
+    // Emit WebSocket event (spec §13.4 — document.classification.changed)
+    await this.emitWsEvent(tenantId, {
+      name: 'document.classification.changed',
+      payload: {
+        tenantId,
+        documentId,
+        fromClassificationId: doc.classificationId,
+        toClassificationId: input.classificationId,
+        newSensitivityLevel: newLabel.sensitivityLevel,
+        reason: input.reason ?? null,
+        changedBy: userId,
+      },
+    });
+
+    return result;
   }
 
   async history(tenantId: string, documentId: string) {
@@ -90,5 +111,17 @@ export class ClassificationService {
       orderBy: { createdAt: 'desc' },
       take: 100,
     });
+  }
+
+  /** Emit a WebSocket event via Redis pub/sub (spec §13.4). */
+  private async emitWsEvent(tenantId: string, event: { name: string; payload: unknown }): Promise<void> {
+    try {
+      await this.redis.connection.publish(
+        `smart-edms:ws-events:${tenantId}`,
+        JSON.stringify(event),
+      );
+    } catch (err) {
+      this.logger.warn(`ws event publish failed tenant=${tenantId}: ${(err as Error).message}`);
+    }
   }
 }

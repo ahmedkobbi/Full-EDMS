@@ -54,6 +54,7 @@ import { RedisService } from '../../common/redis.service.js';
 import { SearchService } from '../search/search.service.js';
 import { LicenseService } from '../license/license.service.js';
 import { detectPromptInjection, isBlocked } from './prompt-injection.js';
+import { DESTRUCTIVE_ACTIONS } from '@smart-edms/ai-core';
 import {
   TOOL_REGISTRY,
   getToolDefinition,
@@ -932,17 +933,8 @@ export class AiService {
       return { ok: false, status: 'no_confirmation_required' };
     }
 
-    // Block destructive actions (spec §11.4)
-    const destructiveTypes = new Set([
-      'delete',
-      'remove_legal_hold',
-      'downgrade_classification',
-      'revoke_license',
-      'disable_user',
-      'change_security_policy',
-      'delete_tenant_configuration',
-    ]);
-    if (destructiveTypes.has(action.actionType)) {
+    // Block destructive actions (spec §11.4) — uses the shared catalog from @smart-edms/ai-core
+    if (DESTRUCTIVE_ACTIONS.has(action.actionType)) {
       await this.prisma.assistantAction.update({
         where: { id: actionId },
         data: { status: 'blocked_destructive', confirmedAt: new Date() },

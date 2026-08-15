@@ -919,7 +919,7 @@ export class WorkflowService {
         (s) => s.enabled && s.stepOrder === route.nextStepOrder,
       );
       for (const step of nextSteps) {
-        await this.prisma.workflowStep.create({
+        const createdStep = await this.prisma.workflowStep.create({
           data: {
             id: randomUUID(),
             instanceId,
@@ -935,6 +935,21 @@ export class WorkflowService {
             metadata: { definitionStep: step } as Prisma.InputJsonValue,
           },
         });
+
+        // Emit workflow.approval.requested WebSocket event (spec §13.4)
+        if (createdStep.assigneeId) {
+          await this.emitWsEvent(tenantId, {
+            name: 'workflow.approval.requested',
+            payload: {
+              tenantId,
+              instanceId,
+              stepId: createdStep.id,
+              stepKey: createdStep.stepKey,
+              assigneeId: createdStep.assigneeId,
+              dueAt: createdStep.dueAt,
+            },
+          });
+        }
       }
       advanced = true;
     } else if (route.kind === 'complete') {

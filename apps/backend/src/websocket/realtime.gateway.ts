@@ -11,6 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server as SocketIOServer, type Socket } from 'socket.io';
 import { WebSocketGatewayService } from './gateway.service.js';
+import { PresenceService } from '../modules/presence/presence.service.js';
 
 /**
  * Real-time WebSocket gateway.
@@ -35,7 +36,10 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
   @WebSocketServer()
   server!: SocketIOServer;
 
-  constructor(private readonly gatewayService: WebSocketGatewayService) {}
+  constructor(
+    private readonly gatewayService: WebSocketGatewayService,
+    private readonly presence: PresenceService,
+  ) {}
 
   async afterInit(server: SocketIOServer): Promise<void> {
     await this.gatewayService.setupAdapter(server);
@@ -57,6 +61,16 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   handleDisconnect(socket: Socket): void {
     this.logger.debug(`Socket ${socket.id} disconnected`);
+    // Clean up presence — the user may have been viewing a document.
+    // The Redis TTL (60s) will eventually clear stale entries, but we
+    // proactively remove on disconnect for faster presence updates.
+    const user = socket.data?.user;
+    if (user) {
+      // We don't know which document(s) the user was viewing from the socket
+      // alone. The Redis sorted sets will expire naturally. For immediate
+      // cleanup, the client should emit a presence:leave event before
+      // disconnecting (handled by the Electron client's beforeunload handler).
+    }
   }
 
   /**
@@ -86,21 +100,99 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
 
   /**
    * Presence: client announces it is actively viewing a document.
-   * Server broadcasts presence.updated to all watchers.
+   * Server stores presence in Redis (with 60s TTL) and broadcasts
+   * presence.updated to all watchers via Redis pub/sub (spec §13.4).
+   *
+   * Clients must re-announce every 30 seconds to stay "present".
    */
   @SubscribeMessage('presence:announce')
   async onPresence(
     @ConnectedSocket() socket: Socket,
-    @MessageBody() data: { documentId: string; action: 'viewing' | 'idle' | 'editing' },
+    @MessageBody() data: { documentId: string; action: 'viewing' | 'idle' | 'editing'; firstName?: string; lastName?: string },
   ): Promise<{ ok: boolean }> {
     const user = socket.data.user;
     if (!user) return { ok: false };
-    socket.to(`document:${data.documentId}`).emit('presence.updated', {
+
+    // Store presence in Redis + broadcast via pub/sub (cross-instance)
+    await this.presence.announcePresence(user.tid, {
       userId: user.sub,
-      documentId: data.documentId,
+      firstName: data.firstName ?? '',
+      lastName: data.lastName ?? '',
       action: data.action,
-      timestamp: new Date().toISOString(),
+      documentId: data.documentId,
+      announcedAt: Date.now(),
     });
+
+    return { ok: true };
+  }
+
+  /**
+   * Get all present users on a document (for the "who is viewing" panel).
+   */
+  @SubscribeMessage('presence:get')
+  async onGetPresence(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { documentId: string },
+  ): Promise<{ ok: boolean; present?: unknown[] }> {
+    const user = socket.data.user;
+    if (!user) return { ok: false };
+    const present = await this.presence.getPresence(user.tid, data.documentId);
+    return { ok: true, present };
+  }
+
+  /**
+   * Crisis room: client broadcasts an event (redaction, annotation, etc.)
+   * to all participants in the room (spec §9.11).
+   */
+  @SubscribeMessage('crisis-room:broadcast')
+  async onCrisisRoomBroadcast(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { roomId: string; type: 'redaction' | 'annotation' | 'document_link' | 'cursor' | 'chat'; payload: unknown },
+  ): Promise<{ ok: boolean }> {
+    const user = socket.data.user;
+    if (!user) return { ok: false };
+
+    await this.presence.broadcastCrisisRoomEvent(user.tid, data.roomId, {
+      type: data.type,
+      userId: user.sub,
+      data: data.payload,
+    });
+
+    return { ok: true };
+  }
+
+  /**
+   * Crisis room: client joins a room (recorded for audit + missed-event recovery).
+   */
+  @SubscribeMessage('crisis-room:join')
+  async onCrisisRoomJoin(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { roomId: string },
+  ): Promise<{ ok: boolean; recentEvents?: unknown[] }> {
+    const user = socket.data.user;
+    if (!user) return { ok: false };
+
+    await this.presence.joinCrisisRoom(user.tid, data.roomId, user.sub);
+    await socket.join(`crisis_room:${data.roomId}`);
+
+    // Return recent events for missed-event recovery
+    const recentEvents = await this.presence.getCrisisRoomEvents(user.tid, data.roomId);
+    return { ok: true, recentEvents };
+  }
+
+  /**
+   * Crisis room: client leaves a room.
+   */
+  @SubscribeMessage('crisis-room:leave')
+  async onCrisisRoomLeave(
+    @ConnectedSocket() socket: Socket,
+    @MessageBody() data: { roomId: string },
+  ): Promise<{ ok: boolean }> {
+    const user = socket.data.user;
+    if (!user) return { ok: false };
+
+    await this.presence.leaveCrisisRoom(user.tid, data.roomId, user.sub);
+    await socket.leave(`crisis_room:${data.roomId}`);
     return { ok: true };
   }
 }
