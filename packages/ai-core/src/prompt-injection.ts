@@ -73,8 +73,28 @@ const PATTERNS: readonly InjectionPattern[] = [
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
   {
-    regex: /disregard\s+(all\s+)?(prior|previous|above)\s+(instructions?|rules?|prompts?)/i,
+    regex: /disregard\s+(all\s+)?(prior|previous|above)\s+(instructions?|rules?|prompts?|directives?|message|and)/i,
     category: 'embedded_instruction',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /\b(forget|drop)\s+(all\s+)?(your\s+)?(rules?|guidelines?|instructions?|directives?|constraints?)\b/i,
+    category: 'embedded_instruction',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /\byou\s+are\s+now\s+(an?\s+)?(different|new|unrestricted|other)\s+(assistant|ai|model|system)\b/i,
+    category: 'embedded_instruction',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /\b(override|disable|turn\s+off)\s+(safety|security|content\s+filter|safety\s+mode)\b/i,
+    category: 'embedded_instruction',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /\bi\s+am\s+(the\s+)?(administrator|admin|root|superuser|developer)\b/i,
+    category: 'endpoint_abuse',
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
   {
@@ -100,12 +120,12 @@ const PATTERNS: readonly InjectionPattern[] = [
 
   // ── Secret / system-prompt extraction (4 patterns) ───────────────────
   {
-    regex: /(reveal|show|print|display|dump|expose)\s+(me\s+)?(your|the)\s+(system\s+prompt|instructions?|initial\s+message|hidden\s+prompt|rules?)/i,
+    regex: /(reveal|show|print|display|dump|expose)\s+(me\s+)?(the\s+contents?\s+of\s+)?(your|the)\s+(system\s+prompt|instructions?|initial\s+(message|instructions?)|hidden\s+(prompt|rules?|instructions?)|rules?|guidelines?)/i,
     category: 'secret_extraction',
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
   {
-    regex: /(reveal|show|print|display|expose)\s+(your|the|all)\s+(secrets?|api\s+keys?|tokens?|passwords?|credentials?|private\s+keys?|jwt)/i,
+    regex: /(reveal|show|print|display|expose|tell\s+me|give\s+me)\s+(me\s+)?(your|the|all)\s+(secrets?|secret\s+keys?|api\s+keys?|tokens?|passwords?|credentials?|private\s+keys?|jwt)/i,
     category: 'secret_extraction',
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
@@ -115,7 +135,7 @@ const PATTERNS: readonly InjectionPattern[] = [
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
   {
-    regex: /what\s+is\s+(your|the)\s+(system\s+message|system\s+prompt|hidden\s+instruction)/i,
+    regex: /what\s+(is|are)\s+(your|the)\s+(system\s+message|system\s+prompt|hidden\s+(instruction|rules?|prompt)|initial\s+instructions?|rules?|guidelines?)/i,
     category: 'secret_extraction',
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
@@ -137,7 +157,17 @@ const PATTERNS: readonly InjectionPattern[] = [
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
   {
-    regex: /(dump|export\s+all|download\s+all)\s+(the\s+)?(database|db|tables?|rows?|records?)/i,
+    regex: /\b(generate|write|create|give\s+me)\s+(a\s+)?(sql|query)\b/i,
+    category: 'sql_injection',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /\b(write|create)\s+(a\s+)?query\s+that\s+(deletes?|drops?|updates?|modifies?|inserts?)\b/i,
+    category: 'sql_injection',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /(dump|export\s+all|download\s+all)\s+(the\s+)?(entire\s+)?(database|db|tables?|rows?|records?)/i,
     category: 'sql_injection',
     explanationKey: 'ai.errors.promptInjectionDetected',
   },
@@ -170,6 +200,16 @@ const PATTERNS: readonly InjectionPattern[] = [
   },
   {
     regex: /\b(execute|run)\s+as\s+(root|admin|superuser|another\s+(tenant|user))\b/i,
+    category: 'endpoint_abuse',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /\b(call|invoke|execute|hit|fetch)\s+(https?:\/\/|\/v1\/|\/api\/|\/admin\/|\/internal\/)/i,
+    category: 'endpoint_abuse',
+    explanationKey: 'ai.errors.promptInjectionDetected',
+  },
+  {
+    regex: /\brm\s+-rf\s+\//i,
     category: 'endpoint_abuse',
     explanationKey: 'ai.errors.promptInjectionDetected',
   },

@@ -10,42 +10,28 @@
  * real signed license artifacts and verify the LicenseService's behavior.
  */
 import { describe, it, expect, beforeAll } from 'vitest';
-import { PrismaService } from '../src/prisma/prisma.service.js';
-import { LicenseService } from '../src/modules/license/license.service.js';
-import { AuditService } from '../src/common/audit.service.js';
-import { RedisService } from '../src/common/redis.service.js';
-import { ConfigService } from '@nestjs/config';
 import {
   generateSigningKeyPair,
   buildLicenseArtifact,
   verifyLicenseArtifact,
   computeLicenseState,
+  buildInstallationFingerprint,
   type SigningKeyPair,
 } from '@smart-edms/license-core';
 import type { LicensePayload, LicenseState } from '@smart-edms/types';
 import { randomUUID } from 'node:crypto';
 
 describe('License enforcement (spec §4.4, §12.4, §24.2)', () => {
-  let prisma: PrismaService;
-  let audit: AuditService;
-  let redis: RedisService;
-  let config: ConfigService;
   let keyPair: SigningKeyPair;
 
   beforeAll(async () => {
-    const { app, prisma: p } = await import('./setup.js');
-    prisma = p;
-    audit = app.get(AuditService);
-    redis = app.get(RedisService);
-    config = app.get(ConfigService);
-
-    // Generate a real Ed25519 keypair for testing
     keyPair = generateSigningKeyPair('EdDSA');
   });
 
   function buildPayload(overrides: Partial<LicensePayload> = {}): LicensePayload {
     const now = new Date();
     const expires = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    const installationFingerprint = buildInstallationFingerprint('test-deployment', null);
     return {
       v: 1,
       licenseId: randomUUID(),
@@ -58,24 +44,24 @@ describe('License enforcement (spec §4.4, §12.4, §24.2)', () => {
       issuedAt: now.toISOString(),
       expiresAt: expires.toISOString(),
       gracePeriodDays: 7,
-      offline: true,
-      deploymentFingerprint: 'a'.repeat(64), // will be overridden in tests that need real fingerprint
+      offline: {
+        offlineMode: true,
+        gracePeriodDays: 7,
+        hybridSyncAllowed: false,
+      },
+      fingerprint: installationFingerprint,
       entitlements: ['core-edms', 'ai-assistant', 'advanced-search'],
+      aiEntitlements: [],
       limits: {
         maxUsers: 500,
         maxDevices: 5,
-        maxStorageBytes: 1099511627776n,
+        maxStorageBytes: 1099511627776,
         maxDocuments: 1000000,
       },
-      features: {
-        aiUsageAllowance: 10000,
-        offlineMode: true,
-        hybridSync: false,
-        supportLevel: 'enterprise',
-      },
+      features: [],
       renewalCounter: 0,
       ...overrides,
-    } as LicensePayload;
+    } as unknown as LicensePayload;
   }
 
   describe('computeLicenseState (6-state machine)', () => {
@@ -130,7 +116,7 @@ describe('License enforcement (spec §4.4, §12.4, §24.2)', () => {
       expect(state).toBe<LicenseState>('expired_grace');
     });
 
-    it('returns "grace_exhausted" when past grace period', () => {
+    it('returns "extended_remediation" when past grace period (within extended window)', () => {
       const now = new Date();
       const state = computeLicenseState({
         signatureValid: true,
@@ -139,29 +125,29 @@ describe('License enforcement (spec §4.4, §12.4, §24.2)', () => {
         environmentMatch: true,
         now,
         issuedAt: new Date(now.getTime() - 365 * 86400000),
-        expiresAt: new Date(now.getTime() - 10 * 86400000), // expired 10 days ago
-        gracePeriodDays: 7, // grace exhausted 3 days ago
-        heartbeatFailures: 0,
-        extendedRemediationThresholdDays: 30,
-      });
-      expect(state).toBe<LicenseState>('grace_exhausted');
-    });
-
-    it('returns "extended_remediation" when grace exhausted for >30 days', () => {
-      const now = new Date();
-      const state = computeLicenseState({
-        signatureValid: true,
-        revoked: false,
-        deviceMatch: true,
-        environmentMatch: true,
-        now,
-        issuedAt: new Date(now.getTime() - 365 * 86400000),
-        expiresAt: new Date(now.getTime() - 45 * 86400000), // expired 45 days ago
+        expiresAt: new Date(now.getTime() - 10 * 86400000),
         gracePeriodDays: 7,
         heartbeatFailures: 0,
         extendedRemediationThresholdDays: 30,
       });
       expect(state).toBe<LicenseState>('extended_remediation');
+    });
+
+    it('returns "grace_exhausted" when past extended remediation window', () => {
+      const now = new Date();
+      const state = computeLicenseState({
+        signatureValid: true,
+        revoked: false,
+        deviceMatch: true,
+        environmentMatch: true,
+        now,
+        issuedAt: new Date(now.getTime() - 365 * 86400000),
+        expiresAt: new Date(now.getTime() - 45 * 86400000),
+        gracePeriodDays: 7,
+        heartbeatFailures: 0,
+        extendedRemediationThresholdDays: 30,
+      });
+      expect(state).toBe<LicenseState>('grace_exhausted');
     });
 
     it('returns "invalid" when signature is invalid', () => {
