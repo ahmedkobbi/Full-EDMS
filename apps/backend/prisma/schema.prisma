@@ -801,6 +801,21 @@ model LicenseLocalState {
   createdAt         DateTime @default(now()) @db.Timestamptz(3)
   updatedAt         DateTime @updatedAt @db.Timestamptz(3)
 
+  // ── Enterprise-grade hardening fields ──────────────────────────
+  // Encrypted payload (AES-256-GCM, DEK derived from machine fingerprint)
+  encryptedPayload  String?  @db.Text
+  // Max observed wall-clock timestamp (for clock skew detection)
+  maxObservedTimestamp String?  @db.VarChar(32)
+  // Integrity baseline hash (SHA-256 of critical file hashes)
+  integrityBaseline String?  @db.Text
+  // Last integrity check result
+  lastIntegrityOk   Boolean? @default(true)
+  lastIntegrityCheckAt DateTime? @db.Timestamptz(3)
+  // CRL (revocation list) last checked
+  crlLastCheckedAt  DateTime? @db.Timestamptz(3)
+  // Wrapped public key envelope (KEK-wrapped)
+  wrappedPublicKey  String?  @db.Text
+
   @@map("license_local_state")
 }
 

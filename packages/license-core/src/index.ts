@@ -135,3 +135,42 @@ export {
   SEDMS_EXTENSIONS,
   SEDMS_MIME_EXT,
 } from './mime.js';
+
+// ── Enterprise-grade hardening modules ─────────────────────────────
+
+// KEK-wrapped public key (key encryption at rest)
+export {
+  deriveKek,
+  wrapPublicKey,
+  unwrapPublicKey,
+  verifyWrappedPublicKey,
+  type WrappedPublicKey,
+} from './kek.js';
+
+// Runtime integrity verification (detect binary patching)
+export {
+  hashFile,
+  computeIntegrityBaseline,
+  verifyIntegrity,
+  checkFileMtime,
+  CRITICAL_LICENSE_FILES,
+  type IntegrityEntry,
+  type IntegrityCheckResult,
+} from './integrity.js';
+
+// Clock skew detection (prevent clock rollback)
+export {
+  checkClockSkew,
+  updateMaxObservedTimestamp,
+  MonotonicClockTracker,
+  type ClockSkewResult,
+} from './clock-skew.js';
+
+// License payload encryption at rest (prevent DB tampering)
+export {
+  encryptPayload,
+  decryptPayload,
+  serializeEncryptedPayload,
+  deserializeEncryptedPayload,
+  type EncryptedPayload,
+} from './payload-cipher.js';

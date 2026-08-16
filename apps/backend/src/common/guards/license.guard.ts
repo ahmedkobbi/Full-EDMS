@@ -9,12 +9,16 @@ import {
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { LICENSE_REQUIRED_KEY, type LicenseRequirement } from '../decorators/license-required.decorator';
-import { LicenseService } from '../../modules/license/license.service';
+import { EnterpriseLicenseValidator } from '../../modules/license/enterprise-license.validator';
 import type { AuthenticatedRequest } from './jwt-auth.guard';
 import type { LicenseState } from '@smart-edms/types';
 
 /**
- * Enforces license state on every non-public route.
+ * Enterprise-grade LicenseGuard.
+ *
+ * Enforces license state on every non-public route using the multi-factor
+ * validation pipeline from EnterpriseLicenseValidator.
+ *
  * Spec ref: §4.4 (license failure behavior), §27.4 (licensing rules — fail-closed).
  *
  * State behavior:
@@ -22,13 +26,20 @@ import type { LicenseState } from '@smart-edms/types';
  * - grace_exhausted → read-only mode: GET allowed, mutating endpoints blocked
  * - extended_remediation → admin-only: only users with 'admin' role pass
  * - invalid → 503 Service Unavailable, only @Public() health routes pass
+ *
+ * Enterprise hardening:
+ * - Runtime integrity check (detect binary patching)
+ * - Clock skew detection (detect clock rollback)
+ * - Payload decryption (detect DB tampering)
+ * - CRL check (revocation list)
+ * - Multi-layer fail-closed: any layer failure → invalid state
  */
 @Injectable()
 export class LicenseGuard implements CanActivate {
   private readonly logger = new Logger(LicenseGuard.name);
 
   constructor(
-    private readonly license: LicenseService,
+    private readonly validator: EnterpriseLicenseValidator,
     private readonly reflector: Reflector,
   ) {}
 
@@ -37,11 +48,20 @@ export class LicenseGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) {return true;}
+    if (isPublic) {
+      return true;
+    }
 
-    const state = await this.license.getCurrentState();
+    const result = await this.validator.validate();
+    const state = result.state;
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const method = req.method.toUpperCase();
+
+    // If validation failed for security reasons, log and audit
+    if (state === 'invalid' && result.reason !== 'No license loaded' && result.reason !== 'Dev-mode bypass') {
+      this.logger.error(`License validation failure: ${result.reason}`);
+      this.logger.error(`Layers: ${JSON.stringify(result.layers)}`);
+    }
 
     switch (state) {
       case 'valid':
@@ -51,12 +71,16 @@ export class LicenseGuard implements CanActivate {
 
       case 'grace_exhausted':
         // Read-only mode — allow GET/HEAD/OPTIONS only
-        if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {return true;}
+        if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+          return true;
+        }
         throw new ForbiddenException({ messageKey: 'errors.LICENSE_GRACE_EXHAUSTED' });
 
       case 'extended_remediation':
         // Admin-only — admins can import/renew/remediate
-        if (req.user?.roles?.includes('admin')) {return true;}
+        if (req.user?.roles?.includes('admin')) {
+          return true;
+        }
         throw new ServiceUnavailableException({ messageKey: 'errors.LICENSE_GRACE_EXHAUSTED' });
 
       case 'invalid':
