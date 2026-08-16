@@ -5,7 +5,7 @@ import { AuditService } from '../audit/audit.service.js';
 import { RedisService } from '../../common/redis.service.js';
 import bcrypt from 'bcryptjs';
 import { authenticator as otplibAuthenticator } from 'otplib';
-import { randomBytes, createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -311,7 +311,7 @@ export class AdminAuthService {
   async logout(accessToken: string): Promise<void> {
     try {
       const payload = await this.jwt.decode(accessToken) as AdminJwtPayload | null;
-      if (!payload) return;
+      if (!payload) {return;}
       const ttl = (payload.exp ?? 0) - Math.floor(Date.now() / 1000);
       if (ttl > 0) {
         await this.redis.connection.set(`admin:jwt:revoked:${sha256(accessToken)}`, '1', 'EX', ttl);

@@ -10,17 +10,17 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  TextInput,
-  Group,
-  Title,
-  Text,
-  Paper,
   Button,
-  Select,
+  Group,
   Pagination,
+  Paper,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  Title,
 } from '@mantine/core';
-import { Search, Filter } from 'lucide-react';
+import { Filter, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useSearchQuery } from '../api/hooks';

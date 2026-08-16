@@ -5,7 +5,7 @@
  * In macOS the menu is the standard application menu bar; on Windows and
  * Linux it is the window menu bar.
  */
-import { Menu, app, shell, type MenuItemConstructorOptions } from 'electron';
+import { app, Menu, type MenuItemConstructorOptions, shell } from 'electron';
 
 /** A simple translation function — the main process has no i18next. */
 type T = (key: string) => string;

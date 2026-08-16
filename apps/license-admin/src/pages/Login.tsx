@@ -14,28 +14,28 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  TextInput,
-  PasswordInput,
-  Button,
-  Box,
-  PinInput,
-  Text,
   Alert,
-  Group,
-  Container,
+  Box,
+  Button,
   Card,
+  Container,
   Divider,
+  Group,
+  PasswordInput,
+  PinInput,
+  Stack,
+  Text,
+  TextInput,
 } from '@mantine/core';
-import { ShieldCheck, User, KeyRound, Key } from 'lucide-react';
+import { Key, KeyRound, ShieldCheck, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { BrandedLogo } from '@smart-edms/ui';
 import { LanguageSwitcherInline } from '../components/common/LanguageSwitcherInline';
 import {
+  type AdminMfaVerifyResponse,
   useAdminLoginMutation,
   useAdminMfaVerifyMutation,
-  type AdminMfaVerifyResponse,
 } from '../api/hooks';
 import { useAuthStore } from '../store/auth';
 
@@ -56,7 +56,7 @@ export function LoginPage() {
   const mfaMutation = useAdminMfaVerifyMutation();
 
   const handleLogin = async (): Promise<void> => {
-    if (!username || !password) return;
+    if (!username || !password) {return;}
     try {
       const res = await loginMutation.mutateAsync({ username, password });
       setMfaTicket(res.mfaTicket);
@@ -66,7 +66,7 @@ export function LoginPage() {
   };
 
   const handleVerifyMfa = async (): Promise<void> => {
-    if (!mfaTicket || mfaCode.length !== 6) return;
+    if (!mfaTicket || mfaCode.length !== 6) {return;}
     try {
       const res: AdminMfaVerifyResponse = await mfaMutation.mutateAsync({
         mfaTicket,

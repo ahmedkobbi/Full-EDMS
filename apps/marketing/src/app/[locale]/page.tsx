@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { getServerI18n } from '../../i18n/config';
-import { isSupportedLocale, DEFAULT_LOCALE } from '../../lib/locales';
+import { DEFAULT_LOCALE, isSupportedLocale } from '../../lib/locales';
 import { Hero } from '../../components/sections/Hero';
 import { Stats } from '../../components/sections/Stats';
 import { FeatureGrid } from '../../components/sections/FeatureGrid';

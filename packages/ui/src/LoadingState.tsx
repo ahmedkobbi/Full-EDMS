@@ -13,7 +13,7 @@
  */
 
 import { type ReactElement } from 'react';
-import { Loader, Stack, Text, Skeleton, type MantineColor } from '@mantine/core';
+import { Loader, type MantineColor, Skeleton, Stack, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 /** Props for {@link LoadingState}. */

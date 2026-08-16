@@ -21,10 +21,10 @@
 
 import { type ReactNode } from 'react';
 import {
-  Stack, TextInput, Textarea, Select, Button, Alert, Text, Box,
+  Alert, Box, Button, Select, Stack, Text, Textarea, TextInput,
 } from '@mantine/core';
-import { useForm, isNotEmpty, isEmail } from '@mantine/form';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { isEmail, isNotEmpty, useForm } from '@mantine/form';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';
 

@@ -25,9 +25,9 @@
  * RTL-aware: positions are resolved via logical start/end (never hardcoded
  * left/right).
  */
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTourStore } from '../../store/tour';
-import { useToursQuery, useTourStepsQuery, useReportTourProgressMutation, useUpdateTourStateMutation } from '../../api/hooks';
+import { useReportTourProgressMutation, useToursQuery, useTourStepsQuery, useUpdateTourStateMutation } from '../../api/hooks';
 import { TourOverlay } from './TourOverlay';
 import { TourStepPopover } from './TourStep';
 import type { TourDefinition, TourStep as TourStepType } from '@smart-edms/types';
@@ -44,7 +44,7 @@ const TARGET_POLL_MS = 50;
  * is missing (spec §10 — "Skip unavailable steps safely").
  */
 function lookupTarget(selector: string): HTMLElement | null {
-  if (!selector) return null;
+  if (!selector) {return null;}
   // The selector is a stable `data-tour` value, e.g. `app.sidebar`.
   // We use attribute selection rather than CSS querySelector to avoid
   // ambiguity when the value contains dots.
@@ -80,9 +80,9 @@ export function TourEngine() {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent<{ tourId: string }>).detail;
-      if (!detail) return;
+      if (!detail) {return;}
       const tour = toursQuery.data?.find((t) => t.id === detail.tourId);
-      if (!tour) return;
+      if (!tour) {return;}
       setPendingTourId(detail.tourId);
     };
     window.addEventListener('command-palette:start-tour', handler);
@@ -95,7 +95,7 @@ export function TourEngine() {
    *           §10.9 (skip unavailable steps safely).
    */
   useEffect(() => {
-    if (!pendingTourId || !tourStepsQuery.data) return;
+    if (!pendingTourId || !tourStepsQuery.data) {return;}
     const tour = toursQuery.data?.find((t) => t.id === pendingTourId);
     if (!tour) {
       setPendingTourId(null);
@@ -148,7 +148,7 @@ export function TourEngine() {
    * Report progress to the backend whenever the step changes.
    */
   useEffect(() => {
-    if (!activeTour || steps.length === 0) return;
+    if (!activeTour || steps.length === 0) {return;}
     reportProgress.mutate({
       currentStepOrder: currentIndex + 1,
       totalSteps: steps.length,
@@ -188,10 +188,10 @@ export function TourEngine() {
   }, [activeTour, clear, updateState]);
 
   // If no tour is active, render nothing.
-  if (!activeTour || paused) return null;
+  if (!activeTour || paused) {return null;}
 
   const currentStep = steps[currentIndex];
-  if (!currentStep) return null;
+  if (!currentStep) {return null;}
 
   const targetRect = target?.getBoundingClientRect() ?? null;
 
@@ -239,7 +239,7 @@ export function useStartTour() {
   return useCallback(
     (tourCode: string) => {
       const tour = toursQuery.data?.find((t: TourDefinition) => t.code === tourCode);
-      if (!tour) return;
+      if (!tour) {return;}
       // Stubbed steps — production would call the backend.
       const stubSteps: TourStepType[] = [];
       start(tour, stubSteps);

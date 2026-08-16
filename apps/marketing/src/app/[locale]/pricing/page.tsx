@@ -1,8 +1,8 @@
 import { type ReactNode } from 'react';
 import { type Metadata } from 'next';
-import { Container, Title, Text, Box } from '@mantine/core';
+import { Box, Container, Text, Title } from '@mantine/core';
 import { getServerI18n } from '../../../i18n/config';
-import { isSupportedLocale, DEFAULT_LOCALE } from '../../../lib/locales';
+import { DEFAULT_LOCALE, isSupportedLocale } from '../../../lib/locales';
 import { buildPageMetadata } from '../../../lib/seo';
 import { Pricing } from '../../../components/sections/Pricing';
 import { FAQ } from '../../../components/sections/FAQ';

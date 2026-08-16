@@ -171,9 +171,9 @@ function buildPermissionWhere(
 
 /** Highlight the matched text in a snippet (very simple — case-insensitive replace). */
 function makeSnippet(text: string, query: string | undefined): string {
-  if (!query) return text.slice(0, 240);
+  if (!query) {return text.slice(0, 240);}
   const idx = text.toLowerCase().indexOf(query.toLowerCase());
-  if (idx < 0) return text.slice(0, 240);
+  if (idx < 0) {return text.slice(0, 240);}
   const start = Math.max(0, idx - 80);
   const end = Math.min(text.length, idx + query.length + 160);
   const snippet = text.slice(start, end);
@@ -215,11 +215,11 @@ export class SearchService {
       { includeDeleted: q.includeDeleted },
     );
 
-    if (q.documentType) where.documentType = q.documentType;
-    if (q.classificationId) where.classificationId = q.classificationId;
-    if (q.status) where.status = q.status as any;
-    if (q.createdByUserId) where.createdByUserId = q.createdByUserId;
-    if (q.folderId) where.folderId = q.folderId;
+    if (q.documentType) {where.documentType = q.documentType;}
+    if (q.classificationId) {where.classificationId = q.classificationId;}
+    if (q.status) {where.status = q.status as any;}
+    if (q.createdByUserId) {where.createdByUserId = q.createdByUserId;}
+    if (q.folderId) {where.folderId = q.folderId;}
 
     if (q.createdAfter || q.createdBefore) {
       where.createdAt = {
@@ -528,7 +528,7 @@ export class SearchService {
     const saved = await this.prisma.savedSearch.findFirst({
       where: { id, tenantId },
     });
-    if (!saved) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!saved) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     const isAdmin = userRoles.includes('admin');
     if (saved.ownerUserId !== userId && !isAdmin) {
       throw new ForbiddenException({ messageKey: 'errors.FORBIDDEN' });

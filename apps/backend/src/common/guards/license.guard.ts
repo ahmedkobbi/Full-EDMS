@@ -37,7 +37,7 @@ export class LicenseGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (isPublic) {return true;}
 
     const state = await this.license.getCurrentState();
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
@@ -51,12 +51,12 @@ export class LicenseGuard implements CanActivate {
 
       case 'grace_exhausted':
         // Read-only mode — allow GET/HEAD/OPTIONS only
-        if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') return true;
+        if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {return true;}
         throw new ForbiddenException({ messageKey: 'errors.LICENSE_GRACE_EXHAUSTED' });
 
       case 'extended_remediation':
         // Admin-only — admins can import/renew/remediate
-        if (req.user?.roles?.includes('admin')) return true;
+        if (req.user?.roles?.includes('admin')) {return true;}
         throw new ServiceUnavailableException({ messageKey: 'errors.LICENSE_GRACE_EXHAUSTED' });
 
       case 'invalid':

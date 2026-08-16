@@ -9,14 +9,14 @@
  * Tests use the @smart-edms/license-core package directly to construct
  * real signed license artifacts and verify the LicenseService's behavior.
  */
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  generateSigningKeyPair,
-  buildLicenseArtifact,
-  verifyLicenseArtifact,
-  computeLicenseState,
   buildInstallationFingerprint,
+  buildLicenseArtifact,
+  computeLicenseState,
+  generateSigningKeyPair,
   type SigningKeyPair,
+  verifyLicenseArtifact,
 } from '@smart-edms/license-core';
 import type { LicensePayload, LicenseState } from '@smart-edms/types';
 import { randomUUID } from 'node:crypto';

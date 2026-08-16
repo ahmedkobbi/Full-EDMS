@@ -18,9 +18,9 @@
 import {
   type CanActivate,
   type ExecutionContext,
+  ForbiddenException,
   Injectable,
   Logger,
-  ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -53,13 +53,13 @@ export class StepUpGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (isPublic) {return true;}
 
     const requiresStepUp = this.reflector.getAllAndOverride<boolean>(STEP_UP_REQUIRED_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    if (!requiresStepUp) return true;
+    if (!requiresStepUp) {return true;}
 
     const req = context.switchToHttp().getRequest<FastifyRequest & { user?: { sub: string; tid: string } }>();
     const stepUpToken = req.headers['x-step-up-token'] as string | undefined;
@@ -87,13 +87,14 @@ export class StepUpGuard implements CanActivate {
 
       return true;
     } catch (err) {
-      if (err instanceof ForbiddenException) throw err;
+      if (err instanceof ForbiddenException) {throw err;}
       this.logger.warn(`Step-up token validation failed: ${(err as Error).message}`);
       throw new ForbiddenException({ messageKey: 'errors.INVALID_STEP_UP_TOKEN' });
     }
   }
 
   private hashToken(token: string): string {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { createHash } = require('node:crypto');
     return createHash('sha256').update(token).digest('hex');
   }

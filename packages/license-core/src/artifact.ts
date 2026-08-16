@@ -32,7 +32,7 @@
 
 import type { LicenseArtifact, LicensePayload } from '@smart-edms/types';
 import { signPayload, verifySignature } from './sign.js';
-import { algToSpecAlg, specAlgToAlg, type SigningAlg } from './keys.js';
+import { algToSpecAlg, type SigningAlg, specAlgToAlg } from './keys.js';
 
 /** Artifact schema version (spec §12.5). */
 export const LICENSE_ARTIFACT_VERSION = 1 as const;
@@ -91,7 +91,7 @@ export function verifyLicenseArtifact(
   publicKeyPem: string,
 ): { ok: true; payload: LicensePayload } | { ok: false; reason: string } {
   // Structural sanity checks (fail closed).
-  if (artifact == null || typeof artifact !== 'object') {
+  if (artifact === null || typeof artifact !== 'object') {
     return { ok: false, reason: 'artifact is not an object' };
   }
   if (artifact.v !== LICENSE_ARTIFACT_VERSION) {
@@ -109,7 +109,7 @@ export function verifyLicenseArtifact(
   if (typeof artifact.sig !== 'string' || artifact.sig.length === 0) {
     return { ok: false, reason: 'missing or empty signature' };
   }
-  if (artifact.payload == null || typeof artifact.payload !== 'object') {
+  if (artifact.payload === null || typeof artifact.payload !== 'object') {
     return { ok: false, reason: 'missing payload' };
   }
 

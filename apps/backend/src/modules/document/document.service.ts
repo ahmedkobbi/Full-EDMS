@@ -33,18 +33,18 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import type { AuditEventCode } from '@smart-edms/types';
-import { randomUUID, createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { Readable } from 'node:stream';
 import { PrismaService } from '../../prisma/prisma.service';
-import { StorageService, sanitizeFilename } from '../../common/storage.service';
+import { sanitizeFilename, StorageService } from '../../common/storage.service';
 import { AuditService } from '../../common/audit.service';
 import { RedisService } from '../../common/redis.service';
 import { SearchIndexer } from '../search/search-indexer';
 import {
   ALLOWED_FILE_EXTENSIONS,
+  type DocumentListQuery,
   EXTENSION_TO_MIME,
   extractExtension,
-  type DocumentListQuery,
   type LockDocumentBody,
   type RestoreVersionBody,
   type ShareDocumentBody,
@@ -486,13 +486,13 @@ export class DocumentService {
   }> {
     const where: Prisma.DocumentWhereInput = { tenantId };
 
-    if (q.folderId !== undefined) where.folderId = q.folderId;
-    if (q.documentType !== undefined) where.documentType = q.documentType;
-    if (q.classificationId !== undefined) where.classificationId = q.classificationId;
-    if (q.status !== undefined) where.status = q.status;
-    if (q.isRecord !== undefined) where.isRecord = q.isRecord;
-    if (q.isLocked !== undefined) where.isLocked = q.isLocked;
-    if (q.createdByUserId !== undefined) where.createdByUserId = q.createdByUserId;
+    if (q.folderId !== undefined) {where.folderId = q.folderId;}
+    if (q.documentType !== undefined) {where.documentType = q.documentType;}
+    if (q.classificationId !== undefined) {where.classificationId = q.classificationId;}
+    if (q.status !== undefined) {where.status = q.status;}
+    if (q.isRecord !== undefined) {where.isRecord = q.isRecord;}
+    if (q.isLocked !== undefined) {where.isLocked = q.isLocked;}
+    if (q.createdByUserId !== undefined) {where.createdByUserId = q.createdByUserId;}
 
     if (q.createdAfter || q.createdBefore) {
       where.createdAt = {
@@ -631,7 +631,7 @@ export class DocumentService {
         },
       },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return {
       ...doc,
       sizeBytes: doc.sizeBytes.toString(),
@@ -649,7 +649,7 @@ export class DocumentService {
       where: { id, tenantId, deletedAt: null },
       include: { versions: { orderBy: { versionNumber: 'desc' }, take: 1 } },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (doc.status !== 'ACTIVE') {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',
@@ -657,7 +657,7 @@ export class DocumentService {
       });
     }
     const version = doc.versions[0];
-    if (!version) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!version) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const url = await this.storage.signDownloadUrl(version.storageKey, 300);
 
@@ -701,7 +701,7 @@ export class DocumentService {
       where: { id: documentId, tenantId },
       select: { id: true },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const where: Prisma.DocumentVersionWhereInput = { documentId, tenantId };
     const rows = await this.prisma.documentVersion.findMany({
@@ -742,7 +742,7 @@ export class DocumentService {
       where: { id: documentId, tenantId, deletedAt: null },
       include: { versions: { orderBy: { versionNumber: 'desc' }, take: 1 } },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (doc.legalHoldActive) {
       throw new ConflictException({
         messageKey: 'errors.LEGAL_HOLD_BLOCKS_ACTION',
@@ -758,7 +758,7 @@ export class DocumentService {
     const target = await this.prisma.documentVersion.findFirst({
       where: { id: versionId, documentId, tenantId },
     });
-    if (!target) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!target) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const newVersionNumber = doc.versions[0]!.versionNumber + 1;
     const newVersionId = randomUUID();
@@ -851,7 +851,7 @@ export class DocumentService {
     const doc = await this.prisma.document.findFirst({
       where: { id, tenantId, deletedAt: null },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (doc.isLocked && doc.lockedByUserId !== userId) {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',
@@ -860,21 +860,21 @@ export class DocumentService {
     }
 
     const data: Prisma.DocumentUpdateInput = {};
-    if (body.title !== undefined) data.title = body.title;
-    if (body.description !== undefined) data.description = body.description;
+    if (body.title !== undefined) {data.title = body.title;}
+    if (body.description !== undefined) {data.description = body.description;}
     if (body.folderId !== undefined) {
       data.folder = body.folderId ? { connect: { id: body.folderId } } : { disconnect: true };
     }
-    if (body.documentType !== undefined) data.documentType = body.documentType;
+    if (body.documentType !== undefined) {data.documentType = body.documentType;}
     if (body.classificationId !== undefined) {
       data.classification = body.classificationId
         ? { connect: { id: body.classificationId } }
         : { disconnect: true };
     }
-    if (body.sensitivityLevel !== undefined) data.sensitivityLevel = body.sensitivityLevel;
-    if (body.contentLanguage !== undefined) data.contentLanguage = body.contentLanguage;
-    if (body.textDirection !== undefined) data.textDirection = body.textDirection;
-    if (body.sourceSystem !== undefined) data.sourceSystem = body.sourceSystem;
+    if (body.sensitivityLevel !== undefined) {data.sensitivityLevel = body.sensitivityLevel;}
+    if (body.contentLanguage !== undefined) {data.contentLanguage = body.contentLanguage;}
+    if (body.textDirection !== undefined) {data.textDirection = body.textDirection;}
+    if (body.sourceSystem !== undefined) {data.sourceSystem = body.sourceSystem;}
 
     const updated = await this.prisma.document.update({
       where: { id },
@@ -920,7 +920,7 @@ export class DocumentService {
     const doc = await this.prisma.document.findFirst({
       where: { id, tenantId, deletedAt: null },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (doc.isLocked) {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',
@@ -970,7 +970,7 @@ export class DocumentService {
     const doc = await this.prisma.document.findFirst({
       where: { id, tenantId, deletedAt: null },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (!doc.isLocked) {
       return { id, isLocked: false };
     }
@@ -1017,7 +1017,7 @@ export class DocumentService {
     const doc = await this.prisma.document.findFirst({
       where: { id, tenantId, deletedAt: null },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     if (doc.legalHoldActive) {
       // Audit the denial — security-relevant event.
@@ -1105,7 +1105,7 @@ export class DocumentService {
     const doc = await this.prisma.document.findFirst({
       where: { id, tenantId, deletedAt: null },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (doc.legalHoldActive) {
       throw new ConflictException({
         messageKey: 'errors.LEGAL_HOLD_BLOCKS_ACTION',
@@ -1267,7 +1267,7 @@ export class DocumentService {
     const comment = await this.prisma.documentComment.findFirst({
       where: { id: commentId, tenantId, documentId },
     });
-    if (!comment) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!comment) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     // Only the author can delete their own comments (admins use a separate path)
     if (comment.userId !== userId) {
       throw new ForbiddenException({ messageKey: 'errors.UNAUTHORIZED' });
@@ -1280,7 +1280,7 @@ export class DocumentService {
     const comment = await this.prisma.documentComment.findFirst({
       where: { id: commentId, tenantId, documentId },
     });
-    if (!comment) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!comment) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return this.prisma.documentComment.update({
       where: { id: commentId },
       data: { resolved: true },
@@ -1296,7 +1296,7 @@ export class DocumentService {
       where: { id: documentId, tenantId },
       select: { id: true, tags: true },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     // tags is stored as JSON — Prisma returns it as the parsed value
     return { tags: (doc as any).tags ?? [] };
   }
@@ -1304,13 +1304,13 @@ export class DocumentService {
   /** Add a tag to a document. */
   async addTag(tenantId: string, documentId: string, tag: string) {
     const sanitized = tag.trim().slice(0, 64);
-    if (!sanitized) throw new BadRequestException({ messageKey: 'errors.VALIDATION_FAILED' });
+    if (!sanitized) {throw new BadRequestException({ messageKey: 'errors.VALIDATION_FAILED' });}
 
     const doc = await this.prisma.document.findFirst({
       where: { id: documentId, tenantId },
       select: { id: true, tags: true },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const currentTags: string[] = (doc as any).tags ?? [];
     if (!currentTags.includes(sanitized)) {
@@ -1335,7 +1335,7 @@ export class DocumentService {
       where: { id: documentId, tenantId },
       select: { id: true, tags: true },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const currentTags: string[] = (doc as any).tags ?? [];
     const updatedTags = currentTags.filter((t) => t !== tag);
@@ -1369,7 +1369,7 @@ export class DocumentService {
   /** List the current user's favorite documents. */
   async listFavorites(tenantId: string, userId: string) {
     const ids = await this.redis.connection.smembers(`favorites:${tenantId}:${userId}`);
-    if (ids.length === 0) return { items: [] };
+    if (ids.length === 0) {return { items: [] };}
     const documents = await this.prisma.document.findMany({
       where: { tenantId, id: { in: ids }, deletedAt: null },
       select: {
@@ -1433,7 +1433,7 @@ export class DocumentService {
         where: { id: parentId, tenantId, deletedAt: null },
         select: { path: true },
       });
-      if (!parent) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+      if (!parent) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
       path = `${parent.path}/${sanitizedName}`;
     }
 
@@ -1459,7 +1459,7 @@ export class DocumentService {
     const folder = await this.prisma.folder.findFirst({
       where: { id: folderId, tenantId, deletedAt: null },
     });
-    if (!folder) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!folder) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const oldPath = folder.path;
     const parentPath = oldPath.substring(0, oldPath.lastIndexOf('/'));
@@ -1495,7 +1495,7 @@ export class DocumentService {
     const folder = await this.prisma.folder.findFirst({
       where: { id: folderId, tenantId, deletedAt: null },
     });
-    if (!folder) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!folder) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     await this.prisma.$transaction(async (tx) => {
       // Orphan documents in this folder
@@ -1519,13 +1519,13 @@ export class DocumentService {
     const doc = await this.prisma.document.findFirst({
       where: { id: documentId, tenantId, deletedAt: null },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     if (targetFolderId) {
       const folder = await this.prisma.folder.findFirst({
         where: { id: targetFolderId, tenantId, deletedAt: null },
       });
-      if (!folder) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+      if (!folder) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     }
 
     return this.prisma.document.update({
@@ -1556,7 +1556,7 @@ export class DocumentService {
     const doc = await this.prisma.document.findFirst({
       where: { id: documentId, tenantId, deletedAt: null },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (doc.isRecord) {
       return { ok: true, alreadyRecord: true };
     }
@@ -1623,7 +1623,7 @@ export class DocumentService {
         where: { id: versionId2, tenantId, documentId },
       }),
     ]);
-    if (!v1 || !v2) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!v1 || !v2) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const doc = await this.prisma.document.findFirst({
       where: { id: documentId, tenantId },

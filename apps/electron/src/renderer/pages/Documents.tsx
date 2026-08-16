@@ -15,18 +15,18 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  Modal,
-  Title,
-  Text,
-  Group,
-  Grid,
-  Select,
-  TextInput,
   Button,
+  Grid,
+  Group,
+  Modal,
   Paper,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  Title,
 } from '@mantine/core';
-import { IconUpload, IconSearch, IconFolderPlus, IconRefresh } from '@tabler/icons-react';
+import { IconFolderPlus, IconRefresh, IconSearch, IconUpload } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { DocumentTable } from '../components/documents/DocumentTable';
 import { DocumentUpload } from '../components/documents/DocumentUpload';

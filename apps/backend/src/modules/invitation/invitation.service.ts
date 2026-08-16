@@ -15,7 +15,7 @@
  *   - All invitation actions audited
  *   - First-login tour are initialized after acceptance (spec §9.1)
  */
-import { Injectable, Logger, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
 import { AuditService } from '../../common/audit.service';
@@ -261,7 +261,7 @@ export class InvitationService {
   async revokeInvitation(tenantId: string, token: string, revokedByUserId: string): Promise<void> {
     const key = `invite:${tenantId}:${token}`;
     const data = await this.redis.getJson<any>(key);
-    if (!data) throw new NotFoundException({ messageKey: 'errors.INVITATION_NOT_FOUND' });
+    if (!data) {throw new NotFoundException({ messageKey: 'errors.INVITATION_NOT_FOUND' });}
 
     await this.redis.invalidate(key);
 
@@ -278,7 +278,7 @@ export class InvitationService {
   async resendInvitation(tenantId: string, token: string, resentByUserId: string): Promise<{ token: string; expiresAt: string }> {
     const key = `invite:${tenantId}:${token}`;
     const data = await this.redis.getJson<any>(key);
-    if (!data) throw new NotFoundException({ messageKey: 'errors.INVITATION_NOT_FOUND' });
+    if (!data) {throw new NotFoundException({ messageKey: 'errors.INVITATION_NOT_FOUND' });}
 
     // Generate a new token + extend TTL
     const newToken = randomBytes(32).toString('hex');

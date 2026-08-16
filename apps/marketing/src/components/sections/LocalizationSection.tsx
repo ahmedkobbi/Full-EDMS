@@ -14,23 +14,23 @@
 import { type ReactNode } from 'react';
 import {
   Box,
-  Container,
-  Title,
-  Text,
-  SimpleGrid,
   Card,
-  ThemeIcon,
-  Stack,
   Code,
+  Container,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
 import {
-  Languages,
   ArrowLeftRight,
-  Sigma,
   CalendarClock,
+  Languages,
   type LucideIcon,
+  Sigma,
 } from 'lucide-react';
-import { LOCALES, type LocaleMeta } from '@smart-edms/i18n';
+import { type LocaleMeta, LOCALES } from '@smart-edms/i18n';
 
 interface LocalizationSectionProps {
   readonly t: (key: string, opts?: Record<string, unknown>) => string;

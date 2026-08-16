@@ -10,23 +10,23 @@
  * Spec ref: §4.6 (scanner integration roadmap), §9.16 (document digitization).
  */
 import {
-  Stack,
-  Title,
-  Text,
-  Paper,
-  Group,
-  Button,
-  SimpleGrid,
-  Card,
   Badge,
-  Progress,
-  Table,
-  ThemeIcon,
+  Button,
+  Card,
+  Group,
   LoadingOverlay,
+  Paper,
+  Progress,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
-import { Plus, Scan, RefreshCw, FileInput } from 'lucide-react';
+import { FileInput, Plus, RefreshCw, Scan } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useScannerProfilesQuery, useScannerJobsQuery } from '../api/hooks';
+import { useScannerJobsQuery, useScannerProfilesQuery } from '../api/hooks';
 import { ErrorState } from '@smart-edms/ui';
 import { EmptyState } from '@smart-edms/ui';
 import { LocaleAwareDate } from '@smart-edms/ui';

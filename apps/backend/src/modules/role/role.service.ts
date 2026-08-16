@@ -2,7 +2,7 @@
  * Role management service (spec §9.1 — roles, permissions).
  * System roles cannot be deleted; custom roles can be fully managed.
  */
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
 
@@ -32,7 +32,7 @@ export class RoleService {
 
   async getById(tenantId: string, id: string) {
     const role = await this.prisma.role.findFirst({ where: { id, tenantId } });
-    if (!role) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!role) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return role;
   }
 
@@ -46,7 +46,7 @@ export class RoleService {
   async update(tenantId: string, id: string, raw: unknown) {
     const input = updateRoleSchema.parse(raw);
     const existing = await this.prisma.role.findFirst({ where: { id, tenantId } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (existing.isSystem && input.permissions) {
       throw new BadRequestException({ messageKey: 'errors.SYSTEM_ROLE_PERMISSIONS_LOCKED' });
     }
@@ -55,7 +55,7 @@ export class RoleService {
 
   async softDelete(tenantId: string, id: string) {
     const existing = await this.prisma.role.findFirst({ where: { id, tenantId } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (existing.isSystem) {
       throw new BadRequestException({ messageKey: 'errors.SYSTEM_ROLE_CANNOT_DELETE' });
     }

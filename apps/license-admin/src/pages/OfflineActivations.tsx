@@ -1,7 +1,7 @@
 /**
  * Offline activations page — review panel + recent pending requests list.
  */
-import { Stack, Grid } from '@mantine/core';
+import { Grid, Stack } from '@mantine/core';
 import { PageHeader } from '../components/common/PageHeader';
 import { OfflineActivationReview, RecentOfflineRequests } from '../components/activations/OfflineActivationReview';
 

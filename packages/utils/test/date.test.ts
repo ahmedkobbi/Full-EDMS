@@ -1,8 +1,8 @@
 /**
  * @smart-edms/utils — date tests.
  */
-import { describe, it, expect } from 'vitest';
-import { toISODate, fromISODate, formatRelative, isExpired, daysUntil } from '../src/index.js';
+import { describe, expect, it } from 'vitest';
+import { daysUntil, formatRelative, fromISODate, isExpired, toISODate } from '../src/index.js';
 
 describe('date.toISODate', () => {
   it('formats a Date as ISO UTC', () => {

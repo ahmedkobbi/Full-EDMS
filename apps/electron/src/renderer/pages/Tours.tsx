@@ -10,8 +10,8 @@
  *
  * The page is the tour target `help.menu`.
  */
-import { Stack, Title, Text, SimpleGrid, Card, Group, Button, Badge } from '@mantine/core';
-import { Play, RefreshCw, Compass } from 'lucide-react';
+import { Badge, Button, Card, Group, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Compass, Play, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useToursQuery } from '../api/hooks';
 import { useStartTour } from '../components/tour/TourEngine';

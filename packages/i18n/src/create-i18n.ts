@@ -142,7 +142,7 @@ export function createI18n(options: CreateI18nOptions = {}): I18nInstance {
     ...options.overrides,
   };
   instance.init(initOptions, (err) => {
-    if (options.onInit) options.onInit(err, instance);
+    if (options.onInit) {options.onInit(err, instance);}
   });
   return instance;
 }

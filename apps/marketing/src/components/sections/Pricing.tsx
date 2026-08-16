@@ -12,17 +12,17 @@
 
 import { type ReactNode } from 'react';
 import {
-  Box,
-  Container,
-  Title,
-  Text,
-  SimpleGrid,
-  Card,
-  Button,
-  List,
-  ThemeIcon,
-  Stack,
   Badge,
+  Box,
+  Button,
+  Card,
+  Container,
+  List,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
 import { Check } from 'lucide-react';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';

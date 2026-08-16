@@ -11,7 +11,7 @@
 import { useMemo, useState } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
 import { Box, Button, Group } from '@mantine/core';
-import { RefreshCw, Plus, ExternalLink } from 'lucide-react';
+import { ExternalLink, Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { Customer } from '@smart-edms/types';
@@ -62,7 +62,7 @@ export function CustomerTable({ onCreate, pageSize = 25 }: CustomerTableProps) {
         header: t('admin:customers.column.website'),
         Cell: ({ cell }) => {
           const url = cell.getValue<string | null>();
-          if (!url) return '—';
+          if (!url) {return '—';}
           return (
             <a href={url} target="_blank" rel="noreferrer noopener">
               {url} <ExternalLink size={12} aria-hidden="true" style={{ verticalAlign: 'middle' }} />

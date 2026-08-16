@@ -12,14 +12,14 @@
  */
 import { useEffect, useState } from 'react';
 import {
-  Modal,
-  Stack,
-  TextInput,
-  Select,
+  Alert,
   Button,
   Group,
+  Modal,
+  Select,
+  Stack,
   Text,
-  Alert,
+  TextInput,
 } from '@mantine/core';
 import { Key, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -54,7 +54,7 @@ export function KeyRotationModal({ opened, onClose }: KeyRotationModalProps) {
   }, [opened]);
 
   const handleSubmit = (): void => {
-    if (!targetKeyPath) return;
+    if (!targetKeyPath) {return;}
     // Step-up auth: re-prompts for MFA if the existing step-up token has expired.
     requestStepUp(
       async () => {

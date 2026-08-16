@@ -14,12 +14,12 @@
 import { useMemo, useState } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
 import { Box, Button, Group } from '@mantine/core';
-import { Upload, RefreshCw } from 'lucide-react';
+import { RefreshCw, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { Document } from '@smart-edms/types';
 import { useDocumentsQuery } from '../../api/hooks';
-import { LocaleAwareDate, LoadingState, ErrorState, EmptyState } from '@smart-edms/ui';
+import { EmptyState, ErrorState, LoadingState, LocaleAwareDate } from '@smart-edms/ui';
 
 interface DocumentTableProps {
   /** Optional folder filter. */
@@ -77,8 +77,8 @@ export function DocumentTable({ folderId, onUploadClick }: DocumentTableProps) {
     [t, navigate],
   );
 
-  if (query.isLoading) return <LoadingState variant="skeleton" />;
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
+  if (query.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (query.isError) {return <ErrorState error={query.error} onRetry={() => query.refetch()} />;}
 
   const data = query.data?.items ?? [];
 

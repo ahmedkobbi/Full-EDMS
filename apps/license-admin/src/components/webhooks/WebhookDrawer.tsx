@@ -5,20 +5,20 @@
  */
 import { useEffect, useState } from 'react';
 import {
-  Drawer,
-  Stack,
-  Select,
-  TextInput,
-  MultiSelect,
-  Switch,
   Button,
+  Drawer,
   Group,
+  MultiSelect,
+  Select,
+  Stack,
+  Switch,
+  TextInput,
 } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import {
-  useCustomersQuery,
   useCreateWebhookMutation,
+  useCustomersQuery,
 } from '../../api/hooks';
 
 const EVENT_OPTIONS: { value: string; label: string }[] = [
@@ -62,7 +62,7 @@ export function WebhookDrawer({ opened, onClose, defaultCustomerId }: WebhookDra
   }, [opened, defaultCustomerId]);
 
   const handleSubmit = async (): Promise<void> => {
-    if (!customerId || !url) return;
+    if (!customerId || !url) {return;}
     try {
       await createMutation.mutateAsync({ customerId, url, events, enabled });
       notifications.show({

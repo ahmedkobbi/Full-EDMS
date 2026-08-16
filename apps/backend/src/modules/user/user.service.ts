@@ -91,7 +91,7 @@ export class UserService {
       where: { id, tenantId, deletedAt: null },
       include: { roleAssignments: { include: { role: true } }, preferences: true, groupMemberships: { include: { group: true } } },
     });
-    if (!user) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!user) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return serializeUser(user);
   }
 
@@ -139,7 +139,7 @@ export class UserService {
   async update(tenantId: string, id: string, raw: unknown) {
     const input = updateUserSchema.parse(raw);
     const existing = await this.prisma.user.findFirst({ where: { id, tenantId, deletedAt: null } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return this.prisma.$transaction(async (tx) => {
       if (input.roleCodes) {
         await tx.userRoleAssignment.deleteMany({ where: { userId: id, tenantId } });

@@ -5,7 +5,7 @@
  * No step-up required (renewal is not a destructive operation).
  */
 import { useEffect, useState } from 'react';
-import { Modal, Stack, Text, NumberInput, Button, Group, Alert } from '@mantine/core';
+import { Alert, Button, Group, Modal, NumberInput, Stack, Text } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 
 import { CalendarPlus } from 'lucide-react';
@@ -39,10 +39,10 @@ export function LicenseRenewModal({ opened, onClose, license }: LicenseRenewModa
     }
   }, [opened, license]);
 
-  if (!license) return null;
+  if (!license) {return null;}
 
   const handleSubmit = async (): Promise<void> => {
-    if (!expiresAt) return;
+    if (!expiresAt) {return;}
     try {
       await renewMutation.mutateAsync({
         id: license.id,

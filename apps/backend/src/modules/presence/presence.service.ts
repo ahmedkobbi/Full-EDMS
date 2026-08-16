@@ -107,7 +107,7 @@ export class PresenceService {
 
     // Get remaining members
     const members = await this.redis.connection.zrange(key, 0, -1);
-    if (members.length === 0) return [];
+    if (members.length === 0) {return [];}
 
     const entries: PresenceEntry[] = [];
     const rawEntries = await this.redis.connection.hmget(key, ...members);

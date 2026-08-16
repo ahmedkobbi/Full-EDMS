@@ -16,21 +16,21 @@
  * Each NavLink carries a stable `data-tour` selector so the guided tour
  * (spec §12.10) can target it.
  */
-import { NavLink, ScrollArea, Stack, Box, Text } from '@mantine/core';
+import { Box, NavLink, ScrollArea, Stack, Text } from '@mantine/core';
 import {
-  LayoutDashboard,
-  Users,
-  Package,
-  Key,
-  History,
-  FileCheck,
-  Webhook,
-  ShieldCheck,
-  Settings,
-  Clock4,
   Bolt,
-  ListChecks,
   ChartBar,
+  Clock4,
+  FileCheck,
+  History,
+  Key,
+  LayoutDashboard,
+  ListChecks,
+  Package,
+  Settings,
+  ShieldCheck,
+  Users,
+  Webhook,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';

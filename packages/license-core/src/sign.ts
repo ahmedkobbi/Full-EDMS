@@ -99,8 +99,8 @@ export function verifySignature(
  *   will hash the data with SHA-256 before signing.
  */
 function digestInputForAlg(alg: SigningAlg): 'sha256' | null {
-  if (alg === 'EdDSA') return null;
-  if (alg === 'ES256') return 'sha256';
+  if (alg === 'EdDSA') {return null;}
+  if (alg === 'ES256') {return 'sha256';}
   const _exhaustive: never = alg;
   throw new Error(`Unsupported signing alg: ${String(_exhaustive)}`);
 }

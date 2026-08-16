@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { readFile, chmod, stat } from 'node:fs/promises';
+import { chmod, readFile, stat } from 'node:fs/promises';
 import { createPrivateKey, type KeyObject } from 'node:crypto';
 import {
   deriveKeyId,
@@ -238,10 +238,10 @@ export class SigningKeyService implements OnModuleInit {
    * Get the active key's public metadata (safe to expose).
    */
   getActivePublicKey(): { kid: string; alg: SigningAlg; publicKeyPem: string } | null {
-    if (!this.isLoaded()) return null;
+    if (!this.isLoaded()) {return null;}
     // Re-derive the public key from the cached KeyObject. NEVER return
     // the private key.
-    if (!this.privateKeyObj) return null;
+    if (!this.privateKeyObj) {return null;}
     const publicKeyPem = this.privateKeyObj
       .export({ type: 'spki', format: 'pem' })
       .toString('utf8');

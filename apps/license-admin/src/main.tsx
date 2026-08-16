@@ -35,7 +35,7 @@ import 'dayjs/locale/de';
 
 import { initI18n, useI18nStore, useSyncI18n } from './i18n/config';
 import { useThemeStore } from './store/theme';
-import { useAuthStore, selectAccessToken, selectRefreshToken, selectStepUpToken } from './store/auth';
+import { selectAccessToken, selectRefreshToken, selectStepUpToken, useAuthStore } from './store/auth';
 import { setTokenProvider } from './api/client';
 import { buildTheme } from './theme/theme';
 import { isRtl } from '@smart-edms/i18n';
@@ -145,6 +145,6 @@ function Root() {
 }
 
 const container = document.getElementById('root');
-if (!container) throw new Error('Root container #root not found');
+if (!container) {throw new Error('Root container #root not found');}
 
 createRoot(container).render(<Root />);

@@ -264,6 +264,6 @@ export function assertBranded<T extends string & { readonly __brand: string }>(
  * shape; full UTC validation must be performed at the parser boundary.
  */
 export function isISODateString(value: unknown): value is ISODateString {
-  if (typeof value !== 'string') return false;
+  if (typeof value !== 'string') {return false;}
   return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/.test(value);
 }

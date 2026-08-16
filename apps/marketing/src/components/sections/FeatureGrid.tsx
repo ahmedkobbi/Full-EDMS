@@ -12,24 +12,24 @@
 import { type ReactNode } from 'react';
 import {
   Box,
-  Container,
-  Title,
-  Text,
-  SimpleGrid,
   Card,
+  Container,
+  SimpleGrid,
+  Text,
   ThemeIcon,
+  Title,
 } from '@mantine/core';
 import {
-  FileText,
-  Workflow,
-  ShieldCheck,
-  Search,
-  Tag,
   Archive,
   Bot,
   Compass,
-  ScanLine,
+  FileText,
   type LucideIcon,
+  ScanLine,
+  Search,
+  ShieldCheck,
+  Tag,
+  Workflow,
 } from 'lucide-react';
 
 interface FeatureGridProps {

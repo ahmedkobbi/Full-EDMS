@@ -59,7 +59,7 @@ function* walkDir(
       continue;
     }
     if (stat.isDirectory()) {
-      if (IGNORED_DIRS.has(entry)) continue;
+      if (IGNORED_DIRS.has(entry)) {continue;}
       yield* walkDir(fullPath, base);
     } else if (stat.isFile()) {
       const ext = entry.slice(entry.lastIndexOf('.'));
@@ -97,7 +97,7 @@ function extractKeysFromFile(filePath: string, base: string): readonly Extracted
     while ((m = re.exec(line)) !== null) {
       const key = m[1];
       // Filter out obviously non-message keys (e.g. CSS class names).
-      if (key.length < 2) continue;
+      if (key.length < 2) {continue;}
       out.push({ file: relative(base, filePath), line: i + 1, key });
     }
   }
@@ -109,7 +109,7 @@ function extractKeysFromFile(filePath: string, base: string): readonly Extracted
  */
 function flattenKeys(obj: unknown, prefix: string = ''): Set<string> {
   const out = new Set<string>();
-  if (obj === null || obj === undefined || typeof obj !== 'object') return out;
+  if (obj === null || obj === undefined || typeof obj !== 'object') {return out;}
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     const path = prefix ? `${prefix}.${key}` : key;
     if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
@@ -118,7 +118,7 @@ function flattenKeys(obj: unknown, prefix: string = ''): Set<string> {
       if (allStrings && values.length > 0) {
         out.add(path);
       } else {
-        for (const k of flattenKeys(value, path)) out.add(k);
+        for (const k of flattenKeys(value, path)) {out.add(k);}
       }
     } else {
       out.add(path);

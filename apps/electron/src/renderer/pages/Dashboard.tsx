@@ -12,11 +12,11 @@
  *
  * Spec ref: §9.15 (admin dashboard — paginated queries), §17 (Mantine v7).
  */
-import { Stack, Grid, Paper, Title, Text, Group, Button, SimpleGrid, Card, ThemeIcon, Badge, LoadingOverlay } from '@mantine/core';
-import { IconFiles, IconSubtask, IconHistory, IconUsers } from '@tabler/icons-react';
+import { Badge, Button, Card, Grid, Group, LoadingOverlay, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { IconFiles, IconHistory, IconSubtask, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useDocumentsQuery, useHealthQuery, useAdminDashboardQuery } from '../api/hooks';
+import { useAdminDashboardQuery, useDocumentsQuery, useHealthQuery } from '../api/hooks';
 import { ErrorState, LocaleAwareDate } from '@smart-edms/ui';
 
 export function DashboardPage() {
@@ -235,7 +235,7 @@ function StatCard({ icon: Icon, label, value, loading, onClick }: StatCardProps)
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) {return '0 B';}
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));

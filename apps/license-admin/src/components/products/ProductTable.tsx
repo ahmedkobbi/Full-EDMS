@@ -8,8 +8,8 @@
  */
 import { useMemo, useState } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
-import { Box, Button, Group, Accordion, Text } from '@mantine/core';
-import { RefreshCw, Plus } from 'lucide-react';
+import { Accordion, Box, Button, Group, Text } from '@mantine/core';
+import { Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Product } from '@smart-edms/types';
 import { useProductsQuery } from '../../api/hooks';
@@ -61,8 +61,8 @@ export function ProductTable({ onCreate }: ProductTableProps) {
     [t],
   );
 
-  if (query.isLoading) return <LoadingState variant="skeleton" />;
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
+  if (query.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (query.isError) {return <ErrorState error={query.error} onRetry={() => query.refetch()} />;}
 
   const data = query.data ?? [];
 

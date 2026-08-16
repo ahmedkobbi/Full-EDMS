@@ -4,7 +4,7 @@
  * Rendered for any unmatched route. Friendly, localized, with a CTA back
  * to the dashboard.
  */
-import { Stack, Title, Text, Button, Container } from '@mantine/core';
+import { Button, Container, Stack, Text, Title } from '@mantine/core';
 import { Home } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

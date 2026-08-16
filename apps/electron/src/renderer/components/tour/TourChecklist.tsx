@@ -11,10 +11,10 @@
  * `completionResolverCode` and returns `completed: true/false`. The
  * client just displays the result.
  */
-import { Stack, Group, Text, ThemeIcon, Button, Box, Progress } from '@mantine/core';
-import { Check, Circle, ArrowRight } from 'lucide-react';
+import { Box, Button, Group, Progress, Stack, Text, ThemeIcon } from '@mantine/core';
+import { ArrowRight, Check, Circle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { TourDefinitionId, TourChecklistItem } from '@smart-edms/types';
+import type { TourChecklistItem, TourDefinitionId } from '@smart-edms/types';
 import { useTourChecklistQuery } from '../../api/hooks';
 
 interface TourChecklistProps {

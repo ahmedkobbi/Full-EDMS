@@ -7,20 +7,20 @@
  * artifacts that the on-premise backend can verify, and that the 6-state
  * machine behaves correctly across all license states.
  */
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import {
-  generateSigningKeyPair,
   buildLicenseArtifact,
-  verifyLicenseArtifact,
-  parseSedmslic,
-  computeLicenseState,
   buildOfflineRequest,
-  parseSedmsreq,
   buildRevocationList,
-  verifyRevocationList,
-  isRevoked,
+  computeLicenseState,
   computeMachineFingerprint,
+  generateSigningKeyPair,
+  isRevoked,
+  parseSedmslic,
+  parseSedmsreq,
   type SigningKeyPair,
+  verifyLicenseArtifact,
+  verifyRevocationList,
 } from '@smart-edms/license-core';
 import type { LicensePayload, LicenseState } from '@smart-edms/types';
 import { randomUUID } from 'node:crypto';

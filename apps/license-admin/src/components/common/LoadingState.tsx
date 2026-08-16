@@ -4,7 +4,7 @@
  * Renders a centered Mantine Loader with a localized status message.
  * Skeleton variant for data tables / detail panels.
  */
-import { Loader, Stack, Text, Skeleton, type MantineColor } from '@mantine/core';
+import { Loader, type MantineColor, Skeleton, Stack, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 interface LoadingStateProps {

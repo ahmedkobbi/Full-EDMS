@@ -36,7 +36,7 @@
  */
 
 import { createPublicKey } from 'node:crypto';
-import type { LicenseId, RevocationList, ISODateString } from '@smart-edms/types';
+import type { ISODateString, LicenseId, RevocationList } from '@smart-edms/types';
 import { signPayload, verifySignature } from './sign.js';
 import { type SigningAlg } from './keys.js';
 
@@ -108,11 +108,11 @@ export function buildRevocationList(
  */
 export function verifyRevocationList(crl: RevocationList, publicKeyPem: string): boolean {
   try {
-    if (crl == null || typeof crl !== 'object') return false;
-    if (crl.v !== REVOCATION_LIST_VERSION) return false;
-    if (crl.type !== 'sedms.crl') return false;
-    if (typeof crl.kid !== 'string' || crl.kid.length === 0) return false;
-    if (typeof crl.sig !== 'string' || crl.sig.length === 0) return false;
+    if (crl === null || typeof crl !== 'object') {return false;}
+    if (crl.v !== REVOCATION_LIST_VERSION) {return false;}
+    if (crl.type !== 'sedms.crl') {return false;}
+    if (typeof crl.kid !== 'string' || crl.kid.length === 0) {return false;}
+    if (typeof crl.sig !== 'string' || crl.sig.length === 0) {return false;}
 
     let alg: SigningAlg;
     try {
@@ -151,7 +151,7 @@ export function verifyRevocationList(crl: RevocationList, publicKeyPem: string):
  * @returns `true` if the license ID is listed as revoked.
  */
 export function isRevoked(crl: RevocationList, licenseId: string): boolean {
-  if (!crl || !Array.isArray(crl.revokedLicenseIds)) return false;
+  if (!crl || !Array.isArray(crl.revokedLicenseIds)) {return false;}
   return crl.revokedLicenseIds.includes(licenseId as LicenseId);
 }
 
@@ -159,7 +159,7 @@ export function isRevoked(crl: RevocationList, licenseId: string): boolean {
  * Check whether a device fingerprint appears in the revocation list.
  */
 export function isFingerprintRevoked(crl: RevocationList, fingerprintHash: string): boolean {
-  if (!crl || !Array.isArray(crl.revokedFingerprints)) return false;
+  if (!crl || !Array.isArray(crl.revokedFingerprints)) {return false;}
   return crl.revokedFingerprints.includes(fingerprintHash);
 }
 
@@ -170,7 +170,7 @@ export function isFingerprintRevoked(crl: RevocationList, fingerprintHash: strin
 function detectAlgFromPublicKey(publicKeyPem: string): SigningAlg {
   const pub = createPublicKey({ key: Buffer.from(publicKeyPem, 'utf8'), format: 'pem' });
   const kty = pub.asymmetricKeyType;
-  if (kty === 'ed25519') return 'EdDSA';
+  if (kty === 'ed25519') {return 'EdDSA';}
   if (kty === 'ec') {
     const details = pub.asymmetricKeyDetails as { namedCurve?: string } | undefined;
     if (details?.namedCurve === 'prime256v1' || details?.namedCurve === 'secp256r1') {

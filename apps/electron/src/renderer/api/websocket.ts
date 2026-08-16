@@ -79,7 +79,7 @@ let socket: Socket | null = null;
  * @param tenantId    Tenant id for room join.
  */
 export function connectRealtime(accessToken: string, tenantId: string): Socket {
-  if (socket?.connected) return socket;
+  if (socket?.connected) {return socket;}
 
   if (socket) {
     socket.disconnect();
@@ -151,7 +151,7 @@ export function onRealtimeEvent<T = unknown>(
  * indicator.
  */
 export function getRealtimeState(): 'connected' | 'connecting' | 'disconnected' {
-  if (!socket) return 'disconnected';
-  if (socket.connected) return 'connected';
+  if (!socket) {return 'disconnected';}
+  if (socket.connected) {return 'connected';}
   return 'connecting';
 }

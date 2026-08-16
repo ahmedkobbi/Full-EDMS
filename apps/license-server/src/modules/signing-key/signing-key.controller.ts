@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SigningKeyService } from './signing-key.service.js';
-import { AdminJwtGuard, type AdminAuthenticatedRequest } from '../../security/admin-jwt.guard.js';
+import { type AdminAuthenticatedRequest, AdminJwtGuard } from '../../security/admin-jwt.guard.js';
 import { StepUpGuard } from '../../security/step-up.guard.js';
 import { AuditAction } from '../../common/decorators/audit-action.decorator.js';
 import type { SigningAlg } from '@smart-edms/license-core';

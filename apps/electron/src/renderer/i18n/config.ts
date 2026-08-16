@@ -47,7 +47,7 @@ function resolveInitialLocale(): MandatoryLocaleCode {
   // Browser language detection.
   const browser = typeof navigator !== 'undefined' ? navigator.language : 'en';
   const match = LOCALES.find((l) => l.code === browser || browser.startsWith(l.code + '-'));
-  if (match) return match.code;
+  if (match) {return match.code;}
 
   return 'en';
 }

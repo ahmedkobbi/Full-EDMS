@@ -14,7 +14,7 @@
  * Spec ref: §9.4 (visual classification banners in UI, classification banners
  *           must render correctly in RTL mode).
  */
-import { Text, Box, ThemeIcon } from '@mantine/core';
+import { Box, Text, ThemeIcon } from '@mantine/core';
 import { IconShield } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -49,7 +49,7 @@ export function ClassificationBanner({
 }: ClassificationBannerProps) {
   const { t } = useTranslation();
 
-  if (!bannerText && !nameKey) return null;
+  if (!bannerText && !nameKey) {return null;}
 
   const backgroundColor = color ?? sensitivityBackgrounds[sensitivityLevel] ?? 'var(--mantine-color-gray-1)';
   const textColor = sensitivityColors[sensitivityLevel] ?? 'var(--mantine-color-gray-7)';

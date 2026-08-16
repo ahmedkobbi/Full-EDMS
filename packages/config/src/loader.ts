@@ -11,7 +11,7 @@
  * Spec ref: §15.1, §21.6.
  */
 
-import type { ZodType, ZodError } from 'zod';
+import type { ZodError, ZodType } from 'zod';
 
 /**
  * Error thrown by `loadConfig` when the source object fails schema

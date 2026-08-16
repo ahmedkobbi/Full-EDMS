@@ -78,9 +78,9 @@ export const auditRecentTool: ToolDefinition<
       }
 
       const where: Record<string, unknown> = { tenantId: ctx.tenantId };
-      if (input.category) where.category = input.category;
-      if (input.severity) where.severity = input.severity;
-      if (input.since) where.occurredAt = { gte: new Date(input.since) };
+      if (input.category) {where.category = input.category;}
+      if (input.severity) {where.severity = input.severity;}
+      if (input.since) {where.occurredAt = { gte: new Date(input.since) };}
 
       const [rows, total] = await Promise.all([
         ctx.prisma.auditEvent.findMany({

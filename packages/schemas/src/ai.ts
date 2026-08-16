@@ -17,11 +17,11 @@
 import { z } from 'zod';
 import type {
   AssistantActionId,
+  AssistantActionTargetType,
   AssistantAuditEventId,
   AssistantMessageId,
   AssistantSessionId,
   AssistantToolInvocationId,
-  AssistantActionTargetType,
 } from '@smart-edms/types';
 import {
   ConfidenceScoreSchema,

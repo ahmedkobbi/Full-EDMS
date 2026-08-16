@@ -10,7 +10,7 @@
  * Spec ref: §9.2 (tenant-level quotas should be supported),
  *           §22.2 (tenant-level and user-level quotas).
  */
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
 
@@ -46,7 +46,7 @@ export class QuotaService {
       where: { id: tenantId },
       select: { quotaUsers: true },
     });
-    if (!tenant) return;
+    if (!tenant) {return;}
 
     const count = await this.prisma.user.count({
       where: { tenantId, deletedAt: null, status: { not: 'DELETED' } },
@@ -85,7 +85,7 @@ export class QuotaService {
       where: { id: tenantId },
       select: { quotaDocuments: true },
     });
-    if (!tenant) return;
+    if (!tenant) {return;}
 
     const count = await this.prisma.document.count({
       where: { tenantId, deletedAt: null },
@@ -121,7 +121,7 @@ export class QuotaService {
         where: { id: tenantId },
         select: { quotaStorageBytes: true },
       });
-      if (!tenant) return;
+      if (!tenant) {return;}
 
       const agg = await this.prisma.documentVersion.aggregate({
         where: { tenantId },

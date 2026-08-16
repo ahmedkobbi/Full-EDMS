@@ -36,7 +36,7 @@ export class WebhookService {
 
   async getById(tenantId: string, id: string) {
     const webhook = await this.prisma.webhook.findFirst({ where: { id, tenantId } });
-    if (!webhook) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!webhook) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return webhook;
   }
 
@@ -69,7 +69,7 @@ export class WebhookService {
   async update(tenantId: string, userId: string, id: string, raw: unknown) {
     const input = updateWebhookSchema.parse(raw);
     const existing = await this.prisma.webhook.findFirst({ where: { id, tenantId } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return this.prisma.webhook.update({ where: { id }, data: input });
   }
 

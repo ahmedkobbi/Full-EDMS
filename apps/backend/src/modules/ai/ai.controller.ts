@@ -38,18 +38,18 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { LicenseRequired } from '../../common/decorators/license-required.decorator';
 import { Audit } from '../../common/decorators/audit.decorator';
 import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
-import { AiService, type AiRequestContext } from './ai.service';
+import { type AiRequestContext, AiService } from './ai.service';
 import {
-  AdminAuditQuerySchema,
-  AdminUsageQuerySchema,
-  SessionFeedbackBodySchema,
-  SessionListQuerySchema,
-  UpdateAssistantSettingsBodySchema,
   type AdminAuditQuery,
+  AdminAuditQuerySchema,
   type AdminUsageQuery,
+  AdminUsageQuerySchema,
   type SessionFeedbackBody,
+  SessionFeedbackBodySchema,
   type SessionListQuery,
+  SessionListQuerySchema,
   type UpdateAssistantSettingsBody,
+  UpdateAssistantSettingsBodySchema,
 } from './dto';
 import { AssistantChatRequestSchema } from '@smart-edms/schemas';
 

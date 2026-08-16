@@ -76,7 +76,7 @@ function audiencesForRoles(roles: readonly string[]): Set<string> {
   const out = new Set<string>(['all']);
   for (const r of roles) {
     const aud = ROLE_TO_AUDIENCE[r];
-    if (aud) for (const a of aud) out.add(a);
+    if (aud) {for (const a of aud) {out.add(a);}}
   }
   // Marketing visitors are unauthenticated; treat them separately.
   return out;
@@ -84,9 +84,9 @@ function audiencesForRoles(roles: readonly string[]): Set<string> {
 
 /** Map a numeric priority rank to a label. */
 function rankToPriority(rank: number): 'low' | 'normal' | 'high' | 'critical' {
-  if (rank >= 400) return 'critical';
-  if (rank >= 300) return 'high';
-  if (rank >= 200) return 'normal';
+  if (rank >= 400) {return 'critical';}
+  if (rank >= 300) {return 'high';}
+  if (rank >= 200) {return 'normal';}
   return 'low';
 }
 
@@ -118,7 +118,7 @@ export class TourService {
    * Catches all errors — a failed seed must NOT break tour listing.
    */
   async ensureSeeded(tenantId: string): Promise<void> {
-    if (this.seededTenants.has(tenantId)) return;
+    if (this.seededTenants.has(tenantId)) {return;}
     try {
       await seedDefaultTours(this.prisma, tenantId);
       this.seededTenants.add(tenantId);
@@ -167,9 +167,9 @@ export class TourService {
       tenantId,
       enabled: true,
     };
-    if (query.code) where.code = query.code;
-    if (query.module) where.module = query.module;
-    if (query.audience) where.audience = { has: query.audience };
+    if (query.code) {where.code = query.code;}
+    if (query.module) {where.module = query.module;}
+    if (query.audience) {where.audience = { has: query.audience };}
 
     const tours = await this.prisma.tourDefinition.findMany({
       where: where as never,
@@ -203,7 +203,7 @@ export class TourService {
       .filter((t) => {
         // Audience check
         const hasAudience = t.audience.some((a) => userAudiences.has(a));
-        if (!hasAudience) return false;
+        if (!hasAudience) {return false;}
 
         // License check
         if (
@@ -215,8 +215,8 @@ export class TourService {
 
         // User state filters
         const state = stateByTour.get(t.id);
-        if (state?.doNotShowAgain && !query.includeDoNotShow) return false;
-        if (state?.status === 'DISMISSED' && !query.includeDismissed) return false;
+        if (state?.doNotShowAgain && !query.includeDoNotShow) {return false;}
+        if (state?.status === 'DISMISSED' && !query.includeDismissed) {return false;}
         return true;
       })
       .map((t) => {
@@ -285,8 +285,8 @@ export class TourService {
         },
       },
     });
-    if (!tour) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
-    if (!tour.enabled) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tour) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
+    if (!tour.enabled) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // Audience + license checks
     const userAudiences = audiencesForRoles(roles);
@@ -358,7 +358,7 @@ export class TourService {
       where: { id: tourId, tenantId, enabled: true },
       select: { id: true, code: true, audience: true, licenseModuleRequired: true },
     });
-    if (!tour) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tour) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // Re-validate access at mutation time (defense in depth).
     const userAudiences = audiencesForRoles(roles);
@@ -439,7 +439,7 @@ export class TourService {
       where: { id: tourId, tenantId },
       select: { id: true, code: true },
     });
-    if (!tour) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tour) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const now = new Date();
     const state = await this.prisma.tourUserState.upsert({
@@ -495,7 +495,7 @@ export class TourService {
       where: { id: tourId, tenantId },
       select: { id: true, code: true },
     });
-    if (!tour) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tour) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const now = new Date();
     const state = await this.prisma.tourUserState.upsert({
@@ -553,7 +553,7 @@ export class TourService {
       where: { id: tourId, tenantId },
       select: { id: true, code: true },
     });
-    if (!tour) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tour) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const now = new Date();
     const state = await this.prisma.tourUserState.upsert({
@@ -611,7 +611,7 @@ export class TourService {
       where: { id: tourId, tenantId },
       select: { id: true },
     });
-    if (!tour) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tour) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // Look up the step at the given order (within this tour).
     const step = await this.prisma.tourStep.findFirst({
@@ -672,7 +672,7 @@ export class TourService {
     }>;
   }> {
     const where: Record<string, unknown> = { tenantId, userId };
-    if (query.status) where.status = query.status;
+    if (query.status) {where.status = query.status;}
 
     const rows = await this.prisma.tourUserState.findMany({
       where: where as never,
@@ -784,9 +784,9 @@ export class TourService {
     await this.ensureSeeded(tenantId);
 
     const where: Record<string, unknown> = { tenantId };
-    if (query.code) where.code = query.code;
-    if (query.enabled !== undefined) where.enabled = query.enabled;
-    if (query.module) where.module = query.module;
+    if (query.code) {where.code = query.code;}
+    if (query.enabled !== undefined) {where.enabled = query.enabled;}
+    if (query.module) {where.module = query.module;}
 
     const tours = await this.prisma.tourDefinition.findMany({
       where: where as never,
@@ -834,13 +834,13 @@ export class TourService {
       where: { id: tourId, tenantId },
       select: { id: true, code: true, enabled: true, triggerType: true, audience: true, priority: true, licenseModuleRequired: true },
     });
-    if (!tour) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tour) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const data: Record<string, unknown> = {};
-    if (body.enabled !== undefined) data.enabled = body.enabled;
-    if (body.triggerType !== undefined) data.triggerType = body.triggerType;
-    if (body.audience !== undefined) data.audience = body.audience;
-    if (body.licenseModuleRequired !== undefined) data.licenseModuleRequired = body.licenseModuleRequired;
+    if (body.enabled !== undefined) {data.enabled = body.enabled;}
+    if (body.triggerType !== undefined) {data.triggerType = body.triggerType;}
+    if (body.audience !== undefined) {data.audience = body.audience;}
+    if (body.licenseModuleRequired !== undefined) {data.licenseModuleRequired = body.licenseModuleRequired;}
     if (body.priority !== undefined) {
       data.priority =
         body.priority === 'critical' ? 400 :
@@ -926,7 +926,7 @@ export class TourService {
       tenantId,
       category: 'tour',
     };
-    if (query.from) where.occurredAt = { gte: new Date(query.from) };
+    if (query.from) {where.occurredAt = { gte: new Date(query.from) };}
     if (query.to) {
       const toFilter = query.from
         ? { ...(where.occurredAt as object), lte: new Date(query.to) }
@@ -945,7 +945,7 @@ export class TourService {
     if (query.kind) {
       // Reverse-lookup the audit code from the kind
       const matchingCode = codes.find((c) => codeToKind[c] === query.kind);
-      if (matchingCode) where.code = matchingCode;
+      if (matchingCode) {where.code = matchingCode;}
     }
 
     // Group by code; we can't easily group by tourCode in SQL because
@@ -1002,7 +1002,7 @@ export class TourService {
   private async resolveLicensedModules(): Promise<readonly string[]> {
     try {
       const active = await this.license.getActivePayload();
-      if (!active) return [];
+      if (!active) {return [];}
       return active.payload.entitlements as readonly string[];
     } catch (err) {
       this.logger.warn(

@@ -3,7 +3,7 @@
  * admin page. Provides a consistent layout across the panel.
  */
 import { type ReactNode } from 'react';
-import { Stack, Group, Title, Text } from '@mantine/core';
+import { Group, Stack, Text, Title } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 interface PageHeaderProps {

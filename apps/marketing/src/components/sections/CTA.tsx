@@ -8,7 +8,7 @@
  */
 
 import { type ReactNode } from 'react';
-import { Box, Container, Title, Text, Button, Group, Anchor, Stack } from '@mantine/core';
+import { Anchor, Box, Button, Container, Group, Stack, Text, Title } from '@mantine/core';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';
 import { LocaleLink } from '../common/LocaleLink';
 

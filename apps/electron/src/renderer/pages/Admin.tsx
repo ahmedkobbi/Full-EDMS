@@ -14,21 +14,21 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  Title,
-  Text,
-  Tabs,
-  Paper,
-  Group,
-  Button,
-  SimpleGrid,
-  Card,
-  ThemeIcon,
   Badge,
-  Table,
+  Button,
+  Card,
+  Group,
   LoadingOverlay,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Table,
+  Tabs,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
-import { IconShieldCheck, IconUsers, IconLicense, IconFiles, IconSubtask, IconDatabase, IconRefresh, IconPlus } from '@tabler/icons-react';
+import { IconDatabase, IconFiles, IconLicense, IconPlus, IconRefresh, IconShieldCheck, IconSubtask, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useAdminDashboardQuery, useAuditEventsQuery } from '../api/hooks';
 import { ErrorState } from '@smart-edms/ui';
@@ -253,7 +253,7 @@ function StatCard({ icon: Icon, label, value, onClick }: { icon: any; label: str
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) {return '0 B';}
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));

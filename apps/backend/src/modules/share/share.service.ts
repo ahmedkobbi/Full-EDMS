@@ -1,8 +1,8 @@
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../common/audit.service';
 import { RedisService } from '../../common/redis.service';
-import { randomBytes, createHash, scryptSync } from 'node:crypto';
+import { createHash, randomBytes, scryptSync } from 'node:crypto';
 import { z } from 'zod';
 
 const createLinkSchema = z.object({
@@ -53,7 +53,7 @@ export class ShareService {
       where: { id: input.documentId, tenantId, deletedAt: null },
       include: { classification: true },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // §9.11 + §9.4 — External sharing policy checks
     // 1. Documents under legal hold cannot be shared externally
@@ -166,10 +166,10 @@ export class ShareService {
       where: { token, isActive: true },
       include: { document: true },
     });
-    if (!link) return null;
-    if (link.expiresAt && link.expiresAt < new Date()) return null;
-    if (link.maxViews && link.viewCount >= link.maxViews) return null;
-    if (link.passwordHash && !verifyPassword(password ?? '', link.passwordHash)) return null;
+    if (!link) {return null;}
+    if (link.expiresAt && link.expiresAt < new Date()) {return null;}
+    if (link.maxViews && link.viewCount >= link.maxViews) {return null;}
+    if (link.passwordHash && !verifyPassword(password ?? '', link.passwordHash)) {return null;}
 
     await this.prisma.shareLink.update({
       where: { id: link.id },
@@ -187,7 +187,7 @@ function hashPassword(password: string): string {
 
 function verifyPassword(password: string, stored: string): boolean {
   const [scheme, salt, hash] = stored.split('$');
-  if (scheme !== 'scrypt' || !salt || !hash) return false;
+  if (scheme !== 'scrypt' || !salt || !hash) {return false;}
   const computed = scryptSync(password, salt, 64).toString('hex');
   return computed === hash;
 }

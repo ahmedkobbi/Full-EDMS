@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -116,7 +116,7 @@ export class WebhookService implements OnModuleInit {
           events: { has: input.event },
         },
       });
-      if (webhooks.length === 0) return;
+      if (webhooks.length === 0) {return;}
 
       const eventId = randomUUID();
       const timestamp = new Date().toISOString();
@@ -250,7 +250,7 @@ export class WebhookService implements OnModuleInit {
    */
   async sendTestEvent(webhookId: string, adminId: string, ipAddress?: string): Promise<{ ok: true }> {
     const webhook = await this.prisma.webhook.findUnique({ where: { id: webhookId } });
-    if (!webhook) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!webhook) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     await this.emit({
       customerId: webhook.customerId,

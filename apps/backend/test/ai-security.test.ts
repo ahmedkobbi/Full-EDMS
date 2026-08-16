@@ -13,7 +13,7 @@
  *   5. Tool calls are independently authorized
  *   6. AI is hidden when license is not entitled
  */
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { detectPromptInjection } from '../src/modules/ai/prompt-injection.js';
 
 describe('AI Assistant security (spec §11, §24.2)', () => {

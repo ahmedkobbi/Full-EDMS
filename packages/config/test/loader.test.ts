@@ -1,18 +1,18 @@
 /**
  * @smart-edms/config — loader + schema tests.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import {
-  DatabaseConfigSchema,
-  RedisConfigSchema,
-  JwtConfigSchema,
-  StorageConfigSchema,
-  LicenseConfigSchema,
   AiConfigSchema,
-  loadConfig,
-  safeLoadConfig,
   ConfigValidationError,
+  DatabaseConfigSchema,
+  JwtConfigSchema,
+  LicenseConfigSchema,
+  loadConfig,
+  RedisConfigSchema,
+  safeLoadConfig,
+  StorageConfigSchema,
 } from '../src/index.js';
 
 describe('DatabaseConfigSchema', () => {
@@ -211,13 +211,13 @@ describe('safeLoadConfig', () => {
     const schema = z.object({ X: z.string() });
     const result = safeLoadConfig(schema, { X: 'y' });
     expect(result.success).toBe(true);
-    if (result.success) expect(result.data.X).toBe('y');
+    if (result.success) {expect(result.data.X).toBe('y');}
   });
 
   it('returns success:false with error on invalid input', () => {
     const schema = z.object({ X: z.string().min(5) });
     const result = safeLoadConfig(schema, { X: 'abc' });
     expect(result.success).toBe(false);
-    if (!result.success) expect(result.error).toBeInstanceOf(ConfigValidationError);
+    if (!result.success) {expect(result.error).toBeInstanceOf(ConfigValidationError);}
   });
 });

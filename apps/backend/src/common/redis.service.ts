@@ -35,7 +35,7 @@ export class RedisService implements OnModuleDestroy {
 
   async getJson<T>(key: string): Promise<T | null> {
     const raw = await this.connection.get(key);
-    if (!raw) return null;
+    if (!raw) {return null;}
     try {
       return JSON.parse(raw) as T;
     } catch {

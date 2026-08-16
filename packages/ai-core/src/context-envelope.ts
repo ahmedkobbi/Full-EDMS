@@ -140,7 +140,7 @@ export function buildContextEnvelope(input: BuildContextEnvelopeInput): AiContex
  * only that the structural shape is correct.
  */
 export function isContextEnvelope(env: unknown): env is AiContextEnvelope {
-  if (env === null || typeof env !== 'object') return false;
+  if (env === null || typeof env !== 'object') {return false;}
   const e = env as Record<string, unknown>;
   return (
     typeof e.userId === 'string' &&

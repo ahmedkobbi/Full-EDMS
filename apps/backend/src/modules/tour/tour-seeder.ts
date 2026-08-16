@@ -17,7 +17,7 @@
  *    `licenseModuleRequired` so the service can filter on role + license.
  */
 
-import type { PrismaClient, Prisma } from '@prisma/client';
+import type { Prisma, PrismaClient } from '@prisma/client';
 import type { EntitlementModule, TourCode, TourTrigger } from '@smart-edms/types';
 
 // ---------------------------------------------------------------------------

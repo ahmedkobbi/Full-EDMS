@@ -46,7 +46,7 @@ export class MetadataService {
 
   async getSchema(tenantId: string, id: string) {
     const schema = await this.prisma.metadataSchema.findFirst({ where: { id, tenantId } });
-    if (!schema) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!schema) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return schema;
   }
 
@@ -60,7 +60,7 @@ export class MetadataService {
   async updateSchema(tenantId: string, id: string, raw: unknown) {
     const input = updateSchemaSchema.parse(raw);
     const existing = await this.prisma.metadataSchema.findFirst({ where: { id, tenantId } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return this.prisma.metadataSchema.update({
       where: { id },
       data: { ...input, fields: input.fields as any },

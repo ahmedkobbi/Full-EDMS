@@ -14,7 +14,7 @@
  *
  * Read-only default (spec §11.4): no action is auto-executed.
  */
-import { Group, Stack, Text, Box, Avatar, Button } from '@mantine/core';
+import { Avatar, Box, Button, Group, Stack, Text } from '@mantine/core';
 import { Sparkles, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

@@ -1,9 +1,9 @@
 import {
+  BadRequestException,
+  ConflictException,
   Injectable,
   Logger,
   NotFoundException,
-  BadRequestException,
-  ConflictException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
@@ -11,7 +11,7 @@ import { LicenseSigner } from '../license/license-signer.js';
 import { LicenseService } from '../license/license.service.js';
 import { WebhookService } from '../webhook/webhook.service.js';
 import { parseOfflineRequest } from '@smart-edms/license-core';
-import type { OnlineActivationInput, OfflineRequestIntakeInput, OfflineIssueInput } from './dto.js';
+import type { OfflineIssueInput, OfflineRequestIntakeInput, OnlineActivationInput } from './dto.js';
 import { createHash, randomUUID } from 'node:crypto';
 
 /**

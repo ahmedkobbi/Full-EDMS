@@ -7,26 +7,26 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  Group,
-  Button,
-  Text,
-  Table,
   Badge,
+  Button,
   Divider,
-  TextInput,
-  Textarea,
+  Group,
   MultiSelect,
   NumberInput,
+  Stack,
   Switch,
+  Table,
+  Text,
+  Textarea,
+  TextInput,
 } from '@mantine/core';
 import { Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import type { EntitlementModule } from '@smart-edms/types';
 import {
-  useProductPlansQuery,
   useCreatePlanMutation,
+  useProductPlansQuery,
 } from '../../api/hooks';
 
 const ENTITLEMENT_OPTIONS: { value: EntitlementModule; label: string }[] = [
@@ -90,7 +90,7 @@ export function PlanEditor({ productId }: PlanEditorProps) {
   };
 
   const handleCreate = async (): Promise<void> => {
-    if (!code || !name) return;
+    if (!code || !name) {return;}
     try {
       await createMutation.mutateAsync({
         productId,

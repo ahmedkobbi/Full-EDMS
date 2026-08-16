@@ -1,9 +1,9 @@
 import { type ReactNode } from 'react';
 import { type Metadata } from 'next';
-import { Container, Title, Text, Box, Stack, Alert, Divider } from '@mantine/core';
+import { Alert, Box, Container, Divider, Stack, Text, Title } from '@mantine/core';
 import { Info } from 'lucide-react';
 import { getServerI18n } from '../../../i18n/config';
-import { isSupportedLocale, DEFAULT_LOCALE } from '../../../lib/locales';
+import { DEFAULT_LOCALE, isSupportedLocale } from '../../../lib/locales';
 import { buildPageMetadata } from '../../../lib/seo';
 
 interface PrivacyPageProps {

@@ -20,9 +20,9 @@
  * RTL: position is resolved via the `placement` field (logical start/end),
  * never hardcoded left/right.
  */
-import { useEffect, type ReactNode } from 'react';
-import { Popover, Stack, Text, Group, Button, Progress, Checkbox, Box } from '@mantine/core';
-import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { type ReactNode, useEffect } from 'react';
+import { Box, Button, Checkbox, Group, Popover, Progress, Stack, Text } from '@mantine/core';
+import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { TourStep } from '@smart-edms/types';
 import { resolvePlacement, useTourStore } from '../../store/tour';
@@ -65,8 +65,8 @@ export function TourStepPopover({
         skip();
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        if (isLast) finish();
-        else next();
+        if (isLast) {finish();}
+        else {next();}
       } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         previous();

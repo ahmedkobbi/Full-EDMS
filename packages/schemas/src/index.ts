@@ -67,22 +67,22 @@ export * from './config';
 // ---------------------------------------------------------------------------
 
 import {
-  DocumentsSearchToolInputSchema,
-  DocumentsGetSummaryInputSchema,
-  DocumentsGetMetadataInputSchema,
-  DocumentsGetVersionsInputSchema,
-  DocumentsGetLockStateInputSchema,
-  WorkflowsGetStatusInputSchema,
-  WorkflowsGetPendingApprovalsInputSchema,
-  AuditGetRecentEventsInputSchema,
-  RetentionGetUpcomingExpiryInputSchema,
-  LegalHoldGetStatusInputSchema,
-  LicenseGetStatusInputSchema,
-  HelpSearchDocumentationInputSchema,
-  UiNavigateToInputSchema,
-  TourStartInputSchema,
   AdminGetHealthInputSchema,
   AdminGetSystemUsageInputSchema,
+  AuditGetRecentEventsInputSchema,
+  DocumentsGetLockStateInputSchema,
+  DocumentsGetMetadataInputSchema,
+  DocumentsGetSummaryInputSchema,
+  DocumentsGetVersionsInputSchema,
+  DocumentsSearchToolInputSchema,
+  HelpSearchDocumentationInputSchema,
+  LegalHoldGetStatusInputSchema,
+  LicenseGetStatusInputSchema,
+  RetentionGetUpcomingExpiryInputSchema,
+  TourStartInputSchema,
+  UiNavigateToInputSchema,
+  WorkflowsGetPendingApprovalsInputSchema,
+  WorkflowsGetStatusInputSchema,
 } from './ai';
 
 /**

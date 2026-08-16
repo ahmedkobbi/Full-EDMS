@@ -17,7 +17,7 @@
  * The main process NEVER imports or evaluates renderer code. It only manages
  * windows, IPC, native theme sync, file dialogs, and the auto-updater.
  */
-import { app, BrowserWindow, shell, session, nativeTheme } from 'electron';
+import { app, BrowserWindow, nativeTheme, session, shell } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { registerIpcHandlers } from './ipc.js';

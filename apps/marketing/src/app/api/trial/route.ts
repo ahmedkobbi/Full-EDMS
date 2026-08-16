@@ -15,7 +15,7 @@
  * envelope so the front-end form can show its confirmation state.
  */
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const TRIAL_SCHEMA = z.object({

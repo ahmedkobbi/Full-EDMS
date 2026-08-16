@@ -15,17 +15,17 @@
  * for 5 minutes."
  */
 import { useEffect, useState } from 'react';
-import { Modal, Stack, Text, PinInput, Button, Alert, Group } from '@mantine/core';
-import { ShieldCheck, CircleAlert } from 'lucide-react';
+import { Alert, Button, Group, Modal, PinInput, Stack, Text } from '@mantine/core';
+import { CircleAlert, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import {
   useAdminStepUpMutation,
 } from '../../api/hooks';
 import {
-  useAuthStore,
   selectHasStepUp,
   selectStepUpExpiresAt,
+  useAuthStore,
 } from '../../store/auth';
 
 interface StepUpModalProps {
@@ -71,7 +71,7 @@ export function StepUpModal({
   }, [opened, hasStepUp, onConfirmed, onClose]);
 
   const handleSubmit = async (): Promise<void> => {
-    if (code.length !== 6) return;
+    if (code.length !== 6) {return;}
     try {
       const res = await stepUpMutation.mutateAsync({ code });
       setStepUpToken(res.stepUpToken, res.expiresAt);

@@ -16,8 +16,8 @@
 
 import {
   createTheme,
-  type MantineThemeOverride,
   type MantineColorsTuple,
+  type MantineThemeOverride,
 } from '@mantine/core';
 
 /**

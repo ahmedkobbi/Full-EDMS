@@ -6,7 +6,7 @@
  * admin should take.
  */
 import { type ReactNode } from 'react';
-import { Box, Stack, Text, Group, type MantineColor } from '@mantine/core';
+import { Box, Group, type MantineColor, Stack, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 interface EmptyStateProps {

@@ -1,14 +1,14 @@
 import {
+  BadRequestException,
   Injectable,
   Logger,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Prisma } from '@prisma/client';
 import { AuditService } from '../audit/audit.service.js';
 import { LicenseSigner } from './license-signer.js';
-import type { IssueLicenseInput, RenewLicenseInput, RevokeLicenseInput, ListLicensesInput } from './dto.js';
+import type { IssueLicenseInput, ListLicensesInput, RenewLicenseInput, RevokeLicenseInput } from './dto.js';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { WebhookService } from '../webhook/webhook.service.js';
 

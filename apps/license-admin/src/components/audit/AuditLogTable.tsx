@@ -9,9 +9,9 @@
  * Spec ref: §12.1 (license audit log), §21.7 (logging & monitoring),
  * §24.2 (compliance — audit log integrity verification).
  */
-import { useMemo, useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
-import { Box, Button, Group, TextInput, Select, Badge, Alert } from '@mantine/core';
+import { Alert, Badge, Box, Button, Group, Select, TextInput } from '@mantine/core';
 import { RefreshCw, Search, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { LicenseAuditLog } from '@smart-edms/types';

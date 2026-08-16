@@ -7,13 +7,13 @@
  *  - base64url round-trip + rejection of invalid input.
  *  - constantTimeEqual truth table + length-mismatch safety.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  sha256,
-  randomToken,
-  base64urlEncode,
   base64urlDecode,
+  base64urlEncode,
   constantTimeEqual,
+  randomToken,
+  sha256,
 } from '../src/index.js';
 
 describe('crypto.sha256', () => {
@@ -48,7 +48,7 @@ describe('crypto.randomToken', () => {
 
   it('produces unique tokens', () => {
     const seen = new Set<string>();
-    for (let i = 0; i < 1000; i++) seen.add(randomToken(16));
+    for (let i = 0; i < 1000; i++) {seen.add(randomToken(16));}
     expect(seen.size).toBe(1000);
   });
 

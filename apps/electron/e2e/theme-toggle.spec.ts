@@ -9,7 +9,7 @@
  *   4. No flash of incorrect theme on startup (FOUC)
  *   5. Both light and dark themes are premium (no broken contrast)
  */
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Theme toggle (spec §4.7, §18)', () => {
   test('default theme follows system preference', async ({ browser }) => {

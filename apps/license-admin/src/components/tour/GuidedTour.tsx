@@ -13,10 +13,10 @@
  * The tour is intentionally simple — no animations, no SVG masks — because
  * the panel's audience is enterprise admins who value clarity over polish.
  */
-import { useEffect, useState, type CSSProperties } from 'react';
+import { type CSSProperties, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Box, Button, Group, Stack, Text, ActionIcon } from '@mantine/core';
-import { X, ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { ActionIcon, Box, Button, Group, Stack, Text } from '@mantine/core';
+import { ArrowLeft, ArrowRight, Check, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLocaleDirection } from '../../i18n/config';
 
@@ -158,7 +158,7 @@ export function GuidedTour(): React.ReactElement | null {
   // Start the tour automatically on first visit (after a brief delay so the
   // shell has rendered).
   useEffect(() => {
-    if (isTourCompleted()) return;
+    if (isTourCompleted()) {return;}
     const timer = window.setTimeout(() => {
       setState({ active: true, stepIndex: 0 });
     }, 800);
@@ -167,9 +167,9 @@ export function GuidedTour(): React.ReactElement | null {
 
   // Re-measure the target whenever the step changes or the window resizes.
   useEffect(() => {
-    if (!state.active) return;
+    if (!state.active) {return;}
     const step = STEPS[state.stepIndex];
-    if (!step) return;
+    if (!step) {return;}
     const measure = (): void => {
       const el = findTargetElement(step.target);
       if (el) {
@@ -186,10 +186,10 @@ export function GuidedTour(): React.ReactElement | null {
     };
   }, [state.active, state.stepIndex]);
 
-  if (!state.active) return null;
+  if (!state.active) {return null;}
 
   const step = STEPS[state.stepIndex];
-  if (!step) return null;
+  if (!step) {return null;}
 
   const isLast = state.stepIndex === STEPS.length - 1;
 

@@ -67,7 +67,7 @@ export class AdminJwtGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (isPublic) {return true;}
 
     const req = context.switchToHttp().getRequest<AdminAuthenticatedRequest>();
     const authHeader = req.headers.authorization;

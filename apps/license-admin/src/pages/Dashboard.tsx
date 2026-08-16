@@ -12,17 +12,17 @@
  *
  * Each card links to the relevant detail page.
  */
-import { Stack, SimpleGrid, Card, Group, Text, ThemeIcon, ActionIcon, Skeleton, Alert } from '@mantine/core';
+import { ActionIcon, Alert, Card, Group, SimpleGrid, Skeleton, Stack, Text, ThemeIcon } from '@mantine/core';
 import {
-  FileCheck,
-  Clock4,
-  Bolt,
-  Users,
-  Flame,
-  TrendingUp,
-  ListChecks,
-  ExternalLink,
   Activity,
+  Bolt,
+  Clock4,
+  ExternalLink,
+  FileCheck,
+  Flame,
+  ListChecks,
+  TrendingUp,
+  Users,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

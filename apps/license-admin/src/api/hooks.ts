@@ -22,20 +22,25 @@
  *  - §12.10 admin panel requirements
  */
 import {
-  useQuery,
   useMutation,
+  type UseMutationOptions,
+  useQuery,
   useQueryClient,
   type UseQueryOptions,
-  type UseMutationOptions,
 } from '@tanstack/react-query';
-import { apiGet, apiPost, apiPatch, apiDelete, apiGetBlob } from './client';
+import { apiDelete, apiGet, apiGetBlob, apiPatch, apiPost } from './client';
 import type {
+  Activation,
   ApiKey,
   Contact,
   Customer,
+  Device,
+  EntitlementModule,
   Heartbeat,
   License,
   LicenseAuditLog,
+  LicenseEnvironment,
+  LicenseType,
   OfflineActivationCertificate,
   OfflineActivationRequest,
   Plan,
@@ -43,11 +48,6 @@ import type {
   SigningKey,
   Trial,
   Webhook,
-  Activation,
-  Device,
-  EntitlementModule,
-  LicenseType,
-  LicenseEnvironment,
 } from '@smart-edms/types';
 
 // ---------------------------------------------------------------------------

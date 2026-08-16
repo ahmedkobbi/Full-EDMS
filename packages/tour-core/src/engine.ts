@@ -147,7 +147,7 @@ export class TourEngine {
    * No-op if no tour is active or if the tour is no longer `in_progress`.
    */
   next(context: TourContext = DEFAULT_CONTEXT): void {
-    if (this.state.status !== 'in_progress') return;
+    if (this.state.status !== 'in_progress') {return;}
     const nextIdx = this.computeNextAvailableStep(this.state.currentIndex + 1, context);
     if (nextIdx === -1) {
       this.complete();
@@ -164,8 +164,8 @@ export class TourEngine {
    * No-op if no tour is active or if the tour is no longer `in_progress`.
    */
   previous(): void {
-    if (this.state.status !== 'in_progress') return;
-    if (this.state.currentIndex <= 0) return;
+    if (this.state.status !== 'in_progress') {return;}
+    if (this.state.currentIndex <= 0) {return;}
     this.state = { ...this.state, currentIndex: this.state.currentIndex - 1 };
   }
 
@@ -174,7 +174,7 @@ export class TourEngine {
    * is responsible for persisting the skipped status to the backend.
    */
   skip(): void {
-    if (this.state.status !== 'in_progress') return;
+    if (this.state.status !== 'in_progress') {return;}
     this.state = { ...this.state, status: 'skipped', endedAt: this.now() };
   }
 
@@ -183,7 +183,7 @@ export class TourEngine {
    * is responsible for persisting the completed status to the backend.
    */
   complete(): void {
-    if (this.state.status !== 'in_progress') return;
+    if (this.state.status !== 'in_progress') {return;}
     this.state = { ...this.state, status: 'completed', endedAt: this.now() };
   }
 
@@ -192,7 +192,7 @@ export class TourEngine {
    * `doNotShowAgain` (the user checked "don't show this again").
    */
   dismiss(doNotShowAgain: boolean = false): void {
-    if (this.state.status !== 'in_progress') return;
+    if (this.state.status !== 'in_progress') {return;}
     this.state = {
       ...this.state,
       status: 'dismissed',
@@ -212,7 +212,7 @@ export class TourEngine {
 
   /** Return the current step, or `null` if no tour is active. */
   getCurrentStep(): TourStep | null {
-    if (this.state.status !== 'in_progress') return null;
+    if (this.state.status !== 'in_progress') {return null;}
     return this.state.steps[this.state.currentIndex] ?? null;
   }
 
@@ -234,7 +234,7 @@ export class TourEngine {
    * clamped to `[0, 100]`.
    */
   getProgress(): TourProgressSnapshot | null {
-    if (!this.state.tour) return null;
+    if (!this.state.tour) {return null;}
     const total = this.state.steps.length;
     const currentStepOrder = this.state.currentIndex + 1;
     const percent = total === 0 ? 0 : Math.min(100, Math.max(0, Math.round((currentStepOrder / total) * 100)));
@@ -292,10 +292,10 @@ export class TourEngine {
    * Used by `next()` to skip unavailable steps safely (spec §10.9).
    */
   computeNextAvailableStep(fromIndex: number, context: TourContext): number {
-    if (fromIndex < 0) fromIndex = 0;
+    if (fromIndex < 0) {fromIndex = 0;}
     for (let i = fromIndex; i < this.state.steps.length; i++) {
       const step = this.state.steps[i];
-      if (!step) continue;
+      if (!step) {continue;}
       if (this.shouldShowStep(step, context).shouldShow) {
         return i;
       }

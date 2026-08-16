@@ -17,24 +17,24 @@
  */
 import { useState } from 'react';
 import {
-  Stack, Title, Text, Group, Button, Paper, Tabs, Badge, Table, Textarea,
-  ActionIcon, ThemeIcon, Divider, LoadingOverlay, TextInput,
-  SimpleGrid, Menu, Code,
+  ActionIcon, Badge, Button, Code, Divider, Group, LoadingOverlay, Menu, Paper, SimpleGrid,
+  Stack, Table, Tabs, Text, Textarea,
+  TextInput, ThemeIcon, Title,
 } from '@mantine/core';
 import {
-  IconArrowLeft, IconDownload, IconLock, IconLockOpen, IconShare, IconTrash,
-  IconHistory, IconMessageCircle, IconTag, IconFileInfo, IconShieldCheck,
-  IconRefresh, IconPlus, IconDots,
+  IconArrowLeft, IconDots, IconDownload, IconFileInfo, IconHistory, IconLock,
+  IconLockOpen, IconMessageCircle, IconPlus, IconRefresh, IconShare,
+  IconShieldCheck, IconTag, IconTrash,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  useDocumentQuery, useDeleteDocumentMutation, useDocumentVersionsQuery,
-  useDocumentCommentsQuery, useCreateCommentMutation, useDocumentTagsQuery,
-  useAddTagMutation, useLockDocumentMutation, useUnlockDocumentMutation,
-  useRestoreVersionMutation, useDeclareRecordMutation,
+  useAddTagMutation, useCreateCommentMutation, useDeclareRecordMutation,
+  useDeleteDocumentMutation, useDocumentCommentsQuery, useDocumentQuery,
+  useDocumentTagsQuery, useDocumentVersionsQuery, useLockDocumentMutation,
+  useRestoreVersionMutation, useUnlockDocumentMutation,
 } from '../api/hooks';
-import { LoadingState, ErrorState, EmptyState, LocaleAwareDate } from '@smart-edms/ui';
+import { EmptyState, ErrorState, LoadingState, LocaleAwareDate } from '@smart-edms/ui';
 import { ClassificationBanner } from '../components/common/ClassificationBanner';
 
 export function DocumentDetailPage() {
@@ -51,9 +51,9 @@ export function DocumentDetailPage() {
 
   const doc = docQuery.data as any;
 
-  if (docQuery.isLoading) return <LoadingState variant="skeleton" />;
-  if (docQuery.isError) return <ErrorState error={docQuery.error} titleKey="errors.NOT_FOUND" messageKey="document.notFound" onRetry={() => docQuery.refetch()} />;
-  if (!doc) return null;
+  if (docQuery.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (docQuery.isError) {return <ErrorState error={docQuery.error} titleKey="errors.NOT_FOUND" messageKey="document.notFound" onRetry={() => docQuery.refetch()} />;}
+  if (!doc) {return null;}
 
   return (
     <Stack gap="md" data-tour-page="document-detail">
@@ -214,7 +214,7 @@ function VersionsTab({ documentId }: { documentId: string }) {
                     leftSection={<IconHistory size={12} aria-hidden="true" />}
                     onClick={() => {
                       const reason = prompt(t('document.version.restoreReason', { defaultValue: 'Reason for restore:' }));
-                      if (reason) restoreVersion.mutate({ versionId: v.id, reason });
+                      if (reason) {restoreVersion.mutate({ versionId: v.id, reason });}
                     }}
                     loading={restoreVersion.isPending}
                   >
@@ -240,7 +240,7 @@ function CommentsTab({ documentId }: { documentId: string }) {
   const comments = (commentsQuery.data ?? []) as any[];
 
   const handleSubmit = () => {
-    if (!newComment.trim()) return;
+    if (!newComment.trim()) {return;}
     createComment.mutate({ body: newComment }, {
       onSuccess: () => setNewComment(''),
     });
@@ -301,7 +301,7 @@ function TagsTab({ documentId }: { documentId: string }) {
   const tags = tagsQuery.data?.tags ?? [];
 
   const handleAdd = () => {
-    if (!newTag.trim()) return;
+    if (!newTag.trim()) {return;}
     addTag.mutate(newTag.trim(), { onSuccess: () => setNewTag('') });
   };
 
@@ -313,7 +313,7 @@ function TagsTab({ documentId }: { documentId: string }) {
             placeholder={t('document.tags.placeholder', { defaultValue: 'Add tag…' })}
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleAdd(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter') {handleAdd();} }}
             size="sm"
           />
           <Button size="sm" onClick={handleAdd} loading={addTag.isPending} leftSection={<IconPlus size={12} aria-hidden="true" />}>
@@ -376,7 +376,7 @@ function MetadataTab({ doc }: { doc: any }) {
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) {return '0 B';}
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));

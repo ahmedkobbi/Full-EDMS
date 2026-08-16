@@ -54,7 +54,7 @@ const serverInstances = new Map<MandatoryLocaleCode, I18nInstance>();
  */
 export function getServerI18n(locale: MandatoryLocaleCode): I18nInstance {
   let instance = serverInstances.get(locale);
-  if (instance) return instance;
+  if (instance) {return instance;}
   instance = i18next.createInstance();
   instance.init({
     resources: bundledResources as unknown as Parameters<typeof i18next.init>[0]['resources'],

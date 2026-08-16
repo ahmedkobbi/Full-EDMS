@@ -12,7 +12,7 @@
  * set to the ISO string; the visual order follows the document direction.
  */
 
-import { type ReactElement, useMemo, type CSSProperties } from 'react';
+import { type CSSProperties, type ReactElement, useMemo } from 'react';
 import { Text, type TextProps } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import {

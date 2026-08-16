@@ -106,13 +106,13 @@ const PLURAL_CATEGORY_NAMES = new Set([
  * whose keys are plural-category names and whose values are strings).
  */
 function isPluralRule(obj: unknown): boolean {
-  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return false;
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {return false;}
   const rec = obj as Record<string, unknown>;
   const keys = Object.keys(rec);
-  if (keys.length === 0) return false;
+  if (keys.length === 0) {return false;}
   // At least one key must be a plural category, and all values must be strings.
   const allStrings = Object.values(rec).every((v) => typeof v === 'string');
-  if (!allStrings) return false;
+  if (!allStrings) {return false;}
   // Require at least `other` OR at least one of the standard categories.
   return keys.some((k) => PLURAL_CATEGORY_NAMES.has(k));
 }
@@ -130,8 +130,8 @@ function flattenKeys(
   prefix: string = '',
 ): readonly string[] {
   const out: string[] = [];
-  if (obj === null || obj === undefined) return out;
-  if (typeof obj !== 'object') return out;
+  if (obj === null || obj === undefined) {return out;}
+  if (typeof obj !== 'object') {return out;}
   for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
     const path = prefix ? `${prefix}.${key}` : key;
     if (isPluralRule(value)) {
@@ -161,13 +161,13 @@ function validateInterpolation(value: string): boolean {
   let depth = 0;
   for (let i = 0; i < value.length; i++) {
     const c = value[i];
-    if (c === '{') depth++;
+    if (c === '{') {depth++;}
     else if (c === '}') {
       depth--;
-      if (depth < 0) return false;
+      if (depth < 0) {return false;}
     }
   }
-  if (depth !== 0) return false;
+  if (depth !== 0) {return false;}
 
   // Now check that `{{...}}` interpolations have non-empty content.
   // Match `{{ ... }}` where `...` doesn't contain `}}`.
@@ -175,7 +175,7 @@ function validateInterpolation(value: string): boolean {
   let m: RegExpExecArray | null;
   while ((m = re.exec(value)) !== null) {
     const inner = m[1].trim();
-    if (!inner) return false;
+    if (!inner) {return false;}
     // If the inner content looks like an ICU expression (e.g. `count, plural, ...`),
     // it's likely a misplaced `{{` that should be `{`. Flag it.
     if (/^[a-zA-Z_][a-zA-Z0-9_]*,\s*(plural|select|selectordinal|date|time|number|duration),/.test(inner)) {
@@ -193,10 +193,10 @@ function extractStrings(obj: unknown, path: string): readonly string[] {
   const parts = path.split('.');
   let cur: unknown = obj;
   for (const p of parts) {
-    if (cur === null || typeof cur !== 'object') return [];
+    if (cur === null || typeof cur !== 'object') {return [];}
     cur = (cur as Record<string, unknown>)[p];
   }
-  if (typeof cur === 'string') return [cur];
+  if (typeof cur === 'string') {return [cur];}
   if (cur !== null && typeof cur === 'object') {
     return Object.values(cur).filter((v): v is string => typeof v === 'string');
   }
@@ -221,7 +221,7 @@ function checkPlural(
   const parts = path.split('.');
   let cur: unknown = obj;
   for (const p of parts) {
-    if (cur === null || typeof cur !== 'object') return issues;
+    if (cur === null || typeof cur !== 'object') {return issues;}
     cur = (cur as Record<string, unknown>)[p];
   }
   if (cur !== null && typeof cur === 'object' && !Array.isArray(cur)) {
@@ -272,7 +272,7 @@ function reportForLocale(locale: LocaleCode): LocaleReport {
   const invalidInterpolationKeys: string[] = [];
   const pluralIssues: string[] = [];
   for (const key of baselineKeys) {
-    if (!targetKeys.has(key)) continue;
+    if (!targetKeys.has(key)) {continue;}
     const strings = extractStrings(target, key);
     for (const s of strings) {
       if (!validateInterpolation(s)) {
@@ -320,14 +320,14 @@ function parseArgs(argv: readonly string[]): { locale?: LocaleCode; strict: bool
       strict = true;
     } else if (arg.startsWith('--locale=')) {
       const v = arg.slice('--locale='.length) as LocaleCode;
-      if (ALL_LOCALES.includes(v)) locale = v;
+      if (ALL_LOCALES.includes(v)) {locale = v;}
     }
   }
   return { locale, strict };
 }
 
 function formatPercent(n: number, total: number): string {
-  if (total === 0) return '100%';
+  if (total === 0) {return '100%';}
   return `${(((total - n) / total) * 100).toFixed(1)}%`;
 }
 

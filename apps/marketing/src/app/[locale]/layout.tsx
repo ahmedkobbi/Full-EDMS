@@ -6,10 +6,10 @@ import { Footer } from '../../components/layout/Footer';
 import { ClientProviders } from '../../components/layout/ClientProviders';
 import { getServerI18n } from '../../i18n/config';
 import {
+  DEFAULT_LOCALE,
+  htmlLang,
   isSupportedLocale,
   localeDirection,
-  htmlLang,
-  DEFAULT_LOCALE,
 } from '../../lib/locales';
 import { buildPageMetadata } from '../../lib/seo';
 

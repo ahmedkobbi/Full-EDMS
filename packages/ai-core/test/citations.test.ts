@@ -7,7 +7,7 @@
  *  - The output array is frozen (immutable).
  *  - Empty input produces empty output.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { buildCitations, type CitationInput } from '../src/index.js';
 import type { DocumentId, UUID } from '@smart-edms/types';
 

@@ -14,20 +14,20 @@
  */
 import { useState } from 'react';
 import {
-  Stack, Title, Text, Tabs, Paper, Group, Button, TextInput, PasswordInput,
-  Select, SegmentedControl, Switch, Badge, Table, ActionIcon, Code,
-  Alert, ThemeIcon, Modal, LoadingOverlay,
+  ActionIcon, Alert, Badge, Button, Code, Group, LoadingOverlay, Modal, Paper,
+  PasswordInput, SegmentedControl, Select, Stack, Switch, Table, Tabs,
+  Text, TextInput, ThemeIcon, Title,
 } from '@mantine/core';
-import { useForm, hasLength, matchesField, isNotEmpty } from '@mantine/form';
-import { IconSettings, IconShieldCheck, IconBell, IconKey, IconTrash, IconCheck, IconAlertCircle } from '@tabler/icons-react';
+import { hasLength, isNotEmpty, matchesField, useForm } from '@mantine/form';
+import { IconAlertCircle, IconBell, IconCheck, IconKey, IconSettings, IconShieldCheck, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useThemeStore } from '../store/theme';
 import type { ThemePreference } from '@smart-edms/types';
 import { LanguageSwitcher } from '../i18n/LanguageSwitcher';
 import {
-  useCurrentUser, useSessionsQuery, useRevokeSessionMutation, useRevokeAllSessionsMutation,
-  useChangePasswordMutation, useStartMfaEnrollmentMutation, useConfirmMfaEnrollmentMutation,
-  useNotificationPreferencesQuery, useUpdateNotificationPreferencesMutation,
+  useChangePasswordMutation, useConfirmMfaEnrollmentMutation, useCurrentUser, useNotificationPreferencesQuery,
+  useRevokeAllSessionsMutation, useRevokeSessionMutation, useSessionsQuery,
+  useStartMfaEnrollmentMutation, useUpdateNotificationPreferencesMutation,
 } from '../api/hooks';
 import { LocaleAwareDate } from '@smart-edms/ui';
 

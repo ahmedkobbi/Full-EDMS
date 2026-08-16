@@ -6,14 +6,14 @@
  * Revoking an API key requires step-up authentication.
  */
 import {
+  Badge,
   Box,
   Button,
+  Code,
   Group,
   Table,
-  Badge,
-  Code,
 } from '@mantine/core';
-import { RefreshCw, Plus, Trash2 } from 'lucide-react';
+import { Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
@@ -51,8 +51,8 @@ export function ApiKeyTable({ onCreate, customerId: customerIdProp }: ApiKeyTabl
     );
   }
 
-  if (query.isLoading) return <LoadingState variant="skeleton" />;
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
+  if (query.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (query.isError) {return <ErrorState error={query.error} onRetry={() => query.refetch()} />;}
 
   const keys = query.data ?? [];
 
@@ -76,7 +76,7 @@ export function ApiKeyTable({ onCreate, customerId: customerIdProp }: ApiKeyTabl
   }
 
   const handleRevoke = (id: string): void => {
-    if (!window.confirm(t('admin:apiKeys.revoke.confirm'))) return;
+    if (!window.confirm(t('admin:apiKeys.revoke.confirm'))) {return;}
     // Step-up auth required for API key revocation.
     requestStepUp(
       async () => {

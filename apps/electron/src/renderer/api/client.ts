@@ -18,7 +18,7 @@ import axios, {
   type AxiosRequestConfig,
   type InternalAxiosRequestConfig,
 } from 'axios';
-import type { ApiError, ApiEnvelope } from '@smart-edms/types';
+import type { ApiEnvelope, ApiError } from '@smart-edms/types';
 
 const BASE_URL =
   (import.meta.env.VITE_BACKEND_URL as string | undefined) ?? 'http://localhost:4000';
@@ -71,7 +71,7 @@ export function setTokenProvider(provider: TokenProvider): void {
  */
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const provider = tokenProvider;
-  if (!provider) return config;
+  if (!provider) {return config;}
 
   const token = provider.getAccessToken();
   if (token) {
@@ -94,11 +94,11 @@ let refreshPromise: Promise<string | null> | null = null;
  * access token or null if the refresh failed.
  */
 async function refreshAccessToken(): Promise<string | null> {
-  if (refreshPromise) return refreshPromise;
+  if (refreshPromise) {return refreshPromise;}
   const provider = tokenProvider;
-  if (!provider) return null;
+  if (!provider) {return null;}
   const refreshToken = provider.getRefreshToken();
-  if (!refreshToken) return null;
+  if (!refreshToken) {return null;}
 
   refreshPromise = (async () => {
     try {

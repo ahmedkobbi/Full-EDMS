@@ -7,8 +7,8 @@
  * locale.
  */
 import { type ReactNode } from 'react';
-import { Stack, Text, Button, Group, Box } from '@mantine/core';
-import { TriangleAlert, RefreshCw } from 'lucide-react';
+import { Box, Button, Group, Stack, Text } from '@mantine/core';
+import { RefreshCw, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toServerError } from '../../api/client';
 

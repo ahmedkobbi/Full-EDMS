@@ -70,8 +70,8 @@ export const workflowsStatusTool: ToolDefinition<
       }
       // Tenant-scoped query — never trust the IDs alone.
       const where: Record<string, unknown> = { tenantId: ctx.tenantId };
-      if (input.workflowInstanceId) where.id = input.workflowInstanceId;
-      if (input.documentId) where.documentId = input.documentId;
+      if (input.workflowInstanceId) {where.id = input.workflowInstanceId;}
+      if (input.documentId) {where.documentId = input.documentId;}
 
       const rows = await ctx.prisma.workflowInstance.findMany({
         where: where as never,

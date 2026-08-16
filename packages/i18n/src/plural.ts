@@ -66,7 +66,7 @@ export function pickPlural(
   // Last resort: first available entry
   for (const key of Object.keys(message) as PluralCategory[]) {
     const v = message[key];
-    if (v !== undefined) return v;
+    if (v !== undefined) {return v;}
   }
   return '';
 }

@@ -12,10 +12,10 @@
  * is running, jobs accumulate in Redis until one comes online.
  */
 
-import { Module, OnModuleDestroy, OnModuleInit, Logger } from '@nestjs/common';
+import { Logger, Module, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { Worker } from 'bullmq';
 import { WorkflowController, WorkflowInstanceController } from './workflow.controller';
-import { WorkflowService, WORKFLOW_QUEUE_NAME } from './workflow.service';
+import { WORKFLOW_QUEUE_NAME, WorkflowService } from './workflow.service';
 import { RedisService } from '../../common/redis.service';
 
 @Module({

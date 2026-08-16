@@ -20,9 +20,9 @@
  * the default flag emoji (country flag) from the LOCALES metadata.
  */
 
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useMantineTheme, VisuallyHidden } from '@mantine/core';
-import { LOCALES, type LocaleMeta, type MandatoryLocaleCode } from '@smart-edms/i18n';
+import { type LocaleMeta, LOCALES, type MandatoryLocaleCode } from '@smart-edms/i18n';
 
 interface LanguageSwitcherProps {
   readonly currentLocale: MandatoryLocaleCode;
@@ -36,8 +36,8 @@ interface LanguageSwitcherProps {
  */
 function stripLocale(pathname: string, locale: MandatoryLocaleCode): string {
   const prefix = `/${locale}`;
-  if (pathname === prefix || pathname === `${prefix}/`) return '';
-  if (pathname.startsWith(prefix + '/')) return pathname.slice(prefix.length);
+  if (pathname === prefix || pathname === `${prefix}/`) {return '';}
+  if (pathname.startsWith(prefix + '/')) {return pathname.slice(prefix.length);}
   return pathname;
 }
 
@@ -51,7 +51,7 @@ export function LanguageSwitcher({
   const theme = useMantineTheme();
 
   const handleChange = (next: MandatoryLocaleCode) => {
-    if (next === currentLocale) return;
+    if (next === currentLocale) {return;}
     const remainder = stripLocale(pathname, currentLocale);
     const target = `/${next}${remainder}`;
     router.push(target);

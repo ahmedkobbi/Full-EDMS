@@ -13,9 +13,9 @@
  *  - The drag-and-drop area announces its state to screen readers.
  *  - The error message is announced via `aria-live="assertive"`.
  */
-import { useState, useCallback, type DragEvent } from 'react';
-import { Modal, Stack, Text, Button, Group, Alert, FileButton } from '@mantine/core';
-import { Upload, FileCheck, AlertCircle } from 'lucide-react';
+import { type DragEvent, useCallback, useState } from 'react';
+import { Alert, Button, FileButton, Group, Modal, Stack, Text } from '@mantine/core';
+import { AlertCircle, FileCheck, Upload } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { parseSedmslic, SEDMSLIC_MIME } from '@smart-edms/license-core';
@@ -49,7 +49,7 @@ export function LicenseImportModal({ opened, onClose }: LicenseImportModalProps)
   const handleFile = useCallback(
     async (file: File | null) => {
       setParseError(null);
-      if (!file) return;
+      if (!file) {return;}
       setSelectedFile(file);
 
       // Client-side parse + signature verification. Fails closed.

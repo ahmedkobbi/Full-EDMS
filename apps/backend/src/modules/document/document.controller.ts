@@ -42,22 +42,22 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 import { DocumentService } from './document.service';
 import {
+  type DocumentListQuery,
   DocumentListQuerySchema,
+  type LockDocumentBody,
   LockDocumentBodySchema,
+  type RestoreVersionBody,
   RestoreVersionBodySchema,
+  type ShareDocumentBody,
   ShareDocumentBodySchema,
+  type UpdateDocumentBody,
   UpdateDocumentBodySchema,
   UploadChunkFieldsSchema,
+  type UploadCompleteBody,
   UploadCompleteBodySchema,
+  type UploadInitBody,
   UploadInitBodySchema,
   VersionListQuerySchema,
-  type DocumentListQuery,
-  type LockDocumentBody,
-  type RestoreVersionBody,
-  type ShareDocumentBody,
-  type UpdateDocumentBody,
-  type UploadCompleteBody,
-  type UploadInitBody,
 } from './dto';
 
 @Controller('v1/documents')
@@ -95,7 +95,7 @@ export class DocumentController {
   }> {
     // Fastify multipart: parse the request manually.
     const parts = (req as unknown as { parts(): AsyncIterable<unknown> }).parts();
-    let fields: Record<string, string> = {};
+    const fields: Record<string, string> = {};
     let chunkStream: NodeJS.ReadableStream | null = null;
 
     for await (const part of parts as AsyncIterable<

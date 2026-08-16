@@ -77,7 +77,7 @@ export function setTokenProvider(provider: TokenProvider): void {
  */
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const provider = tokenProvider;
-  if (!provider) return config;
+  if (!provider) {return config;}
 
   const token = provider.getAccessToken();
   if (token) {
@@ -100,11 +100,11 @@ apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 let refreshPromise: Promise<string | null> | null = null;
 
 async function refreshAccessToken(): Promise<string | null> {
-  if (refreshPromise) return refreshPromise;
+  if (refreshPromise) {return refreshPromise;}
   const provider = tokenProvider;
-  if (!provider) return null;
+  if (!provider) {return null;}
   const refreshToken = provider.getRefreshToken();
-  if (!refreshToken) return null;
+  if (!refreshToken) {return null;}
 
   refreshPromise = (async () => {
     try {

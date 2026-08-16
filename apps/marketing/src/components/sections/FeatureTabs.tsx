@@ -14,27 +14,27 @@
  * Client component because tabs require interactive state.
  */
 
-import { useState, type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import {
   Box,
   Container,
-  Title,
-  Text,
-  Tabs,
-  ThemeIcon,
   Stack,
+  Tabs,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
 import {
-  FileText,
-  Workflow,
-  ShieldCheck,
-  Search,
-  Tag,
   Archive,
   Bot,
   Compass,
-  ScanLine,
+  FileText,
   type LucideIcon,
+  ScanLine,
+  Search,
+  ShieldCheck,
+  Tag,
+  Workflow,
 } from 'lucide-react';
 
 interface FeatureTabsProps {

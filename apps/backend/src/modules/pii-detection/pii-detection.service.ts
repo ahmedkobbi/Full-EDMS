@@ -102,9 +102,9 @@ export class PiiDetectionService {
         versions: { where: { id: versionId }, take: 1 },
       },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     const version = doc.versions[0];
-    if (!version) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!version) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // Combine all text fields for scanning
     const textToScan = `${doc.title} ${doc.description ?? ''}`;
@@ -135,11 +135,11 @@ export class PiiDetectionService {
 
     // Suggest classification based on risk score
     let suggestedClassification: PiiDetection['suggestedClassification'];
-    if (overallRiskScore >= 0.8) suggestedClassification = 'highly-sensitive';
-    else if (overallRiskScore >= 0.6) suggestedClassification = 'restricted';
-    else if (overallRiskScore >= 0.4) suggestedClassification = 'confidential';
-    else if (overallRiskScore >= 0.2) suggestedClassification = 'internal';
-    else suggestedClassification = 'public';
+    if (overallRiskScore >= 0.8) {suggestedClassification = 'highly-sensitive';}
+    else if (overallRiskScore >= 0.6) {suggestedClassification = 'restricted';}
+    else if (overallRiskScore >= 0.4) {suggestedClassification = 'confidential';}
+    else if (overallRiskScore >= 0.2) {suggestedClassification = 'internal';}
+    else {suggestedClassification = 'public';}
 
     const result: PiiDetection = {
       documentId,
@@ -186,7 +186,7 @@ export class PiiDetectionService {
       where: { id: documentId, tenantId },
       include: { versions: { orderBy: { versionNumber: 'desc' }, take: 1 } },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     const version = doc.versions[0];
     if (!version || !version.checksum) {
       return { duplicates: [], checkedAt: new Date().toISOString() };
@@ -243,7 +243,7 @@ export class PiiDetectionService {
     const doc = await this.prisma.document.findFirst({
       where: { id: documentId, tenantId },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const suggestions: Array<{ field: string; value: string; confidence: number; reason: string }> = [];
     const titleLower = (doc.title + ' ' + (doc.description ?? '')).toLowerCase();

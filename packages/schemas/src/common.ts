@@ -31,8 +31,8 @@ import type {
   ISODateString,
   JsonValue,
   Locale,
-  Timezone,
   MessageKey,
+  Timezone,
   UUID,
 } from '@smart-edms/types';
 

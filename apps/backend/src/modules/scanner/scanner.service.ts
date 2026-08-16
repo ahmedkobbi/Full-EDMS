@@ -92,7 +92,7 @@ export class ScannerService {
 
   async updateJobProgress(tenantId: string, jobId: string, delta: { processed?: number; failed?: number; confidenceScore?: number }) {
     const job = await this.prisma.scannerJob.findFirst({ where: { id: jobId, tenantId } });
-    if (!job) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!job) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return this.prisma.scannerJob.update({
       where: { id: jobId },
       data: {

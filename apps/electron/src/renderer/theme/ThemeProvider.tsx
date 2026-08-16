@@ -22,8 +22,8 @@
  * attribute is set. Logical CSS properties (ms-, me-, ps-, pe-, start-,
  * end-) are used everywhere in the renderer so no extra plugin is needed.
  */
-import { useEffect, type ReactNode } from 'react';
-import { MantineProvider, type MantineColorScheme } from '@mantine/core';
+import { type ReactNode, useEffect } from 'react';
+import { type MantineColorScheme, MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { DatesProvider } from '@mantine/dates';
@@ -116,7 +116,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   // Listen for OS-level theme changes.
   useEffect(() => {
-    if (!window.smartEdms?.onNativeThemeChange) return;
+    if (!window.smartEdms?.onNativeThemeChange) {return;}
     const unsubscribe = window.smartEdms.onNativeThemeChange(() => {
       // OS preference changed. The matchMedia listener above handles
       // updating the resolved scheme when the user preference is `system`.

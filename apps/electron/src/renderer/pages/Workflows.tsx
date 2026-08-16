@@ -11,21 +11,21 @@
  * Spec ref: §9.8 (workflows, approvals, BPMN/CMMN/DMN).
  */
 import {
-  Stack,
-  Title,
-  Text,
-  Group,
+  Badge,
   Button,
+  Card,
+  Group,
+  LoadingOverlay,
   Paper,
   SimpleGrid,
-  Card,
-  Badge,
+  Stack,
   Table,
-  ThemeIcon,
-  LoadingOverlay,
   Tabs,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
-import { Plus, Workflow, RefreshCw, Clock } from 'lucide-react';
+import { Clock, Plus, RefreshCw, Workflow } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useWorkflowDefinitionsQuery, useWorkflowInstancesQuery } from '../api/hooks';
 import { ErrorState } from '@smart-edms/ui';

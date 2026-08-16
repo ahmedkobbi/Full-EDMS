@@ -30,17 +30,17 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Queue } from 'bullmq';
-import { randomUUID, createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../common/audit.service';
 import { RedisService } from '../../common/redis.service';
 import {
   computeApprovalAttestation,
   computeInitialStep,
-  routeNext,
   type EngineDefinition,
   type EngineInstance,
   type EngineStep,
+  routeNext,
 } from './workflow-engine';
 import type {
   CancelInstanceBody,
@@ -224,10 +224,10 @@ export class WorkflowService {
     readonly nextCursor: string | null;
   }> {
     const where: Prisma.WorkflowDefinitionWhereInput = { tenantId };
-    if (query.status) where.status = query.status;
-    if (query.modelKind) where.modelKind = query.modelKind.toUpperCase() as 'BPMN' | 'CMMN' | 'DMN';
-    if (query.code) where.code = query.code;
-    if (!query.includeAiDrafts) where.isAiDraft = false;
+    if (query.status) {where.status = query.status;}
+    if (query.modelKind) {where.modelKind = query.modelKind.toUpperCase() as 'BPMN' | 'CMMN' | 'DMN';}
+    if (query.code) {where.code = query.code;}
+    if (!query.includeAiDrafts) {where.isAiDraft = false;}
 
     const limit = query.limit;
     let cursorClause: Prisma.WorkflowDefinitionWhereUniqueInput | undefined;
@@ -305,7 +305,7 @@ export class WorkflowService {
     const def = await this.prisma.workflowDefinition.findFirst({
       where: { id, tenantId },
     });
-    if (!def) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!def) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     return {
       id: def.id,
@@ -336,7 +336,7 @@ export class WorkflowService {
       where: { id, tenantId },
       select: { id: true, status: true, isAiDraft: true, definitionJson: true },
     });
-    if (!def) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!def) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (def.status !== 'DRAFT') {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',
@@ -345,11 +345,11 @@ export class WorkflowService {
     }
 
     const data: Prisma.WorkflowDefinitionUpdateInput = {};
-    if (body.name !== undefined) data.name = body.name;
-    if (body.description !== undefined) data.description = body.description;
-    if (body.bpmnXml !== undefined) data.bpmnXml = body.bpmnXml;
-    if (body.cmmnXml !== undefined) data.cmmnXml = body.cmmnXml;
-    if (body.dmnTableXml !== undefined) data.dmnTableXml = body.dmnTableXml;
+    if (body.name !== undefined) {data.name = body.name;}
+    if (body.description !== undefined) {data.description = body.description;}
+    if (body.bpmnXml !== undefined) {data.bpmnXml = body.bpmnXml;}
+    if (body.cmmnXml !== undefined) {data.cmmnXml = body.cmmnXml;}
+    if (body.dmnTableXml !== undefined) {data.dmnTableXml = body.dmnTableXml;}
     if (body.steps !== undefined) {
       data.definitionJson = {
         steps: body.steps.map((s) => ({
@@ -417,7 +417,7 @@ export class WorkflowService {
       where: { id, tenantId },
       select: { id: true, status: true, isAiDraft: true, definitionJson: true, code: true, version: true },
     });
-    if (!def) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!def) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (def.status !== 'DRAFT') {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',
@@ -634,9 +634,9 @@ export class WorkflowService {
     readonly nextCursor: string | null;
   }> {
     const where: Prisma.WorkflowInstanceWhereInput = { tenantId };
-    if (query.status) where.status = query.status;
-    if (query.documentId) where.documentId = query.documentId;
-    if (query.definitionId) where.definitionId = query.definitionId;
+    if (query.status) {where.status = query.status;}
+    if (query.documentId) {where.documentId = query.documentId;}
+    if (query.definitionId) {where.definitionId = query.definitionId;}
     if (query.assigneeId) {
       where.steps = { some: { assigneeId: query.assigneeId } };
     }
@@ -731,7 +731,7 @@ export class WorkflowService {
         approvals: { orderBy: { createdAt: 'desc' } },
       },
     });
-    if (!inst) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!inst) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     return {
       id: inst.id,
@@ -784,7 +784,7 @@ export class WorkflowService {
       where: { id: instanceId, tenantId },
       include: { steps: { orderBy: { startedAt: 'asc' } }, definition: true },
     });
-    if (!inst) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!inst) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (inst.status !== 'RUNNING' && inst.status !== 'PENDING') {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',
@@ -1091,7 +1091,7 @@ export class WorkflowService {
       where: { id: instanceId, tenantId },
       select: { id: true, status: true },
     });
-    if (!inst) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!inst) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (inst.status === 'COMPLETED' || inst.status === 'CANCELLED' || inst.status === 'REJECTED') {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',

@@ -13,10 +13,10 @@
 
 import { z } from 'zod';
 import {
+  ApprovalDecisionSchema,
+  SignatureKindSchema,
   WorkflowModelKindSchema,
   WorkflowStepAssigneeSchema,
-  SignatureKindSchema,
-  ApprovalDecisionSchema,
 } from '@smart-edms/schemas';
 
 // ---------------------------------------------------------------------------
@@ -64,9 +64,9 @@ export const CreateWorkflowBodySchema = z
   .strict()
   .refine(
     (v) => {
-      if (v.modelKind === 'bpmn' && !v.bpmnXml) return false;
-      if (v.modelKind === 'cmmn' && !v.cmmnXml) return false;
-      if (v.modelKind === 'dmn' && !v.dmnTableXml) return false;
+      if (v.modelKind === 'bpmn' && !v.bpmnXml) {return false;}
+      if (v.modelKind === 'cmmn' && !v.cmmnXml) {return false;}
+      if (v.modelKind === 'dmn' && !v.dmnTableXml) {return false;}
       return true;
     },
     { message: 'model payload must match modelKind' },

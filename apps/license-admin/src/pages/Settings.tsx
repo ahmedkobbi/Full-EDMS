@@ -1,13 +1,13 @@
 /**
  * Settings page — admin profile, theme, language, tour reset.
  */
-import { Stack, Card, Group, Text, Button, SegmentedControl, Select, Divider, Alert } from '@mantine/core';
-import { User, Palette, Languages, Compass, ShieldCheck, Key } from 'lucide-react';
+import { Alert, Button, Card, Divider, Group, SegmentedControl, Select, Stack, Text } from '@mantine/core';
+import { Compass, Key, Languages, Palette, ShieldCheck, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LOCALES, type MandatoryLocaleCode } from '@smart-edms/i18n';
 import { useThemeStore } from '../store/theme';
 import { useI18nStore } from '../i18n/config';
-import { useAuthStore, selectAdminProfile, selectHasStepUp, selectStepUpExpiresAt } from '../store/auth';
+import { selectAdminProfile, selectHasStepUp, selectStepUpExpiresAt, useAuthStore } from '../store/auth';
 import { PageHeader } from '../components/common/PageHeader';
 import { restartTour } from '../components/tour/GuidedTour';
 import type { ThemePreference } from '@smart-edms/types';

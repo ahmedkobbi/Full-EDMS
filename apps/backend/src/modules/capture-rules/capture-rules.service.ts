@@ -155,7 +155,7 @@ export class CaptureRulesService {
           (r: any) => r.isActive && r.triggerType === trigger.triggerType,
         ) as any;
 
-        if (!matchingRule) continue;
+        if (!matchingRule) {continue;}
 
         // Check confidence
         if (trigger.confidence < matchingRule.confidenceThreshold) {

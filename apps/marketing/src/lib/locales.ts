@@ -17,9 +17,9 @@
  */
 
 import {
-  LOCALES,
   isRtl,
   type LocaleMeta,
+  LOCALES,
   type MandatoryLocaleCode,
 } from '@smart-edms/i18n';
 
@@ -49,7 +49,7 @@ export const DEFAULT_LOCALE: MandatoryLocaleCode = 'en';
  * Type guard: returns true if `value` is one of the six mandatory locale codes.
  */
 export function isSupportedLocale(value: string | undefined | null): value is MandatoryLocaleCode {
-  if (!value) return false;
+  if (!value) {return false;}
   return SUPPORTED_LOCALE_CODES.includes(value as MandatoryLocaleCode);
 }
 
@@ -76,7 +76,7 @@ export function htmlLang(locale: MandatoryLocaleCode): string {
 export function resolveLocaleFromPathname(pathname: string): MandatoryLocaleCode {
   const segments = pathname.split('/').filter(Boolean);
   const first = segments[0];
-  if (isSupportedLocale(first)) return first;
+  if (isSupportedLocale(first)) {return first;}
   return DEFAULT_LOCALE;
 }
 

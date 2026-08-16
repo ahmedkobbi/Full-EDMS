@@ -1,7 +1,7 @@
 /**
  * License detail page — fetches a license by id and renders LicenseDetail.
  */
-import { Stack, Button, Skeleton } from '@mantine/core';
+import { Button, Skeleton, Stack } from '@mantine/core';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';

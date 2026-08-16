@@ -10,7 +10,7 @@
  *   4. Logical CSS properties are used (no hardcoded left/right)
  *   5. Dates and numbers format correctly per locale
  */
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Language switcher with RTL (spec §16.6, §16.7)', () => {
   const locales = [

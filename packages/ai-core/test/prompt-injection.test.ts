@@ -8,7 +8,7 @@
  *  - The detector never echoes the offending text in the result.
  *  - `'audit'` mode flags without blocking.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   detectPromptInjection,
   isBlocked,

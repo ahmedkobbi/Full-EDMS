@@ -13,7 +13,7 @@
  *  - invalid          → error (red)
  */
 import { Badge, type MantineColor, Tooltip } from '@mantine/core';
-import { ShieldCheck, AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { LicenseState } from '@smart-edms/types';
 import { useLicenseStateQuery } from '../../api/hooks';

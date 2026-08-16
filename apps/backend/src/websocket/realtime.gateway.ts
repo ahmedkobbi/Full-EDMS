@@ -9,7 +9,7 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { Server as SocketIOServer, type Socket } from 'socket.io';
+import { type Socket, Server as SocketIOServer } from 'socket.io';
 import { WebSocketGatewayService } from './gateway.service';
 import { PresenceService } from '../modules/presence/presence.service';
 
@@ -84,7 +84,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     // Access check would delegate to DocumentService.canAccess(...).
     // For now, the user must be in the same tenant (already enforced via JWT).
     const user = socket.data.user;
-    if (!user) return { ok: false, messageKey: 'errors.UNAUTHENTICATED' };
+    if (!user) {return { ok: false, messageKey: 'errors.UNAUTHENTICATED' };}
     await socket.join(`document:${data.documentId}`);
     return { ok: true };
   }
@@ -111,7 +111,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @MessageBody() data: { documentId: string; action: 'viewing' | 'idle' | 'editing'; firstName?: string; lastName?: string },
   ): Promise<{ ok: boolean }> {
     const user = socket.data.user;
-    if (!user) return { ok: false };
+    if (!user) {return { ok: false };}
 
     // Store presence in Redis + broadcast via pub/sub (cross-instance)
     await this.presence.announcePresence(user.tid, {
@@ -135,7 +135,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @MessageBody() data: { documentId: string },
   ): Promise<{ ok: boolean; present?: unknown[] }> {
     const user = socket.data.user;
-    if (!user) return { ok: false };
+    if (!user) {return { ok: false };}
     const present = await this.presence.getPresence(user.tid, data.documentId);
     return { ok: true, present };
   }
@@ -150,7 +150,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @MessageBody() data: { roomId: string; type: 'redaction' | 'annotation' | 'document_link' | 'cursor' | 'chat'; payload: unknown },
   ): Promise<{ ok: boolean }> {
     const user = socket.data.user;
-    if (!user) return { ok: false };
+    if (!user) {return { ok: false };}
 
     await this.presence.broadcastCrisisRoomEvent(user.tid, data.roomId, {
       type: data.type,
@@ -170,7 +170,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @MessageBody() data: { roomId: string },
   ): Promise<{ ok: boolean; recentEvents?: unknown[] }> {
     const user = socket.data.user;
-    if (!user) return { ok: false };
+    if (!user) {return { ok: false };}
 
     await this.presence.joinCrisisRoom(user.tid, data.roomId, user.sub);
     await socket.join(`crisis_room:${data.roomId}`);
@@ -189,7 +189,7 @@ export class RealtimeGateway implements OnGatewayInit, OnGatewayConnection, OnGa
     @MessageBody() data: { roomId: string },
   ): Promise<{ ok: boolean }> {
     const user = socket.data.user;
-    if (!user) return { ok: false };
+    if (!user) {return { ok: false };}
 
     await this.presence.leaveCrisisRoom(user.tid, data.roomId, user.sub);
     await socket.leave(`crisis_room:${data.roomId}`);

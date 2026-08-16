@@ -17,10 +17,10 @@
  *  - Keyboard accessible: Tab to focus, Enter/Space to open, arrow keys
  *    to navigate, Escape to close.
  */
-import { Menu, Button, type ButtonProps } from '@mantine/core';
-import { ChevronDown, Check } from 'lucide-react';
+import { Button, type ButtonProps, Menu } from '@mantine/core';
+import { Check, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { LOCALES, isRtl } from '@smart-edms/i18n';
+import { isRtl, LOCALES } from '@smart-edms/i18n';
 import { useI18nStore } from './config';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';
 
@@ -42,7 +42,7 @@ function flagFor(code: MandatoryLocaleCode): string {
     return 'ع';
   }
   const meta = LOCALES.find((l) => l.code === code);
-  if (!meta) return '🌐';
+  if (!meta) {return '🌐';}
   // The default flag indicator is a country flag emoji; `neutral` is treated
   // specially (only Arabic by default).
   return meta.defaultFlagIndicator === 'neutral' ? '🌐' : meta.defaultFlagIndicator;

@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { RedisService } from '../../common/redis.service.js';
-import { Worker, type Job } from 'bullmq';
+import { type Job, Worker } from 'bullmq';
 import { WebhookService } from './webhook.service.js';
 
 /**
@@ -54,7 +54,7 @@ export class WebhookWorker implements OnModuleInit {
     );
 
     this.worker.on('completed', (job: Job | undefined) => {
-      if (job) this.logger.debug(`Webhook job ${job.id} completed`);
+      if (job) {this.logger.debug(`Webhook job ${job.id} completed`);}
     });
     this.worker.on('failed', (job: Job | undefined, err: Error) => {
       this.logger.warn(`Webhook job ${job?.id} failed: ${err.message}`);
@@ -208,7 +208,7 @@ export class WebhookWorker implements OnModuleInit {
       where: { id: deliveryId },
       select: { attempts: true, attemptsCount: true },
     });
-    if (!delivery) return;
+    if (!delivery) {return;}
     const attempts = (delivery.attempts as unknown[]) ?? [];
     attempts.push(attempt);
     await this.prisma.webhookDelivery.update({

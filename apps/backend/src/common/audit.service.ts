@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createHash, randomUUID } from 'node:crypto';
-import type { AuditResult, AuditActorKind, AuditCategory, AuditEventCode } from '@smart-edms/types';
+import type { AuditActorKind, AuditCategory, AuditEventCode, AuditResult } from '@smart-edms/types';
 
 /**
  * Append-only audit log service with hash-chained tamper-evidence.

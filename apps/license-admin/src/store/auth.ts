@@ -47,14 +47,14 @@ interface PersistedSession {
 function loadSession(): AdminSession | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
+    if (!raw) {return null;}
     const parsed = JSON.parse(raw) as PersistedSession;
     // Validate the access token has not expired. If it has, we still keep
     // the session (the API client will refresh on the next request), but
     // if the expiry is more than 24h past we treat the session as stale.
     const expiresAtMs = new Date(parsed.expiresAt).getTime();
-    if (Number.isNaN(expiresAtMs)) return null;
-    if (Date.now() - expiresAtMs > 24 * 60 * 60 * 1000) return null;
+    if (Number.isNaN(expiresAtMs)) {return null;}
+    if (Date.now() - expiresAtMs > 24 * 60 * 60 * 1000) {return null;}
     return parsed;
   } catch {
     return null;
@@ -125,7 +125,7 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
 
   hasStepUp: () => {
     const expiresAt = get().stepUpExpiresAt;
-    if (!expiresAt) return false;
+    if (!expiresAt) {return false;}
     return Date.now() < expiresAt;
   },
 }));
@@ -142,12 +142,12 @@ export const selectRefreshToken = (s: AuthStoreState): string | null =>
 export const selectAdminProfile = (s: AuthStoreState): AdminSession['admin'] | null =>
   s.session?.admin ?? null;
 export const selectStepUpToken = (s: AuthStoreState): string | null => {
-  if (!s.stepUpExpiresAt) return null;
-  if (Date.now() >= s.stepUpExpiresAt) return null;
+  if (!s.stepUpExpiresAt) {return null;}
+  if (Date.now() >= s.stepUpExpiresAt) {return null;}
   return s.stepUpToken;
 };
 export const selectHasStepUp = (s: AuthStoreState): boolean => {
-  if (!s.stepUpExpiresAt) return false;
+  if (!s.stepUpExpiresAt) {return false;}
   return Date.now() < s.stepUpExpiresAt;
 };
 export const selectStepUpExpiresAt = (s: AuthStoreState): number | null => s.stepUpExpiresAt;

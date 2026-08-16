@@ -25,7 +25,7 @@ interface ThemeStoreState {
 }
 
 function readInitialScheme(): MantineColorScheme {
-  if (typeof document === 'undefined') return 'light';
+  if (typeof document === 'undefined') {return 'light';}
   const attr = document.documentElement.getAttribute('data-mantine-color-scheme');
   return attr === 'dark' ? 'dark' : 'light';
 }

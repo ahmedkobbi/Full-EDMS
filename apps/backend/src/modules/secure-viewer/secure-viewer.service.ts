@@ -17,12 +17,12 @@
  *  - Redaction export produces a NEW DocumentVersion (original is immutable)
  *  - No-download mode sets response headers to prevent browser caching + download
  */
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
 import { AuditService } from '../../common/audit.service';
 import { StorageService } from '../../common/storage.service';
-import { randomBytes, createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 
 const createRedactionSchema = z.object({
@@ -93,12 +93,12 @@ export class SecureViewerService {
         },
       },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const version = options.versionId
       ? doc.versions.find((v) => v.id === options.versionId)
       : doc.versions[0];
-    if (!version) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!version) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const token = randomBytes(32).toString('hex');
     const now = new Date();
@@ -154,7 +154,7 @@ export class SecureViewerService {
    */
   async validatePreviewToken(token: string): Promise<PreviewToken | null> {
     const data = await this.redis.getJson<PreviewToken>(`preview:token:${token}`);
-    if (!data) return null;
+    if (!data) {return null;}
     if (new Date(data.expiresAt) < new Date()) {
       await this.redis.invalidate(`preview:token:${token}`);
       return null;
@@ -182,7 +182,7 @@ export class SecureViewerService {
     const version = await this.prisma.documentVersion.findFirst({
       where: { id: previewToken.versionId },
     });
-    if (!version) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!version) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const url = await this.storage.signDownloadUrl(version.storageKey, 60); // 60 second URL
 
@@ -229,7 +229,7 @@ export class SecureViewerService {
     const version = await this.prisma.documentVersion.findFirst({
       where: { id: versionId, tenantId, documentId },
     });
-    if (!version) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!version) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // Store redactions as a ProvenanceManifest entry (or a dedicated redaction table)
     // For now, store in Redis with a 24h TTL (must be exported within 24h)

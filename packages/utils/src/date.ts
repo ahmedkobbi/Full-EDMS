@@ -32,7 +32,7 @@ export function toISODate(d: Date | string | number): string | null {
   } else {
     return null;
   }
-  if (Number.isNaN(date.getTime())) return null;
+  if (Number.isNaN(date.getTime())) {return null;}
   return date.toISOString();
 }
 
@@ -44,9 +44,9 @@ export function toISODate(d: Date | string | number): string | null {
  * date-only strings (`2025-01-31`); the latter is interpreted as UTC midnight.
  */
 export function fromISODate(s: string): Date | null {
-  if (typeof s !== 'string' || s.length === 0) return null;
+  if (typeof s !== 'string' || s.length === 0) {return null;}
   const d = new Date(s);
-  if (Number.isNaN(d.getTime())) return null;
+  if (Number.isNaN(d.getTime())) {return null;}
   return d;
 }
 
@@ -65,7 +65,7 @@ export function formatRelative(
   now: Date = new Date(),
 ): string {
   const target = d instanceof Date ? d : new Date(d);
-  if (Number.isNaN(target.getTime())) return '';
+  if (Number.isNaN(target.getTime())) {return '';}
   const diffMs = target.getTime() - now.getTime();
   const absDiff = Math.abs(diffMs);
 
@@ -98,7 +98,7 @@ export function formatRelative(
  */
 export function isExpired(d: Date | string | number, now: Date = new Date()): boolean {
   const target = d instanceof Date ? d : new Date(d);
-  if (Number.isNaN(target.getTime())) return false;
+  if (Number.isNaN(target.getTime())) {return false;}
   return target.getTime() < now.getTime();
 }
 
@@ -113,7 +113,7 @@ export function isExpired(d: Date | string | number, now: Date = new Date()): bo
  */
 export function daysUntil(d: Date | string | number, now: Date = new Date()): number | null {
   const target = d instanceof Date ? d : new Date(d);
-  if (Number.isNaN(target.getTime())) return null;
+  if (Number.isNaN(target.getTime())) {return null;}
   const ms = target.getTime() - now.getTime();
   // Truncate toward zero so partial days don't round up.
   return Math.trunc(ms / 86_400_000);

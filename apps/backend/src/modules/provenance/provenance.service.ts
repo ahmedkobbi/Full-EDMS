@@ -155,7 +155,7 @@ export class ProvenanceService {
     let previousHash: string | null = null;
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i].chainOfCustody as any;
-      if (!entry) continue;
+      if (!entry) {continue;}
 
       if (entry.previousHash !== previousHash) {
         return { ok: false, brokenAt: i };
@@ -210,7 +210,7 @@ export class ProvenanceService {
     const version = await this.prisma.documentVersion.findFirst({
       where: { id: input.versionId, tenantId, documentId: input.documentId },
     });
-    if (!version) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!version) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // In a real implementation, this would:
     // 1. Download the binary from object storage
@@ -307,7 +307,7 @@ export class ProvenanceService {
     const version = await this.prisma.documentVersion.findFirst({
       where: { id: versionId, tenantId, documentId },
     });
-    if (!version) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!version) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const indicators: Array<{ type: string; severity: 'low' | 'medium' | 'high'; description: string }> = [];
 
@@ -361,10 +361,10 @@ export class ProvenanceService {
     const score = Math.min(1, highCount * 0.4 + mediumCount * 0.2 + lowCount * 0.1);
 
     let verdict: 'authentic' | 'suspicious' | 'forged' | 'inconclusive';
-    if (score === 0) verdict = 'authentic';
-    else if (score >= 0.6) verdict = 'forged';
-    else if (score >= 0.3) verdict = 'suspicious';
-    else verdict = 'inconclusive';
+    if (score === 0) {verdict = 'authentic';}
+    else if (score >= 0.6) {verdict = 'forged';}
+    else if (score >= 0.3) {verdict = 'suspicious';}
+    else {verdict = 'inconclusive';}
 
     const result = {
       verdict,
@@ -435,7 +435,7 @@ export class ProvenanceService {
     const doc = await this.prisma.document.findFirst({
       where: { id: documentId, tenantId },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // Create a Job for async processing
     const job = await this.prisma.job.create({
@@ -478,7 +478,7 @@ export class ProvenanceService {
     const job = await this.prisma.job.findFirst({
       where: { id: jobId, tenantId, kind: 'evidence_package' },
     });
-    if (!job) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!job) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return {
       jobId: job.id,
       status: job.status,

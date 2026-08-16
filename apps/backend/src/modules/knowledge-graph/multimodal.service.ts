@@ -141,7 +141,7 @@ export class MultimodalService {
     confidence: number;
   }>> {
     const transcription = await this.getTranscription(tenantId, documentId);
-    if (!transcription) return [];
+    if (!transcription) {return [];}
 
     const phraseLower = phrase.toLowerCase();
     const matches: Array<{
@@ -178,7 +178,7 @@ export class MultimodalService {
     const job = await this.prisma.job.findFirst({
       where: { id: jobId, tenantId, kind: 'multimodal_transcription' },
     });
-    if (!job) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!job) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return {
       jobId: job.id,
       status: job.status,

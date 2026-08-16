@@ -35,22 +35,22 @@ import { LicenseRequired } from '../../common/decorators/license-required.decora
 import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 import { WorkflowService } from './workflow.service';
 import {
-  CancelInstanceBodySchema,
-  CreateWorkflowBodySchema,
-  DelegateStepBodySchema,
-  InstantiateWorkflowBodySchema,
-  SubmitApprovalBodySchema,
-  UpdateWorkflowBodySchema,
-  WorkflowInstanceListQuerySchema,
-  WorkflowListQuerySchema,
   type CancelInstanceBody,
+  CancelInstanceBodySchema,
   type CreateWorkflowBody,
+  CreateWorkflowBodySchema,
   type DelegateStepBody,
+  DelegateStepBodySchema,
   type InstantiateWorkflowBody,
+  InstantiateWorkflowBodySchema,
   type SubmitApprovalBody,
+  SubmitApprovalBodySchema,
   type UpdateWorkflowBody,
+  UpdateWorkflowBodySchema,
   type WorkflowInstanceListQuery,
+  WorkflowInstanceListQuerySchema,
   type WorkflowListQuery,
+  WorkflowListQuerySchema,
 } from './dto';
 
 @Controller('v1/workflows')

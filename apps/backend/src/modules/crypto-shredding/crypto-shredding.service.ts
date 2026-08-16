@@ -150,7 +150,7 @@ export class CryptoShreddingService {
       where: { id: input.documentId, tenantId },
       include: { versions: { select: { id: true, encryptionKeyRef: true } } },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // Check legal hold — cannot shred documents under legal hold
     if (doc.legalHoldActive) {

@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../common/redis.service';
-import { Server as SocketIOServer, type Socket } from 'socket.io';
+import { type Socket, Server as SocketIOServer } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -45,7 +45,7 @@ export class WebSocketGatewayService implements OnModuleInit {
       try {
         const event = JSON.parse(message) as WebSocketEvent;
         const tenantId = channel.split(':').pop();
-        if (!tenantId) return;
+        if (!tenantId) {return;}
         this.io?.to(`tenant:${tenantId}`).emit(event.name, event);
       } catch (err) {
         this.logger.error(`WS fan-out failed: ${(err as Error).message}`);
@@ -59,7 +59,7 @@ export class WebSocketGatewayService implements OnModuleInit {
    */
   async authenticateSocket(socket: Socket): Promise<JwtPayload | null> {
     const token = socket.handshake.auth?.token as string | undefined;
-    if (!token) return null;
+    if (!token) {return null;}
     try {
       const payload = await this.jwt.verifyAsync<JwtPayload>(token);
       return payload;

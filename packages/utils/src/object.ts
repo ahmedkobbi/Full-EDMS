@@ -101,9 +101,9 @@ export function pick<T extends Record<string, unknown>, K extends keyof T>(
  */
 export function deepEqual(a: unknown, b: unknown): boolean {
   // Strict-equal fast path (also covers `null === null`, `undefined === undefined`).
-  if (a === b) return true;
+  if (a === b) {return true;}
   // Treat NaN === NaN as equal.
-  if (a !== a && b !== b) return true;
+  if (a !== a && b !== b) {return true;}
   if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object') {
     return false;
   }
@@ -115,13 +115,13 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   }
   const aIsArr = Array.isArray(a);
   const bIsArr = Array.isArray(b);
-  if (aIsArr !== bIsArr) return false;
+  if (aIsArr !== bIsArr) {return false;}
   if (aIsArr) {
     const aa = a as readonly unknown[];
     const bb = b as readonly unknown[];
-    if (aa.length !== bb.length) return false;
+    if (aa.length !== bb.length) {return false;}
     for (let i = 0; i < aa.length; i++) {
-      if (!deepEqual(aa[i], bb[i])) return false;
+      if (!deepEqual(aa[i], bb[i])) {return false;}
     }
     return true;
   }
@@ -129,13 +129,13 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   // class instances — they may have private state that deep-walking would miss.
   const aProto = Object.getPrototypeOf(a);
   const bProto = Object.getPrototypeOf(b);
-  if (aProto !== Object.prototype && aProto !== null) return false;
-  if (bProto !== Object.prototype && bProto !== null) return false;
+  if (aProto !== Object.prototype && aProto !== null) {return false;}
+  if (bProto !== Object.prototype && bProto !== null) {return false;}
   const aKeys = Object.keys(a);
   const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
+  if (aKeys.length !== bKeys.length) {return false;}
   for (const k of aKeys) {
-    if (!Object.prototype.hasOwnProperty.call(b, k)) return false;
+    if (!Object.prototype.hasOwnProperty.call(b, k)) {return false;}
     if (!deepEqual((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k])) {
       return false;
     }

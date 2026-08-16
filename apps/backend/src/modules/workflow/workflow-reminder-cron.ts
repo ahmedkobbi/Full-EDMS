@@ -50,7 +50,7 @@ export class WorkflowReminderCron {
     let escalationCount = 0;
 
     for (const step of steps) {
-      if (!step.dueAt || !step.assigneeId) continue;
+      if (!step.dueAt || !step.assigneeId) {continue;}
       const dueIn = step.dueAt.getTime() - now.getTime();
       const tenantId = step.instance.tenantId;
 
@@ -59,7 +59,7 @@ export class WorkflowReminderCron {
         // Check if already escalated (avoid duplicate escalation)
         const escalationKey = `workflow:escalated:${step.id}`;
         const alreadyEscalated = await this.redis.connection.get(escalationKey);
-        if (alreadyEscalated) continue;
+        if (alreadyEscalated) {continue;}
 
         // Mark as escalated
         await this.redis.connection.set(escalationKey, '1', 'EX', 86400); // 24h TTL
@@ -107,7 +107,7 @@ export class WorkflowReminderCron {
         // Check if reminder was already sent
         const reminderKey = `workflow:reminder:24h:${step.id}`;
         const alreadyReminded = await this.redis.connection.get(reminderKey);
-        if (alreadyReminded) continue;
+        if (alreadyReminded) {continue;}
 
         await this.redis.connection.set(reminderKey, '1', 'EX', 86400);
 

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CustomerService } from './customer.service.js';
-import { AdminJwtGuard, type AdminAuthenticatedRequest } from '../../security/admin-jwt.guard.js';
+import { type AdminAuthenticatedRequest, AdminJwtGuard } from '../../security/admin-jwt.guard.js';
 import { AuditAction } from '../../common/decorators/audit-action.decorator.js';
 
 /**

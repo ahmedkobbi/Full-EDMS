@@ -96,7 +96,7 @@ export class HumanVerificationService {
       limit - 1,
     );
 
-    if (ids.length === 0) return [];
+    if (ids.length === 0) {return [];}
 
     const items = await this.redis.connection.hmget(
       `${HumanVerificationService.QUEUE_KEY}:${tenantId}`,
@@ -124,7 +124,7 @@ export class HumanVerificationService {
       `${HumanVerificationService.QUEUE_KEY}:${tenantId}`,
       id,
     );
-    if (!raw) return null;
+    if (!raw) {return null;}
     try {
       return JSON.parse(raw) as VerificationItem;
     } catch {
@@ -137,7 +137,7 @@ export class HumanVerificationService {
    */
   async approve(tenantId: string, id: string, userId: string): Promise<void> {
     const item = await this.getById(tenantId, id);
-    if (!item) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!item) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     item.status = 'approved';
     item.reviewedBy = userId;
@@ -166,7 +166,7 @@ export class HumanVerificationService {
    */
   async correct(tenantId: string, id: string, userId: string, correctedValue: string): Promise<void> {
     const item = await this.getById(tenantId, id);
-    if (!item) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!item) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     item.status = 'corrected';
     item.correctedValue = correctedValue;
@@ -201,7 +201,7 @@ export class HumanVerificationService {
    */
   async reject(tenantId: string, id: string, userId: string, reason: string): Promise<void> {
     const item = await this.getById(tenantId, id);
-    if (!item) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!item) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     item.status = 'rejected';
     item.reviewedBy = userId;

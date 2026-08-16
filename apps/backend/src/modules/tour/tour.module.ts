@@ -11,7 +11,7 @@
  */
 
 import { Module } from '@nestjs/common';
-import { TourController, TourAdminController } from './tour.controller';
+import { TourAdminController, TourController } from './tour.controller';
 import { TourService } from './tour.service';
 import { LicenseModule } from '../license/license.module';
 

@@ -13,7 +13,7 @@
 
 import type { z } from 'zod';
 import { HelpSearchDocumentationInputSchema } from '@smart-edms/schemas';
-import { en, fr, ar, ru, zhCN, de } from '@smart-edms/i18n';
+import { ar, de, en, fr, ru, zhCN } from '@smart-edms/i18n';
 import type { ToolDefinition, ToolResult } from '../tool-catalog';
 
 interface HelpSearchDocumentationOutput {
@@ -114,11 +114,11 @@ export const helpSearchTool: ToolDefinition<
       for (const { key, value } of flat) {
         const valueLower = value.toLowerCase();
         let score = 0;
-        if (valueLower.includes(needle)) score += 100;
-        if (key.toLowerCase().includes(needle)) score += 10;
+        if (valueLower.includes(needle)) {score += 100;}
+        if (key.toLowerCase().includes(needle)) {score += 10;}
         // Light keyword bonus — every word in the needle that appears in the value
         for (const word of needle.split(/\s+/).filter((w) => w.length > 2)) {
-          if (valueLower.includes(word)) score += 5;
+          if (valueLower.includes(word)) {score += 5;}
         }
         if (score > 0) {
           // Extract a 400-char snippet around the first match.

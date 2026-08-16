@@ -22,8 +22,8 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import {
   bundledResources,
-  LOCALES,
   isRtl,
+  LOCALES,
   type MandatoryLocaleCode,
 } from '@smart-edms/i18n';
 
@@ -44,7 +44,7 @@ function resolveInitialLocale(): MandatoryLocaleCode {
   }
   const browser = typeof navigator !== 'undefined' ? navigator.language : 'en';
   const match = LOCALES.find((l) => l.code === browser || browser.startsWith(l.code + '-'));
-  if (match) return match.code;
+  if (match) {return match.code;}
   return 'en';
 }
 

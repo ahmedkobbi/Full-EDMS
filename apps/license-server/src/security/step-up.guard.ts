@@ -1,8 +1,8 @@
 import {
   type CanActivate,
   type ExecutionContext,
-  Injectable,
   ForbiddenException,
+  Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
@@ -45,7 +45,7 @@ export class StepUpGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (isPublic) {return true;}
 
     const req = context.switchToHttp().getRequest<AdminAuthenticatedRequest & FastifyRequest>();
     const admin = req.admin as AdminJwtPayload | undefined;

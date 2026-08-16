@@ -7,15 +7,15 @@
  * Spec ref: §12.10 (admin authentication with MFA, role-based access).
  */
 import { useState } from 'react';
-import { Stack, Table, Badge, Group, Button, Modal, TextInput, Select, ActionIcon, Text, Card } from '@mantine/core';
-import { IconPlus, IconBan, IconTrash, IconShieldCheck, IconRefresh } from '@tabler/icons-react';
+import { ActionIcon, Badge, Button, Card, Group, Modal, Select, Stack, Table, Text, TextInput } from '@mantine/core';
+import { IconBan, IconPlus, IconRefresh, IconShieldCheck, IconTrash } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import {
+  type AdminUser,
   useAdminUsersQuery,
   useCreateAdminUserMutation,
-  useSuspendAdminUserMutation,
   useDeleteAdminUserMutation,
-  type AdminUser,
+  useSuspendAdminUserMutation,
 } from '../api/hooks';
 import { PageHeader } from '../components/common/PageHeader';
 import { LoadingState } from '@smart-edms/ui';
@@ -186,7 +186,7 @@ function CreateAdminUserModal({ opened, onClose }: { opened: boolean; onClose: (
   const [role, setRole] = useState<string | null>('admin');
 
   const handleSubmit = () => {
-    if (!email || !firstName || !lastName || !password || !role) return;
+    if (!email || !firstName || !lastName || !password || !role) {return;}
     create.mutate(
       { email, firstName, lastName, password, roles: [role] },
       {

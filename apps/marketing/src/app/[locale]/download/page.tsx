@@ -1,9 +1,9 @@
 import { type ReactNode } from 'react';
 import { type Metadata } from 'next';
-import { Container, Title, Text, Box, SimpleGrid, Card, Stack, Alert } from '@mantine/core';
-import { Monitor, Apple, TerminalSquare, Server, Info } from 'lucide-react';
+import { Alert, Box, Card, Container, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Apple, Info, Monitor, Server, TerminalSquare } from 'lucide-react';
 import { getServerI18n } from '../../../i18n/config';
-import { isSupportedLocale, DEFAULT_LOCALE } from '../../../lib/locales';
+import { DEFAULT_LOCALE, isSupportedLocale } from '../../../lib/locales';
 import { buildPageMetadata } from '../../../lib/seo';
 import { CTA } from '../../../components/sections/CTA';
 

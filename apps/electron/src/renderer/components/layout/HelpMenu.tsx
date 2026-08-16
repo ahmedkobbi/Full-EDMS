@@ -13,15 +13,15 @@
  *
  * Spec ref: §10.14 (help menu launch), §10.13 (stable selectors).
  */
-import { Menu, ActionIcon, Stack, Text, Divider } from '@mantine/core';
+import { ActionIcon, Divider, Menu, Stack, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import {
-  IconHelp,
-  IconRoute,
   IconBook,
-  IconLifebuoy,
-  IconKeyboard,
+  IconHelp,
   IconInfoCircle,
+  IconKeyboard,
+  IconLifebuoy,
+  IconRoute,
 } from '@tabler/icons-react';
 
 export function HelpMenu() {

@@ -1,16 +1,16 @@
 import { type ReactNode } from 'react';
 import { type Metadata } from 'next';
-import { Container, Title, Text, Box, SimpleGrid, Card, ThemeIcon, Stack } from '@mantine/core';
+import { Box, Card, Container, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import {
-  Rocket,
+  BookOpenCheck,
   Code2,
+  type LucideIcon,
+  Rocket,
   Settings,
   ShieldCheck,
-  BookOpenCheck,
-  type LucideIcon,
 } from 'lucide-react';
 import { getServerI18n } from '../../../i18n/config';
-import { isSupportedLocale, DEFAULT_LOCALE } from '../../../lib/locales';
+import { DEFAULT_LOCALE, isSupportedLocale } from '../../../lib/locales';
 import { buildPageMetadata } from '../../../lib/seo';
 import { CTA } from '../../../components/sections/CTA';
 

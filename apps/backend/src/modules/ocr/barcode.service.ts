@@ -86,7 +86,7 @@ export class BarcodeService {
    * Spec ref: §9.16 (Barcode-based document separation where supported).
    */
   isSeparatorBarcode(value: string, separatorPattern?: string): boolean {
-    if (!separatorPattern) return false;
+    if (!separatorPattern) {return false;}
     return value.toUpperCase().includes(separatorPattern.toUpperCase());
   }
 
@@ -115,9 +115,9 @@ export class BarcodeService {
         const result: Record<string, string> = {};
         for (const pair of value.split(';')) {
           const [key, val] = pair.split('=');
-          if (key && val) result[key.trim()] = val.trim();
+          if (key && val) {result[key.trim()] = val.trim();}
         }
-        if (Object.keys(result).length > 0) return result;
+        if (Object.keys(result).length > 0) {return result;}
       }
     }
     return null;

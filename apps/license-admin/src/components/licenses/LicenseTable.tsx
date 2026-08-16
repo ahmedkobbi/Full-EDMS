@@ -4,14 +4,14 @@
  *
  * Tour target: `data-tour="admin.licenses.table"`.
  */
-import { useMemo, useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
-import { Box, Button, Group, Badge, Select, TextInput } from '@mantine/core';
-import { RefreshCw, Plus, Key } from 'lucide-react';
+import { Badge, Box, Button, Group, Select, TextInput } from '@mantine/core';
+import { Key, Plus, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import type { License, LicenseStatus } from '@smart-edms/types';
-import { useLicensesQuery, useProductsQuery, useCustomersQuery } from '../../api/hooks';
+import { useCustomersQuery, useLicensesQuery, useProductsQuery } from '../../api/hooks';
 import { LocaleAwareDate } from '../common/LocaleAwareDate';
 import { LoadingState } from '../common/LoadingState';
 import { ErrorState } from '../common/ErrorState';
@@ -167,8 +167,8 @@ export function LicenseTable({ onCreate, customerId: customerIdProp, productId: 
 
   const updateFilter = (key: string, value: string | null): void => {
     const next = new URLSearchParams(searchParams);
-    if (value) next.set(key, value);
-    else next.delete(key);
+    if (value) {next.set(key, value);}
+    else {next.delete(key);}
     setSearchParams(next);
   };
 

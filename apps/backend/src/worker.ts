@@ -45,7 +45,7 @@ async function bootstrap(): Promise<void> {
 }
 
 void bootstrap().catch((err) => {
-  // eslint-disable-next-line no-console
+   
   console.error('Fatal worker bootstrap error:', err);
   process.exit(1);
 });

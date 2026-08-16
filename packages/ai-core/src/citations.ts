@@ -95,7 +95,7 @@ export function buildCitations(
 
   const out: Citation[] = [];
   for (const doc of documents) {
-    if (!doc.userCanAccess) continue;
+    if (!doc.userCanAccess) {continue;}
     out.push({
       documentId: doc.documentId,
       versionId: doc.versionId,

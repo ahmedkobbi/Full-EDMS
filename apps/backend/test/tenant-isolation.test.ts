@@ -12,7 +12,7 @@
  *
  * The tests use direct Prisma queries (not HTTP) for speed.
  */
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
 describe('Tenant isolation (spec §9.2, §15.3, §24.2)', () => {

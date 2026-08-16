@@ -63,7 +63,7 @@ export class GroupService {
         },
       },
     });
-    if (!group) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!group) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return group;
   }
 
@@ -77,7 +77,7 @@ export class GroupService {
   async update(tenantId: string, id: string, raw: unknown) {
     const input = updateGroupSchema.parse(raw);
     const existing = await this.prisma.group.findFirst({ where: { id, tenantId } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return this.prisma.group.update({ where: { id }, data: input });
   }
 

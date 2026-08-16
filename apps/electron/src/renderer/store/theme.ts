@@ -34,7 +34,7 @@ interface ThemeStoreState {
  * React mounts, so we can read it synchronously here (no FOUC).
  */
 function readInitialScheme(): MantineColorScheme {
-  if (typeof document === 'undefined') return 'light';
+  if (typeof document === 'undefined') {return 'light';}
   const attr = document.documentElement.getAttribute('data-mantine-color-scheme');
   return attr === 'dark' ? 'dark' : 'light';
 }

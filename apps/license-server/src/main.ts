@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
-import { ValidationPipe, Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import fastifyHelmet from '@fastify/helmet';
@@ -126,7 +126,7 @@ async function bootstrap(): Promise<void> {
 }
 
 void bootstrap().catch((err) => {
-  // eslint-disable-next-line no-console
+   
   console.error('Fatal bootstrap error:', err);
   process.exit(1);
 });

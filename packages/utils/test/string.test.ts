@@ -1,13 +1,13 @@
 /**
  * @smart-edms/utils — string tests.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
-  sanitizeFilename,
-  truncate,
-  slugify,
   camelToKebab,
   pluralize,
+  sanitizeFilename,
+  slugify,
+  truncate,
 } from '../src/index.js';
 
 describe('string.sanitizeFilename', () => {

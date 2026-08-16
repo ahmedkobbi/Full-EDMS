@@ -8,7 +8,7 @@
  */
 
 import { type ReactNode } from 'react';
-import { Box, Container, Title, Text, Button, Stack, ThemeIcon } from '@mantine/core';
+import { Box, Button, Container, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import { Compass } from 'lucide-react';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';
 import { LocaleLink } from '../common/LocaleLink';

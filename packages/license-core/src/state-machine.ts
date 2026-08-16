@@ -125,10 +125,10 @@ export function computeLicenseState(
   // -----------------------------------------------------------------
   // Hard-block conditions → `invalid`
   // -----------------------------------------------------------------
-  if (!input.signatureValid) return 'invalid';
-  if (input.revoked) return 'invalid';
-  if (!input.deviceMatch) return 'invalid';
-  if (!input.environmentMatch) return 'invalid';
+  if (!input.signatureValid) {return 'invalid';}
+  if (input.revoked) {return 'invalid';}
+  if (!input.deviceMatch) {return 'invalid';}
+  if (!input.environmentMatch) {return 'invalid';}
 
   // -----------------------------------------------------------------
   // Heartbeat-based degradation

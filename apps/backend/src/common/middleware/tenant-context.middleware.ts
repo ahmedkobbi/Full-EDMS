@@ -1,5 +1,5 @@
 import { Injectable, type NestMiddleware } from '@nestjs/common';
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 /**
  * Populates req.tenantId from JWT (already verified by JwtAuthGuard) and

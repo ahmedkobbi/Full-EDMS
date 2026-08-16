@@ -15,7 +15,7 @@
  *   3. Rate-limit by IP + email to prevent abuse.
  */
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 const DEMO_SCHEMA = z.object({

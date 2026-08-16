@@ -16,9 +16,9 @@
 import { create } from 'zustand';
 import type {
   AuthToken,
+  ISODateString,
   TenantId,
   UserId,
-  ISODateString,
 } from '@smart-edms/types';
 
 interface AuthSession {
@@ -46,7 +46,7 @@ interface AuthStoreState {
  * Persist the session to OS-encrypted safeStorage via the preload bridge.
  */
 async function persistSession(session: AuthSession | null): Promise<void> {
-  if (!window.smartEdms) return;
+  if (!window.smartEdms) {return;}
   if (session) {
     await window.smartEdms.saveCredentials({
       accessToken: session.accessToken,

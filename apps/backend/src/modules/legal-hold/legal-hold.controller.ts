@@ -27,12 +27,12 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 import { LegalHoldService } from './legal-hold.service';
 import {
-  CreateLegalHoldBodySchema,
-  LegalHoldListQuerySchema,
-  ReleaseLegalHoldBodySchema,
   type CreateLegalHoldBody,
+  CreateLegalHoldBodySchema,
   type LegalHoldListQuery,
+  LegalHoldListQuerySchema,
   type ReleaseLegalHoldBody,
+  ReleaseLegalHoldBodySchema,
 } from './legal-hold.service';
 
 @Controller('v1/legal-holds')

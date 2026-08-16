@@ -108,7 +108,7 @@ export class OcrService {
     const version = await this.prisma.documentVersion.findFirst({
       where: { id: versionId, tenantId },
     });
-    if (!version) throw new Error(`Version ${versionId} not found`);
+    if (!version) {throw new Error(`Version ${versionId} not found`);}
 
     const { stream } = await this.storage.download(version.storageKey);
     const buffer = await this.streamToBuffer(stream);
@@ -183,7 +183,7 @@ export class OcrService {
     // 2. PDF → try embedded text, fall back to Tesseract
     if (mime.includes('pdf')) {
       const embedded = await this.extractFromPdf(buffer, pageNumber, language);
-      if (embedded) return embedded;
+      if (embedded) {return embedded;}
       // Scanned PDF → fall through to Tesseract
     }
 
@@ -257,7 +257,7 @@ export class OcrService {
       const allPages = data.text.split('\f');
       const pageText = allPages[pageNumber - 1] ?? data.text;
 
-      if (!pageText.trim()) return null;
+      if (!pageText.trim()) {return null;}
 
       const words: OcrWord[] = pageText.split(/\s+/).filter(Boolean).map((word) => ({
         text: word,

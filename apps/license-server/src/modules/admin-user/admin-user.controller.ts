@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { AdminJwtGuard } from '../../security/admin-jwt.guard.js';
 import { AdminUserService } from './admin-user.service.js';
 import type { AdminAuthenticatedRequest } from '../../security/admin-jwt.guard.js';

@@ -19,29 +19,29 @@
  * Destructive actions require an additional confirm dialog (handled in
  * AiMessage).
  */
-import { useState, type KeyboardEvent } from 'react';
+import { type KeyboardEvent, useState } from 'react';
 import {
+  ActionIcon,
+  Box,
+  Button,
   Drawer,
-  Stack,
   Group,
+  ScrollArea,
+  Stack,
   Text,
   TextInput,
-  ActionIcon,
-  ScrollArea,
-  Box,
   Title,
-  Button,
 } from '@mantine/core';
-import { Send, Trash, Settings, Sparkles } from 'lucide-react';
+import { Send, Settings, Sparkles, Trash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useI18nStore } from '../../i18n/config';
 import {
-  useStartAiSessionMutation,
   useSendAiMessageMutation,
+  useStartAiSessionMutation,
 } from '../../api/hooks';
 import { AiMessage } from './AiMessage';
 import { AiDisclaimer } from './AiDisclaimer';
-import { EmptyState, LoadingState, ErrorState } from '@smart-edms/ui';
+import { EmptyState, ErrorState, LoadingState } from '@smart-edms/ui';
 import type { Citation } from '@smart-edms/types';
 
 interface AiChatDrawerProps {
@@ -83,7 +83,7 @@ export function AiChatDrawer({ opened, onClose }: AiChatDrawerProps) {
   });
 
   const handleSend = (): void => {
-    if (!input.trim()) return;
+    if (!input.trim()) {return;}
     if (!sessionId) {
       startSession.mutate({ locale });
       setTimeout(() => {

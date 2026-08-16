@@ -16,7 +16,7 @@ export class LicenseController {
   @Get('status')
   async getStatus() {
     const result = await this.license.getActivePayload();
-    if (!result) return { state: 'invalid' as const, payload: null };
+    if (!result) {return { state: 'invalid' as const, payload: null };}
     return result;
   }
 

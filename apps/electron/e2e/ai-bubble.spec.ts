@@ -12,7 +12,7 @@
  *   3. When AI is enabled (E2E_AI_LICENSED=true), the bubble appears
  *   4. The bubble is positioned correctly in RTL (bottom-start in Arabic)
  */
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/login');

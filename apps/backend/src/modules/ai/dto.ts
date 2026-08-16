@@ -17,9 +17,9 @@
 
 import { z } from 'zod';
 import {
+  AiModelModeSchema,
   AssistantChatRequestSchema,
   AssistantSessionIdSchema,
-  AiModelModeSchema,
   ToolNameSchema,
 } from '@smart-edms/schemas';
 

@@ -3,7 +3,7 @@
  * "edit" affordance that opens the drawer.
  */
 import { useState } from 'react';
-import { Stack, Button, Skeleton } from '@mantine/core';
+import { Button, Skeleton, Stack } from '@mantine/core';
 import { ArrowLeft, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';

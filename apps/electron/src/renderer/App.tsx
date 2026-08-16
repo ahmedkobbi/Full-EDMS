@@ -10,7 +10,7 @@
  * layouts so RTL (Arabic) works without overrides.
  */
 import { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoadingState } from '@smart-edms/ui';
 import { AppShellLayout } from './components/layout/AppShell';
 import { TourEngine } from './components/tour/TourEngine';

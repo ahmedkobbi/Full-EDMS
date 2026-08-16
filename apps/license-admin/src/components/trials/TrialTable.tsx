@@ -3,12 +3,12 @@
  */
 import { useMemo } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
-import { Box, Button, Group, Badge, Select } from '@mantine/core';
-import { RefreshCw, Plus, Repeat, Ban } from 'lucide-react';
+import { Badge, Box, Button, Group, Select } from '@mantine/core';
+import { Ban, Plus, RefreshCw, Repeat } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import type { Trial } from '@smart-edms/types';
-import { useTrialsQuery, useConvertTrialMutation, useCancelTrialMutation } from '../../api/hooks';
+import { useCancelTrialMutation, useConvertTrialMutation, useTrialsQuery } from '../../api/hooks';
 import { LocaleAwareDate } from '../common/LocaleAwareDate';
 import { LoadingState } from '../common/LoadingState';
 import { ErrorState } from '../common/ErrorState';
@@ -119,8 +119,8 @@ export function TrialTable({ onCreate, customerId: customerIdProp }: TrialTableP
     },
   ], [t, convertMutation, cancelMutation]);
 
-  if (query.isLoading) return <LoadingState variant="skeleton" />;
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
+  if (query.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (query.isError) {return <ErrorState error={query.error} onRetry={() => query.refetch()} />;}
 
   const data = query.data ?? [];
 
@@ -145,8 +145,8 @@ export function TrialTable({ onCreate, customerId: customerIdProp }: TrialTableP
 
   const updateFilter = (key: string, value: string | null): void => {
     const next = new URLSearchParams(searchParams);
-    if (value) next.set(key, value);
-    else next.delete(key);
+    if (value) {next.set(key, value);}
+    else {next.delete(key);}
     setSearchParams(next);
   };
 

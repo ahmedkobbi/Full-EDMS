@@ -8,13 +8,13 @@
  * The preview URL is fetched from the backend's `GET /v1/documents/:id/preview`
  * endpoint, which returns a signed URL (short-lived) into object storage.
  */
-import { useState, useEffect } from 'react';
-import { Box, Stack, Text, Button, Image, Center } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import { Box, Button, Center, Image, Stack, Text } from '@mantine/core';
 import { Download, File } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Document } from '@smart-edms/types';
 import { apiClient } from '../../api/client';
-import { LoadingState, ErrorState } from '@smart-edms/ui';
+import { ErrorState, LoadingState } from '@smart-edms/ui';
 
 interface DocumentPreviewProps {
   readonly document: Document;
@@ -48,8 +48,8 @@ export function DocumentPreview({ document }: DocumentPreviewProps) {
     };
   }, [document.id]);
 
-  if (isLoading) return <LoadingState variant="skeleton" />;
-  if (error) return <ErrorState error={error} />;
+  if (isLoading) {return <LoadingState variant="skeleton" />;}
+  if (error) {return <ErrorState error={error} />;}
 
   const isImage = previewUrl?.match(/\.(png|jpe?g|gif|webp|svg)$/i);
   const isPdf = previewUrl?.match(/\.pdf$/i);

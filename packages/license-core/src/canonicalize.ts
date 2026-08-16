@@ -82,13 +82,13 @@ function serializeValue(value: unknown, path: string, seen: WeakSet<object>): st
   // `undefined` is not representable in JSON. At root, treat as null;
   // inside objects, the property is omitted (handled by serializeObject).
   if (value === undefined) {
-    if (path === '') return 'null';
+    if (path === '') {return 'null';}
     throw new CanonicalizationError('undefined is not representable in JSON', path);
   }
-  if (value === null) return 'null';
-  if (typeof value === 'boolean') return value ? 'true' : 'false';
-  if (typeof value === 'string') return serializeString(value);
-  if (typeof value === 'number') return serializeNumber(value, path);
+  if (value === null) {return 'null';}
+  if (typeof value === 'boolean') {return value ? 'true' : 'false';}
+  if (typeof value === 'string') {return serializeString(value);}
+  if (typeof value === 'number') {return serializeNumber(value, path);}
   if (typeof value === 'bigint') {
     throw new CanonicalizationError('BigInt is not supported by canonicalization', path);
   }
@@ -132,7 +132,7 @@ function serializeObject(obj: Record<string, unknown>, path: string, seen: WeakS
   for (const key of keys) {
     // Skip `undefined`-valued properties (matches JSON.stringify semantics).
     const v = obj[key];
-    if (v === undefined) continue;
+    if (v === undefined) {continue;}
     const childPath = path === '' ? key : `${path}.${key}`;
     parts.push(`${serializeString(key)}:${serializeValue(v, childPath, seen)}`);
   }

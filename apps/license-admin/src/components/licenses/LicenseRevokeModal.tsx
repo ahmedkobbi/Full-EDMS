@@ -8,7 +8,7 @@
  * `StepUpGuard` verifies it (spec §27.3).
  */
 import { useEffect, useState } from 'react';
-import { Modal, Stack, Text, Textarea, Button, Group, Alert, Badge } from '@mantine/core';
+import { Alert, Badge, Button, Group, Modal, Stack, Text, Textarea } from '@mantine/core';
 import { ShieldAlert, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
@@ -35,10 +35,10 @@ export function LicenseRevokeModal({ opened, onClose, license }: LicenseRevokeMo
     }
   }, [opened, revokeMutation]);
 
-  if (!license) return null;
+  if (!license) {return null;}
 
   const handleSubmit = (): void => {
-    if (!reason.trim()) return;
+    if (!reason.trim()) {return;}
     // Step-up: re-prompts for MFA if the existing step-up token has expired.
     requestStepUp(
       async () => {

@@ -209,8 +209,8 @@ export class SearchIndexer {
    * import succeeds and indexing activates automatically.
    */
   private async getClient(): Promise<OpenSearchClient | null> {
-    if (!this.opensearchUrl) return null;
-    if (this.clientPromise) return this.clientPromise;
+    if (!this.opensearchUrl) {return null;}
+    if (this.clientPromise) {return this.clientPromise;}
 
     this.clientPromise = (async () => {
       try {
@@ -243,7 +243,7 @@ export class SearchIndexer {
 
   /** Ensure the tenant's index exists before first write. */
   private async ensureIndex(client: OpenSearchClient, idx: string): Promise<void> {
-    if (this.readyIndices.has(idx)) return;
+    if (this.readyIndices.has(idx)) {return;}
     try {
       const exists = await client.indices.exists({ index: idx });
       if (!exists) {

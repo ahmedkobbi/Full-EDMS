@@ -12,7 +12,7 @@
  */
 
 import { type ReactElement, type ReactNode } from 'react';
-import { Box, Stack, Text, Group, type MantineColor } from '@mantine/core';
+import { Box, Group, type MantineColor, Stack, Text } from '@mantine/core';
 
 /** Props for {@link EmptyState}. */
 export interface EmptyStateProps {

@@ -6,23 +6,23 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  Group,
-  Text,
-  Button,
-  SimpleGrid,
-  Divider,
   ActionIcon,
-  Table,
   Anchor,
+  Button,
+  Divider,
+  Group,
+  SimpleGrid,
+  Stack,
+  Table,
+  Text,
 } from '@mantine/core';
-import { Plus, Mail, Phone } from 'lucide-react';
+import { Mail, Phone, Plus } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import type { Customer, Contact } from '@smart-edms/types';
+import type { Contact, Customer } from '@smart-edms/types';
 import {
-  useCustomerContactsQuery,
   useAddContactMutation,
+  useCustomerContactsQuery,
 } from '../../api/hooks';
 import { LocaleAwareDate } from '../common/LocaleAwareDate';
 

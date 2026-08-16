@@ -14,25 +14,25 @@
 
 import { type ReactNode } from 'react';
 import {
-  Box,
-  Container,
-  Title,
-  Text,
-  SimpleGrid,
-  Card,
-  ThemeIcon,
   Alert,
+  Box,
+  Card,
+  Container,
+  SimpleGrid,
   Stack,
+  Text,
+  ThemeIcon,
+  Title,
 } from '@mantine/core';
 import {
-  ShieldCheck,
+  Activity,
+  Database,
+  Info,
   KeyRound,
   Lock,
-  Database,
-  Activity,
-  WifiOff,
-  Info,
   type LucideIcon,
+  ShieldCheck,
+  WifiOff,
 } from 'lucide-react';
 
 interface SecuritySectionProps {

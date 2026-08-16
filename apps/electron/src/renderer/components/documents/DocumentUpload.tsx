@@ -10,10 +10,10 @@
  * Tour target: `data-tour="documents.upload"` so the tour engine can
  * highlight the upload area (spec §10.13).
  */
-import { useState, useCallback } from 'react';
-import { Dropzone, IMAGE_MIME_TYPE, PDF_MIME_TYPE, MS_WORD_MIME_TYPE, type FileWithPath } from '@mantine/dropzone';
-import { Group, Text, Stack, Progress, type MantineColor } from '@mantine/core';
-import { Upload, File, X, Check, AlertCircle } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { Dropzone, type FileWithPath, IMAGE_MIME_TYPE, MS_WORD_MIME_TYPE, PDF_MIME_TYPE } from '@mantine/dropzone';
+import { Group, type MantineColor, Progress, Stack, Text } from '@mantine/core';
+import { AlertCircle, Check, File, Upload, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { useUploadDocumentMutation } from '../../api/hooks';

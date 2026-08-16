@@ -14,7 +14,7 @@
  */
 
 import { type ReactNode } from 'react';
-import { Container, Title, Text, Button, Group, Box, Badge } from '@mantine/core';
+import { Badge, Box, Button, Container, Group, Text, Title } from '@mantine/core';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';
 import { LocaleLink } from '../common/LocaleLink';
 

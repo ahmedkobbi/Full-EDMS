@@ -32,7 +32,7 @@ export class TenantGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true;
+    if (isPublic) {return true;}
 
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     if (!req.user?.tid) {

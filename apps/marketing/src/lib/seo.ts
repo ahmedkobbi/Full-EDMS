@@ -18,9 +18,9 @@
 
 import type { Metadata } from 'next';
 import {
-  SUPPORTED_LOCALES,
-  siteUrl,
   type MandatoryLocaleCode,
+  siteUrl,
+  SUPPORTED_LOCALES,
 } from './locales';
 
 /**

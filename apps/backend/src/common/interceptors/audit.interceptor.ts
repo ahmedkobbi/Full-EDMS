@@ -2,8 +2,8 @@ import {
   type CallHandler,
   type ExecutionContext,
   Injectable,
-  type NestInterceptor,
   Logger,
+  type NestInterceptor,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Observable, tap } from 'rxjs';
@@ -26,7 +26,7 @@ export class AuditInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const meta = this.reflector.get<AuditMetadata>(AUDIT_KEY, context.getHandler());
-    if (!meta) return next.handle();
+    if (!meta) {return next.handle();}
 
     const req = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const start = Date.now();
@@ -73,6 +73,6 @@ export class AuditInterceptor implements NestInterceptor {
 }
 
 function extractResourceId(req: AuthenticatedRequest, param?: string): string | undefined {
-  if (!param) return undefined;
+  if (!param) {return undefined;}
   return (req.params as Record<string, string | undefined>)?.[param];
 }

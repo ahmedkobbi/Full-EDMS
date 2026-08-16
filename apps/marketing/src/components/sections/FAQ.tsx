@@ -10,7 +10,7 @@
  */
 
 import { type ReactNode } from 'react';
-import { Box, Container, Title, Text, Accordion, Stack } from '@mantine/core';
+import { Accordion, Box, Container, Stack, Text, Title } from '@mantine/core';
 
 interface FAQProps {
   readonly t: (key: string, opts?: Record<string, unknown>) => string;

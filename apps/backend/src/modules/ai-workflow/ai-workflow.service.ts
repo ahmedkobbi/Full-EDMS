@@ -162,7 +162,7 @@ export class AiWorkflowService {
       where: { id: input.documentId, tenantId },
       include: { versions: { orderBy: { versionNumber: 'desc' }, take: 1 } },
     });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // In a real implementation, this would:
     // 1. Extract text from the contract (OCR if scanned)
@@ -315,7 +315,7 @@ export class AiWorkflowService {
       let dueInHours: number | null = null;
       const hoursMatch = lower.match(/(\d+)\s*(hour|hr)/);
       const daysMatch = lower.match(/(\d+)\s*(day|week)/);
-      if (hoursMatch) dueInHours = parseInt(hoursMatch[1], 10);
+      if (hoursMatch) {dueInHours = parseInt(hoursMatch[1], 10);}
       else if (daysMatch) {
         const n = parseInt(daysMatch[1], 10);
         dueInHours = lower.includes('week') ? n * 24 * 7 : n * 24;

@@ -71,7 +71,7 @@ export const legalHoldStatusTool: ToolDefinition<
       }
 
       const where: Record<string, unknown> = { tenantId: ctx.tenantId };
-      if (input.caseCode) where.code = input.caseCode;
+      if (input.caseCode) {where.code = input.caseCode;}
       if (input.documentId) {
         // Documents under legal hold are linked via the Document.legalHoldActive
         // boolean and a join table; for now we filter by `isActive: true` and

@@ -41,10 +41,10 @@
 import {
   BadRequestException,
   ForbiddenException,
+  HttpException,
   Injectable,
   Logger,
   NotFoundException,
-  HttpException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomUUID } from 'node:crypto';
@@ -56,30 +56,30 @@ import { LicenseService } from '../license/license.service';
 import { detectPromptInjection, isBlocked } from './prompt-injection';
 import { DESTRUCTIVE_ACTIONS } from '@smart-edms/ai-core';
 import {
-  TOOL_REGISTRY,
   getToolDefinition,
   isToolAuthorized,
-  toPublicToolDefinition,
   type PublicToolDefinition,
   type SuggestedActionDraft,
+  TOOL_REGISTRY,
   type ToolContext,
   type ToolResult,
+  toPublicToolDefinition,
 } from './tool-catalog';
 import type {
   AiModelMode,
-  AssistantActionType,
   AssistantActionTargetType,
+  AssistantActionType,
   Citation,
   EntitlementModule,
   PromptInjectionDetection,
   ToolName,
 } from '@smart-edms/types';
 import type {
-  UpdateAssistantSettingsBody,
   AdminAuditQuery,
   AdminUsageQuery,
-  SessionListQuery,
   SessionFeedbackBody,
+  SessionListQuery,
+  UpdateAssistantSettingsBody,
 } from './dto';
 
 // ---------------------------------------------------------------------------
@@ -331,8 +331,8 @@ export class AiService {
         suggestedActions: result.suggestedActions,
       });
       if (result.ok) {
-        if (result.citations) allCitations.push(...result.citations);
-        if (result.suggestedActions) allSuggestedActions.push(...result.suggestedActions);
+        if (result.citations) {allCitations.push(...result.citations);}
+        if (result.suggestedActions) {allSuggestedActions.push(...result.suggestedActions);}
       }
     }
 
@@ -490,7 +490,7 @@ export class AiService {
     total: number;
   }> {
     const where: Record<string, unknown> = { tenantId, userId };
-    if (!q.includeArchived) where.status = { not: 'archived' };
+    if (!q.includeArchived) {where.status = { not: 'archived' };}
     const rows = await this.prisma.assistantSession.findMany({
       where: where as never,
       orderBy: { updatedAt: 'desc' },
@@ -563,7 +563,7 @@ export class AiService {
         },
       },
     });
-    if (!session) throw new NotFoundException({ messageKey: 'ai.errors.sessionNotFound' });
+    if (!session) {throw new NotFoundException({ messageKey: 'ai.errors.sessionNotFound' });}
     return {
       id: session.id,
       status: session.status,
@@ -593,7 +593,7 @@ export class AiService {
       where: { id: sessionId, tenantId, userId },
       select: { id: true, status: true },
     });
-    if (!session) throw new NotFoundException({ messageKey: 'ai.errors.sessionNotFound' });
+    if (!session) {throw new NotFoundException({ messageKey: 'ai.errors.sessionNotFound' });}
 
     await this.prisma.assistantSession.update({
       where: { id: sessionId },
@@ -631,7 +631,7 @@ export class AiService {
       where: { id: sessionId, tenantId, userId },
       select: { id: true },
     });
-    if (!session) throw new NotFoundException({ messageKey: 'ai.errors.sessionNotFound' });
+    if (!session) {throw new NotFoundException({ messageKey: 'ai.errors.sessionNotFound' });}
 
     // Persist feedback as an audit event (metadata only — no separate table).
     void this.audit.record({
@@ -758,11 +758,11 @@ export class AiService {
     total: number;
   }> {
     const where: Record<string, unknown> = { tenantId };
-    if (q.userId) where.userId = q.userId;
-    if (q.sessionId) where.sessionId = q.sessionId;
-    if (q.category) where.category = q.category;
-    if (q.code) where.code = q.code;
-    if (q.result) where.result = q.result;
+    if (q.userId) {where.userId = q.userId;}
+    if (q.sessionId) {where.sessionId = q.sessionId;}
+    if (q.category) {where.category = q.category;}
+    if (q.code) {where.code = q.code;}
+    if (q.result) {where.result = q.result;}
     if (q.since || q.until) {
       where.occurredAt = {
         ...(q.since ? { gte: new Date(q.since) } : {}),
@@ -1023,9 +1023,9 @@ export class AiService {
       where: { id: actionId, tenantId },
       include: { message: { include: { session: true } } },
     });
-    if (!action) return { ok: false, status: 'not_found' };
-    if (action.message.session.userId !== userId) return { ok: false, status: 'unauthorized' };
-    if (action.status !== 'suggested') return { ok: false, status: 'already_resolved' };
+    if (!action) {return { ok: false, status: 'not_found' };}
+    if (action.message.session.userId !== userId) {return { ok: false, status: 'unauthorized' };}
+    if (action.status !== 'suggested') {return { ok: false, status: 'already_resolved' };}
 
     await this.prisma.assistantAction.update({
       where: { id: actionId },
@@ -1138,7 +1138,7 @@ export class AiService {
   private async resolveLicensedModules(): Promise<readonly string[]> {
     try {
       const active = await this.license.getActivePayload();
-      if (!active) return ['core-edms']; // Fail-safe: core-edms always available.
+      if (!active) {return ['core-edms'];} // Fail-safe: core-edms always available.
       return active.payload.entitlements;
     } catch {
       return ['core-edms'];
@@ -1187,8 +1187,8 @@ export class AiService {
     externalAiAllowed: boolean;
     localOnlyMode: boolean;
   }): ResolvedModelMode {
-    if (settings.localOnlyMode) return 'local';
-    if (settings.externalAiAllowed) return 'hybrid';
+    if (settings.localOnlyMode) {return 'local';}
+    if (settings.externalAiAllowed) {return 'hybrid';}
     return 'local';
   }
 
@@ -1230,7 +1230,7 @@ export class AiService {
         return { ...response, modelProvider: response.modelProvider ?? 'local' };
       } catch (err) {
         this.logger.warn(`Local AI provider failed: ${(err as Error).message}`);
-        if (!tryExternal) throw err;
+        if (!tryExternal) {throw err;}
       }
     }
 
@@ -1658,7 +1658,7 @@ export class AiService {
       confirmationRequired: boolean;
     }>
   > {
-    if (drafts.length === 0) return [];
+    if (drafts.length === 0) {return [];}
     const created = await Promise.all(
       drafts.map((d) =>
         this.prisma.assistantAction.create({
@@ -1852,10 +1852,10 @@ function hashContent(content: string): string {
 
 /** Build a safe summary string for an arbitrary input. Never throws. */
 function safeSummary(input: unknown): string {
-  if (input === null) return 'null';
-  if (input === undefined) return 'undefined';
-  if (typeof input === 'string') return input.slice(0, 500);
-  if (typeof input === 'number' || typeof input === 'boolean') return String(input);
+  if (input === null) {return 'null';}
+  if (input === undefined) {return 'undefined';}
+  if (typeof input === 'string') {return input.slice(0, 500);}
+  if (typeof input === 'number' || typeof input === 'boolean') {return String(input);}
   try {
     return JSON.stringify(input).slice(0, 500);
   } catch {

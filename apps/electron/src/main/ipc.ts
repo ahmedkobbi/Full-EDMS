@@ -13,7 +13,7 @@
  *   - smart-edms:clear-credentials
  *   - smart-edms:set-native-theme
  */
-import { ipcMain, app, dialog, safeStorage, nativeTheme } from 'electron';
+import { app, dialog, ipcMain, nativeTheme, safeStorage } from 'electron';
 import fs from 'node:fs';
 import path from 'node:path';
 import type { AppInfo, FilePickerFilter, StoredCredentials } from './preload.js';

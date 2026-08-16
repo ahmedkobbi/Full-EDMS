@@ -12,8 +12,8 @@
  *
  * The palette uses keyboard navigation: arrow keys to move, Enter to select.
  */
-import { useEffect, useState, type ReactNode } from 'react';
-import { Modal, TextInput, Stack, Group, Text, UnstyledButton, Box } from '@mantine/core';
+import { type ReactNode, useEffect, useState } from 'react';
+import { Box, Group, Modal, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
 import { Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -95,7 +95,7 @@ export function CommandPalette({ opened, onClose }: CommandPaletteProps) {
       'Enter',
       () => {
         const item = filtered[activeIndex];
-        if (item) item.onSelect();
+        if (item) {item.onSelect();}
       },
     ],
   ]);

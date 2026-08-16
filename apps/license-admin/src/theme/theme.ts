@@ -13,13 +13,13 @@
  * is set on the `<html>` element. The `buildRtlTheme` helper was removed
  * accordingly.
  */
-import { createTheme, type MantineThemeOverride, type MantineColorsTuple } from '@mantine/core';
+import { createTheme, type MantineColorsTuple, type MantineThemeOverride } from '@mantine/core';
 import {
-  TYPOGRAPHY,
-  SPACING,
-  Z_INDEX,
-  buildColorScale,
   BRAND_NEUTRAL,
+  buildColorScale,
+  SPACING,
+  TYPOGRAPHY,
+  Z_INDEX,
 } from './tokens';
 
 function toTuple(arr: readonly string[]): MantineColorsTuple {

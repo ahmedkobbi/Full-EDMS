@@ -14,8 +14,8 @@
  *  - Each citation is a link with a descriptive aria-label.
  *  - The list has role="list" for screen reader announcement.
  */
-import { Stack, Group, Text, Badge, UnstyledButton } from '@mantine/core';
-import { FileText, ExternalLink } from 'lucide-react';
+import { Badge, Group, Stack, Text, UnstyledButton } from '@mantine/core';
+import { ExternalLink, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Citation } from '@smart-edms/types';
 import { formatPercent } from '@smart-edms/i18n';
@@ -31,7 +31,7 @@ export function AiCitations({ citations, onSelect }: AiCitationsProps) {
   const { t } = useTranslation();
   const locale = useI18nStore((s) => s.locale);
 
-  if (citations.length === 0) return null;
+  if (citations.length === 0) {return null;}
 
   return (
     <Stack gap={4} role="list" aria-label={t('ai:bubble.response.citations')}>
@@ -61,7 +61,7 @@ export function AiCitations({ citations, onSelect }: AiCitationsProps) {
             <Text size="xs" truncate fw={500}>
               {citation.title}
             </Text>
-            {citation.confidence != null && (
+            {citation.confidence !== null && (
               <Badge size="xs" variant="light" color="gray">
                 {formatPercent(citation.confidence / 100, locale)}
               </Badge>

@@ -79,13 +79,13 @@ export const useTourStore = create<TourStoreState>((set, get) => ({
 
   next: () => {
     const { currentIndex, steps } = get();
-    if (currentIndex >= steps.length - 1) return;
+    if (currentIndex >= steps.length - 1) {return;}
     set({ currentIndex: currentIndex + 1, paused: false });
   },
 
   previous: () => {
     const { currentIndex } = get();
-    if (currentIndex <= 0) return;
+    if (currentIndex <= 0) {return;}
     set({ currentIndex: currentIndex - 1, paused: false });
   },
 

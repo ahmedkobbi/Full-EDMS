@@ -37,12 +37,12 @@
  */
 
 import type {
+  DeploymentId,
   InstallationFingerprint,
+  ISODateString,
   OfflineActivationRequestId,
   OfflineRequest,
   ProductId,
-  DeploymentId,
-  ISODateString,
 } from '@smart-edms/types';
 import { canonicalizeJson } from './canonicalize.js';
 
@@ -130,7 +130,7 @@ export function parseOfflineRequest(content: string): OfflineRequest {
       `parseOfflineRequest: invalid JSON: ${e instanceof Error ? e.message : String(e)}`,
     );
   }
-  if (parsed == null || typeof parsed !== 'object') {
+  if (parsed === null || typeof parsed !== 'object') {
     throw new Error('parseOfflineRequest: content is not a JSON object');
   }
   const obj = parsed as Record<string, unknown>;

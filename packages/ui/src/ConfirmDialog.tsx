@@ -21,7 +21,7 @@
  */
 
 import { type ReactElement, type ReactNode } from 'react';
-import { Modal, Stack, Text, Group, Button, type MantineColor } from '@mantine/core';
+import { Button, Group, type MantineColor, Modal, Stack, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 /** Props for {@link ConfirmDialog}. */

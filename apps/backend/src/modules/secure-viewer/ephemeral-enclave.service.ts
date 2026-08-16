@@ -8,7 +8,7 @@
  *
  * Spec ref: §9.9 (optional ephemeral burn-after-reading enclaves where approved).
  */
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
 import { AuditService } from '../../common/audit.service';

@@ -16,21 +16,21 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  Title,
-  Text,
-  Paper,
-  Group,
   Badge,
-  Timeline,
-  ThemeIcon,
-  Select,
   Button,
   Code,
   Divider,
+  Group,
   LoadingOverlay,
+  Paper,
+  Select,
+  Stack,
+  Text,
+  ThemeIcon,
+  Timeline,
+  Title,
 } from '@mantine/core';
-import { Check, X, Shield, RefreshCw } from 'lucide-react';
+import { Check, RefreshCw, Shield, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuditEventsQuery } from '../api/hooks';
 import { ErrorState } from '@smart-edms/ui';

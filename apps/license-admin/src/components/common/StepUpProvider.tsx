@@ -9,11 +9,11 @@
  *
  * Mounted once at the root of the authenticated app.
  */
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import { StepUpModal } from '../common/StepUpModal';
 import {
-  useAuthStore,
   selectHasStepUp,
+  useAuthStore,
 } from '../../store/auth';
 
 interface StepUpContextValue {
@@ -49,7 +49,7 @@ export function StepUpProvider({ children }: { readonly children: ReactNode }) {
   const handleConfirmed = useCallback(() => {
     const cb = callbackRef.current;
     callbackRef.current = null;
-    if (cb) cb();
+    if (cb) {cb();}
   }, []);
 
   const handleClose = useCallback(() => {

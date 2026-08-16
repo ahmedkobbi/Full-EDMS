@@ -101,7 +101,7 @@ export class PhysicalTwinService {
    */
   async lookupTag(tenantId: string, tagId: string) {
     const tag = await this.redis.getJson<any>(`physical-tag:${tenantId}:${tagId}`);
-    if (!tag) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!tag) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     // If linked to a document, fetch it with expected items for AR overlay
     if (tag.documentId) {
@@ -130,7 +130,7 @@ export class PhysicalTwinService {
     const tags: Array<{ taggedAt: string; [k: string]: unknown }> = [];
     for (const key of keys) {
       const data = await this.redis.getJson<any>(key);
-      if (data) tags.push(data);
+      if (data) {tags.push(data);}
     }
     return tags.sort((a, b) => new Date(b.taggedAt).getTime() - new Date(a.taggedAt).getTime());
   }

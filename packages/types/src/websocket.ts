@@ -17,7 +17,7 @@ import type { ShareLinkId } from './share';
 import type { LicenseState } from './license';
 import type { ScannerJobId } from './scanner';
 import type { TourDefinitionId } from './tour';
-import type { AssistantSessionId, AssistantMessageId } from './ai';
+import type { AssistantMessageId, AssistantSessionId } from './ai';
 
 /**
  * Required real-time event names (spec §13.4). Stable strings; used as

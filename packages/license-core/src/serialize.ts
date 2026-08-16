@@ -46,7 +46,7 @@ export function serializeSedmslic(artifact: LicenseArtifact): string {
  */
 export function parseSedmslic(content: string): LicenseArtifact {
   const parsed = parseJsonStrict(content, 'parseSedmslic');
-  if (parsed == null || typeof parsed !== 'object') {
+  if (parsed === null || typeof parsed !== 'object') {
     throw new Error('parseSedmslic: content is not a JSON object');
   }
   const obj = parsed as Record<string, unknown>;
@@ -65,7 +65,7 @@ export function parseSedmslic(content: string): LicenseArtifact {
   if (typeof obj.sig !== 'string') {
     throw new Error('parseSedmslic: missing or invalid sig');
   }
-  if (obj.payload == null || typeof obj.payload !== 'object') {
+  if (obj.payload === null || typeof obj.payload !== 'object') {
     throw new Error('parseSedmslic: missing or invalid payload');
   }
   return obj as unknown as LicenseArtifact;
@@ -94,7 +94,7 @@ export function serializeSedmsreq(req: OfflineRequest): string {
  */
 export function parseSedmsreq(content: string): OfflineRequest {
   const parsed = parseJsonStrict(content, 'parseSedmsreq');
-  if (parsed == null || typeof parsed !== 'object') {
+  if (parsed === null || typeof parsed !== 'object') {
     throw new Error('parseSedmsreq: content is not a JSON object');
   }
   const obj = parsed as Record<string, unknown>;
@@ -127,7 +127,7 @@ export function serializeSedmscrl(crl: RevocationList): string {
  */
 export function parseSedmscrl(content: string): RevocationList {
   const parsed = parseJsonStrict(content, 'parseSedmscrl');
-  if (parsed == null || typeof parsed !== 'object') {
+  if (parsed === null || typeof parsed !== 'object') {
     throw new Error('parseSedmscrl: content is not a JSON object');
   }
   const obj = parsed as Record<string, unknown>;
@@ -145,7 +145,7 @@ export function parseSedmscrl(content: string): RevocationList {
 // ---------------------------------------------------------------------------
 
 function assertShape(value: unknown, fn: string): void {
-  if (value == null || typeof value !== 'object') {
+  if (value === null || typeof value !== 'object') {
     throw new Error(`${fn}: input is not an object`);
   }
 }

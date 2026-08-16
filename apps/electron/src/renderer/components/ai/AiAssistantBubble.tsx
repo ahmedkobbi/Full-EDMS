@@ -19,7 +19,7 @@
  * drawer opens but shows a localized "AI unavailable" message instead of
  * crashing.
  */
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { ActionIcon, Box, Tooltip } from '@mantine/core';
 import { MessageCircle, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -42,7 +42,7 @@ export function AiAssistantBubble() {
     return () => window.removeEventListener('focus', handler);
   }, [licenseQuery]);
 
-  if (!aiLicensed) return null;
+  if (!aiLicensed) {return null;}
 
   return (
     <>

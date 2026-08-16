@@ -10,7 +10,7 @@
  *   3. Tampering with any event breaks the chain
  *   4. The verifyHashChain method detects tampering
  */
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
 
 describe('Audit hash chain integrity (spec §9.12, §24.2)', () => {

@@ -11,14 +11,14 @@
  *  - Semantic status colors (success/warning/error/info) used consistently.
  *  - Logical CSS properties (start/end) so RTL works without overrides.
  */
-import { createTheme, type MantineThemeOverride, type MantineColorsTuple } from '@mantine/core';
+import { createTheme, type MantineColorsTuple, type MantineThemeOverride } from '@mantine/core';
 import {
-  TYPOGRAPHY,
-  SPACING,
-  buildColorScale,
-  BRAND_PRIMARY,
   BRAND_NEUTRAL,
+  BRAND_PRIMARY,
   BRAND_STATUS,
+  buildColorScale,
+  SPACING,
+  TYPOGRAPHY,
 } from './tokens';
 
 /**

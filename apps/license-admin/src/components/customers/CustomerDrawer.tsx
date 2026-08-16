@@ -5,15 +5,15 @@
  * displayName (required), industry, website.
  */
 import { useEffect } from 'react';
-import { Drawer, Stack, TextInput, Button, Group } from '@mantine/core';
+import { Button, Drawer, Group, Stack, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import type { Customer } from '@smart-edms/types';
 import {
+  type CustomerInput,
   useCreateCustomerMutation,
   useUpdateCustomerMutation,
-  type CustomerInput,
 } from '../../api/hooks';
 
 interface CustomerDrawerProps {
@@ -39,9 +39,9 @@ export function CustomerDrawer({ opened, onClose, customer }: CustomerDrawerProp
       legalName: (v) => ((v ?? '').trim().length < 2 ? t('common:form.minLength', { min: 2 }) : null),
       displayName: (v) => ((v ?? '').trim().length < 2 ? t('common:form.minLength', { min: 2 }) : null),
       website: (v) => {
-        if (!v) return null;
+        if (!v) {return null;}
         try {
-          // eslint-disable-next-line no-new
+           
           new URL(v);
           return null;
         } catch {
@@ -61,7 +61,7 @@ export function CustomerDrawer({ opened, onClose, customer }: CustomerDrawerProp
       });
       form.resetDirty();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   }, [opened, customer]);
 
   const handleSubmit = async (values: CustomerInput): Promise<void> => {

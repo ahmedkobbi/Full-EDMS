@@ -209,9 +209,9 @@ export class LegalHoldService {
     }>;
   }> {
     const where: Prisma.LegalHoldWhereInput = { tenantId };
-    if (query.isActive !== undefined) where.isActive = query.isActive;
-    if (query.code) where.code = query.code;
-    if (query.caseReference) where.caseReference = query.caseReference;
+    if (query.isActive !== undefined) {where.isActive = query.isActive;}
+    if (query.code) {where.code = query.code;}
+    if (query.caseReference) {where.caseReference = query.caseReference;}
 
     const rows = await this.prisma.legalHold.findMany({
       where,
@@ -278,7 +278,7 @@ export class LegalHoldService {
         },
       },
     });
-    if (!hold) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!hold) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     return {
       id: hold.id,
@@ -393,7 +393,7 @@ export class LegalHoldService {
       where: { id: holdId, tenantId },
       select: { id: true, code: true, isActive: true, documents: { select: { id: true } } },
     });
-    if (!hold) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!hold) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     if (!hold.documents.some((d) => d.id === documentId)) {
       // Idempotent: not attached.
@@ -477,7 +477,7 @@ export class LegalHoldService {
       where: { id: holdId, tenantId },
       select: { id: true, code: true, isActive: true, documents: { select: { id: true } } },
     });
-    if (!hold) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!hold) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (!hold.isActive) {
       throw new ConflictException({
         messageKey: 'errors.CONFLICT',

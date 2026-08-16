@@ -29,7 +29,7 @@
  */
 
 import { createHash, randomBytes } from 'node:crypto';
-import { hostname, platform, arch, networkInterfaces } from 'node:os';
+import { arch, hostname, networkInterfaces, platform } from 'node:os';
 
 /**
  * Default salt used when the caller does not supply one. In production,
@@ -164,11 +164,11 @@ function getPrimaryMacAddress(): string {
   const ifaces = networkInterfaces();
   for (const name of Object.keys(ifaces)) {
     const list = ifaces[name];
-    if (!list) continue;
+    if (!list) {continue;}
     for (const iface of list) {
-      if (iface.internal) continue;
-      if (iface.family !== 'IPv4') continue;
-      if (!iface.mac || iface.mac === '00:00:00:00:00:00') continue;
+      if (iface.internal) {continue;}
+      if (iface.family !== 'IPv4') {continue;}
+      if (!iface.mac || iface.mac === '00:00:00:00:00:00') {continue;}
       return iface.mac.toLowerCase();
     }
   }

@@ -11,33 +11,33 @@
  * etc.) so consumers can customize behaviour.
  */
 import {
-  useQuery,
   useMutation,
+  type UseMutationOptions,
+  useQuery,
   useQueryClient,
   type UseQueryOptions,
-  type UseMutationOptions,
 } from '@tanstack/react-query';
 import type {
-  Document,
-  PaginatedResponse,
+  AssistantSession,
+  AuditEvent,
+  Citation,
   CursorPaginationParams,
+  Document,
   HealthCheck,
+  LicenseLocalState,
+  PaginatedResponse,
+  ScannerJob,
+  ScannerProfile,
+  SearchHit,
+  TourChecklistItem,
   TourDefinition,
   TourStep,
   TourUserState,
-  TourChecklistItem,
-  AssistantSession,
-  Citation,
-  LicenseLocalState,
   User,
-  AuditEvent,
-  ScannerProfile,
-  ScannerJob,
   WorkflowDefinition,
   WorkflowInstance,
-  SearchHit,
 } from '@smart-edms/types';
-import { apiGet, apiPost, apiPatch, apiDelete, toApiError } from './client';
+import { apiDelete, apiGet, apiPatch, apiPost, toApiError } from './client';
 import type { ApiError } from '@smart-edms/types';
 
 // ---------------------------------------------------------------------------
@@ -154,7 +154,7 @@ export function useUploadDocumentMutation(
     mutationFn: async ({ file, folderId }) => {
       const form = new FormData();
       form.append('file', file);
-      if (folderId) form.append('folderId', folderId);
+      if (folderId) {form.append('folderId', folderId);}
       const res = await apiPost<Document>('/documents/upload', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });

@@ -54,7 +54,7 @@ export class ClassificationService {
   async assign(tenantId: string, documentId: string, userId: string, raw: unknown) {
     const input = assignSchema.parse(raw);
     const doc = await this.prisma.document.findFirst({ where: { id: documentId, tenantId } });
-    if (!doc) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!doc) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     if (doc.legalHoldActive) {
       throw new Error('LEGAL_HOLD_BLOCKS_CLASSIFICATION_CHANGE');
@@ -62,7 +62,7 @@ export class ClassificationService {
 
     // Check for downgrade
     const newLabel = await this.prisma.classificationLabel.findFirst({ where: { id: input.classificationId, tenantId } });
-    if (!newLabel) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!newLabel) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (doc.classificationId) {
       const oldLabel = await this.prisma.classificationLabel.findFirst({ where: { id: doc.classificationId, tenantId } });
       if (oldLabel && newLabel.sensitivityLevel < oldLabel.sensitivityLevel && !input.reason) {

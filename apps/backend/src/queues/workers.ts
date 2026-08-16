@@ -15,8 +15,8 @@
  *   5. scanner-ocr — OCR/OMR/ICR processing for scan jobs
  *   6. webhook-delivery — outgoing webhook delivery with retries (license server only)
  */
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Worker, type Job } from 'bullmq';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { type Job, Worker } from 'bullmq';
 import { PrismaService } from '../prisma/prisma.service';
 import { RedisService } from '../common/redis.service';
 import { StorageService } from '../common/storage.service';
@@ -422,7 +422,7 @@ export class RetentionEvaluationWorker implements OnModuleInit, OnModuleDestroy 
             status: { in: ['PENDING', 'APPROVED', 'EXECUTED'] },
           },
         });
-        if (existing) continue;
+        if (existing) {continue;}
 
         // Create a pending disposition record
         await this.prisma.dispositionRecord.create({
@@ -510,7 +510,7 @@ export class ScannerOcrWorker implements OnModuleInit, OnModuleDestroy {
     const scannerJob = await this.prisma.scannerJob.findUnique({
       where: { id: scannerJobId },
     });
-    if (!scannerJob) throw new Error(`Scanner job ${scannerJobId} not found`);
+    if (!scannerJob) {throw new Error(`Scanner job ${scannerJobId} not found`);}
 
     // Mark as running
     await this.prisma.scannerJob.update({

@@ -9,7 +9,7 @@
  */
 
 import { type ReactNode } from 'react';
-import { Container, Group, Stack, Text, Anchor, Box, Divider } from '@mantine/core';
+import { Anchor, Box, Container, Divider, Group, Stack, Text } from '@mantine/core';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';
 import { BrandedLogo } from '../common/BrandedLogo';
 import { LocaleLink } from '../common/LocaleLink';

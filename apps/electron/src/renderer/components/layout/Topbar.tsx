@@ -10,23 +10,23 @@
  * The topbar uses logical CSS properties so the layout flips for RTL.
  */
 import {
-  Group,
   ActionIcon,
-  Menu,
   Avatar,
-  Text,
-  Stack,
-  SegmentedControl,
   Box,
+  Group,
+  Menu,
+  SegmentedControl,
+  Stack,
+  Text,
 } from '@mantine/core';
 import {
-  Search,
-  Sun,
-  Moon,
-  Monitor,
-  User,
-  Settings,
   LogOut,
+  Monitor,
+  Moon,
+  Search,
+  Settings,
+  Sun,
+  User,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';

@@ -8,24 +8,24 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  Group,
-  Text,
-  Badge,
-  Button,
-  SimpleGrid,
-  Code,
-  Card,
-  Alert,
-  ThemeIcon,
-  Box,
   Accordion,
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Card,
+  Code,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  ThemeIcon,
 } from '@mantine/core';
-import { Plus, ShieldCheck, TriangleAlert, Key } from 'lucide-react';
+import { Key, Plus, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
-  useSigningKeysQuery,
   useActiveSigningKeyQuery,
+  useSigningKeysQuery,
 } from '../../api/hooks';
 import { LoadingState } from '../common/LoadingState';
 import { ErrorState } from '../common/ErrorState';
@@ -39,8 +39,8 @@ export function SigningKeyList() {
   const listQuery = useSigningKeysQuery();
   const activeQuery = useActiveSigningKeyQuery();
 
-  if (listQuery.isLoading || activeQuery.isLoading) return <LoadingState variant="skeleton" />;
-  if (listQuery.isError) return <ErrorState error={listQuery.error} onRetry={() => listQuery.refetch()} />;
+  if (listQuery.isLoading || activeQuery.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (listQuery.isError) {return <ErrorState error={listQuery.error} onRetry={() => listQuery.refetch()} />;}
 
   const keys = listQuery.data?.keys ?? [];
   const active = activeQuery.data;

@@ -18,19 +18,19 @@
 import { type ReactNode } from 'react';
 import {
   Box,
-  Container,
-  Title,
-  Text,
-  SimpleGrid,
   Card,
+  Container,
+  SimpleGrid,
+  Text,
   ThemeIcon,
+  Title,
 } from '@mantine/core';
 import {
-  ShieldCheck,
   FileCheck2,
-  WifiOff,
   Languages,
   type LucideIcon,
+  ShieldCheck,
+  WifiOff,
 } from 'lucide-react';
 
 interface StatsProps {

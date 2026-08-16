@@ -5,21 +5,21 @@
  */
 import { useEffect, useState } from 'react';
 import {
-  Modal,
-  Stack,
-  Select,
-  NumberInput,
-  TextInput,
   Button,
   Group,
+  Modal,
+  NumberInput,
+  Select,
+  Stack,
   Text,
+  TextInput,
 } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import {
+  useCreateTrialMutation,
   useCustomersQuery,
   useProductsQuery,
-  useCreateTrialMutation,
 } from '../../api/hooks';
 
 interface TrialCreateModalProps {
@@ -49,7 +49,7 @@ export function TrialCreateModal({ opened, onClose, defaultCustomerId }: TrialCr
   }, [opened, defaultCustomerId]);
 
   const handleSubmit = async (): Promise<void> => {
-    if (!customerId || !productId) return;
+    if (!customerId || !productId) {return;}
     try {
       await createMutation.mutateAsync({
         customerId,

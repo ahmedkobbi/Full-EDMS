@@ -60,7 +60,7 @@ export class NotificationThrottleService {
     dndTo: string | null,   // e.g., "07:00"
     userTimezone: string = 'UTC',
   ): boolean {
-    if (!dndEnabled || !dndFrom || !dndTo) return false;
+    if (!dndEnabled || !dndFrom || !dndTo) {return false;}
 
     const now = new Date();
     const formatter = new Intl.DateTimeFormat('en-US', {

@@ -130,7 +130,7 @@ export function routeNext(
   if (currentOrder === null) {
     // Should not happen post-start; treat as advance to the first step.
     const first = computeInitialStep(definition);
-    if (!first) return { kind: 'complete', finalStatus: 'COMPLETED' };
+    if (!first) {return { kind: 'complete', finalStatus: 'COMPLETED' };}
     return { kind: 'advance', nextStepOrder: first.stepOrder, parallel: first.parallel };
   }
 
@@ -194,7 +194,7 @@ export function computeInitialStep(
   definition: EngineDefinition,
 ): { readonly stepOrder: number; readonly parallel: boolean } | null {
   const enabled = definition.steps.filter((s) => s.enabled);
-  if (enabled.length === 0) return null;
+  if (enabled.length === 0) {return null;}
   const minOrder = Math.min(...enabled.map((s) => s.stepOrder));
   const parallelCount = enabled.filter((s) => s.stepOrder === minOrder).length;
   return { stepOrder: minOrder, parallel: parallelCount > 1 };

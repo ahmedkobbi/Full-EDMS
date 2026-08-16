@@ -49,7 +49,7 @@ const ALLOWED_ROUTE_PREFIXES: readonly string[] = [
 ];
 
 function isAllowedRoute(route: string): boolean {
-  if (!route.startsWith('/')) return false;
+  if (!route.startsWith('/')) {return false;}
   // Strip query/hash for the prefix check.
   const path = route.split(/[?#]/)[0]!;
   return ALLOWED_ROUTE_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));

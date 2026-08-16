@@ -3,27 +3,27 @@
  * action and a deliveries panel.
  */
 import {
+  Accordion,
+  Badge,
   Box,
   Button,
+  Code,
+  Divider,
   Group,
+  Stack,
   Table,
   Text,
-  Badge,
-  Stack,
-  Divider,
-  Code,
-  Accordion,
 } from '@mantine/core';
-import { RefreshCw, Plus, Trash2, Send, History } from 'lucide-react';
+import { History, Plus, RefreshCw, Send, Trash2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import {
-  useWebhooksQuery,
   useDeleteWebhookMutation,
+  useReplayWebhookDeliveryMutation,
   useTestWebhookMutation,
   useWebhookDeliveriesQuery,
-  useReplayWebhookDeliveryMutation,
+  useWebhooksQuery,
 } from '../../api/hooks';
 import { LoadingState } from '../common/LoadingState';
 import { ErrorState } from '../common/ErrorState';
@@ -54,8 +54,8 @@ export function WebhookTable({ onCreate, customerId: customerIdProp }: WebhookTa
     );
   }
 
-  if (query.isLoading) return <LoadingState variant="skeleton" />;
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
+  if (query.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (query.isError) {return <ErrorState error={query.error} onRetry={() => query.refetch()} />;}
 
   const webhooks = query.data ?? [];
 
@@ -92,7 +92,7 @@ export function WebhookTable({ onCreate, customerId: customerIdProp }: WebhookTa
   };
 
   const handleDelete = async (id: string): Promise<void> => {
-    if (!window.confirm(t('admin:webhooks.delete.confirm'))) return;
+    if (!window.confirm(t('admin:webhooks.delete.confirm'))) {return;}
     await deleteMutation.mutateAsync({ id, customerId });
   };
 
@@ -204,8 +204,8 @@ function WebhookDeliveries({ webhookId }: { readonly webhookId: string }) {
   const query = useWebhookDeliveriesQuery(webhookId);
   const replayMutation = useReplayWebhookDeliveryMutation();
 
-  if (query.isLoading) return <LoadingState variant="skeleton" />;
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
+  if (query.isLoading) {return <LoadingState variant="skeleton" />;}
+  if (query.isError) {return <ErrorState error={query.error} onRetry={() => query.refetch()} />;}
 
   const deliveries = query.data ?? [];
 

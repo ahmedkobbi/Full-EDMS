@@ -6,7 +6,7 @@
  *
  * Spec ref: §12.10 (admin authentication with MFA), §21.2 (admin MFA required).
  */
-import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { AuditService } from '../audit/audit.service.js';
 import bcrypt from 'bcryptjs';
@@ -72,7 +72,7 @@ export class AdminUserService {
         updatedAt: true,
       },
     });
-    if (!user) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!user) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return user;
   }
 
@@ -127,7 +127,7 @@ export class AdminUserService {
   async update(id: string, _adminId: string, raw: unknown) {
     const input = updateAdminSchema.parse(raw);
     const existing = await this.prisma.adminUser.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     return this.prisma.adminUser.update({
       where: { id },
@@ -146,7 +146,7 @@ export class AdminUserService {
 
   async suspend(id: string, adminId: string): Promise<void> {
     const existing = await this.prisma.adminUser.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (existing.roles.includes('super_admin') && !existing.roles.includes('admin')) {
       // Prevent suspending the last super_admin
       const superAdmins = await this.prisma.adminUser.count({
@@ -173,7 +173,7 @@ export class AdminUserService {
 
   async delete(id: string, adminId: string): Promise<void> {
     const existing = await this.prisma.adminUser.findUnique({ where: { id } });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     if (existing.roles.includes('super_admin')) {
       const superAdmins = await this.prisma.adminUser.count({
         where: { roles: { has: 'super_admin' }, isActive: true },

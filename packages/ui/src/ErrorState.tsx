@@ -12,7 +12,7 @@
  */
 
 import { type ReactElement, type ReactNode, useCallback } from 'react';
-import { Stack, Text, Group, Button, Box } from '@mantine/core';
+import { Box, Button, Group, Stack, Text } from '@mantine/core';
 import { AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -44,7 +44,7 @@ export interface ErrorStateProps {
 function defaultToMessageKey(error: unknown): string | null {
   if (error && typeof error === 'object' && 'messageKey' in error) {
     const mk = (error as { messageKey: unknown }).messageKey;
-    if (typeof mk === 'string' && mk.length > 0) return mk;
+    if (typeof mk === 'string' && mk.length > 0) {return mk;}
   }
   return null;
 }

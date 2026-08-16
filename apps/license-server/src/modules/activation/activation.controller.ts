@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ActivationService } from './activation.service.js';
-import { AdminJwtGuard, type AdminAuthenticatedRequest } from '../../security/admin-jwt.guard.js';
+import { type AdminAuthenticatedRequest, AdminJwtGuard } from '../../security/admin-jwt.guard.js';
 import { ApiKeyGuard } from '../../security/api-key.guard.js';
 import { OptionalApiKey } from '../../common/decorators/api-key.decorator.js';
 import { AuditAction } from '../../common/decorators/audit-action.decorator.js';

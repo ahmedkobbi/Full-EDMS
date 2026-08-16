@@ -19,7 +19,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { initI18n, useSyncI18n } from './i18n/config';
 import { ThemeProvider } from './theme/ThemeProvider';
 import { App } from './App';
-import { useAuthStore, selectAccessToken, selectRefreshToken, selectTenantId } from './store/auth';
+import { selectAccessToken, selectRefreshToken, selectTenantId, useAuthStore } from './store/auth';
 import { setTokenProvider } from './api/client';
 import { connectRealtime, disconnectRealtime } from './api/websocket';
 import { useI18nStore as useLocaleStore } from './i18n/config';
@@ -108,6 +108,6 @@ function Root() {
 }
 
 const container = document.getElementById('root');
-if (!container) throw new Error('Root container #root not found');
+if (!container) {throw new Error('Root container #root not found');}
 
 createRoot(container).render(<Root />);

@@ -9,7 +9,7 @@
  *  - `computeNextAvailableStep()` skips unavailable steps.
  *  - `getProgress()` snapshot shape + percent calculation.
  */
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type {
   EntitlementModule,
   ISODateString,

@@ -8,7 +8,7 @@
  *   - Backend running with seeded tour definitions (14 tours)
  *   - User logged in as admin (so all tours are visible)
  */
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   // Login as admin before each test

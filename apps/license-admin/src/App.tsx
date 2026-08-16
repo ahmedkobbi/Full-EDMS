@@ -7,13 +7,13 @@
  * (auto-starts on first visit).
  */
 import { Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoadingState } from '@smart-edms/ui';
 import { AdminShell } from './components/layout/AdminShell';
 import { StepUpProvider } from './components/common/StepUpProvider';
 import { GuidedTour } from './components/tour/GuidedTour';
 import { useAuthStore } from './store/auth';
-import { publicRoutes, authenticatedRoutes } from './routes';
+import { authenticatedRoutes, publicRoutes } from './routes';
 
 export function App() {
   const session = useAuthStore((s) => s.session);

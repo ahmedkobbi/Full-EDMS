@@ -9,37 +9,37 @@
  *  - User menu (profile, sign out)
  */
 import {
-  Group,
   ActionIcon,
-  Menu,
   Avatar,
-  Text,
-  Stack,
-  SegmentedControl,
-  Box,
   Badge,
+  Box,
+  Group,
+  Menu,
+  SegmentedControl,
+  Stack,
+  Text,
   Tooltip,
 } from '@mantine/core';
 import {
-  Sun,
-  Moon,
-  Monitor,
-  User,
-  Settings,
   LogOut,
+  Monitor,
+  Moon,
+  Settings,
   ShieldCheck,
+  Sun,
+  User,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useThemeStore } from '../../store/theme';
 import {
-  useAuthStore,
   selectAdminProfile,
   selectHasStepUp,
   selectStepUpExpiresAt,
+  useAuthStore,
 } from '../../store/auth';
 import type { ThemePreference } from '@smart-edms/types';
-import { LOCALES, isRtl } from '@smart-edms/i18n';
+import { isRtl, LOCALES } from '@smart-edms/i18n';
 import { useI18nStore } from '../../i18n/config';
 import type { MandatoryLocaleCode } from '@smart-edms/i18n';
 

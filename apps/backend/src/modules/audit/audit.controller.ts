@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Query, Req, Param, Res, NotFoundException } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { FastifyReply } from 'fastify';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Audit } from '../../common/decorators/audit.decorator';
@@ -43,7 +43,7 @@ export class AuditController {
     const job = await this.prisma.job.findFirst({
       where: { id: jobId, tenantId: req.user!.tid, kind: 'audit_export' },
     });
-    if (!job) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!job) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return {
       jobId: job.id,
       status: job.status,

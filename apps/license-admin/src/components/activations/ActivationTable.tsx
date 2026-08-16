@@ -5,7 +5,7 @@
  */
 import { useMemo } from 'react';
 import { MantineReactTable, type MRT_ColumnDef } from 'mantine-react-table';
-import { Box, Button, Group, Badge, Select } from '@mantine/core';
+import { Badge, Box, Button, Group, Select } from '@mantine/core';
 import { RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
@@ -99,8 +99,8 @@ export function ActivationTable({ activations, loading, onRefresh }: ActivationT
 
   const updateFilter = (key: string, value: string | null): void => {
     const next = new URLSearchParams(searchParams);
-    if (value) next.set(key, value);
-    else next.delete(key);
+    if (value) {next.set(key, value);}
+    else {next.delete(key);}
     setSearchParams(next);
   };
 

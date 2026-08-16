@@ -8,7 +8,7 @@
  * Spec ref: §24 (testing requirements), §24.2 (critical test cases).
  */
 import 'reflect-metadata';
-import { beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll } from 'vitest';
 import { type NestApplication, NestFactory } from '@nestjs/core';
 import { type INestApplication } from '@nestjs/common';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';

@@ -5,13 +5,13 @@
  * to '1.0.0'), description (optional).
  */
 import { useEffect } from 'react';
-import { Drawer, Stack, TextInput, Textarea, Button, Group } from '@mantine/core';
+import { Button, Drawer, Group, Stack, Textarea, TextInput } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import {
-  useCreateProductMutation,
   type ProductInput,
+  useCreateProductMutation,
 } from '../../api/hooks';
 
 interface ProductDrawerProps {
@@ -41,7 +41,7 @@ export function ProductDrawer({ opened, onClose }: ProductDrawerProps) {
     if (opened) {
       form.reset();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   }, [opened]);
 
   const handleSubmit = async (values: ProductInput): Promise<void> => {

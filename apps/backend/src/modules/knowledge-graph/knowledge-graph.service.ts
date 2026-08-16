@@ -127,7 +127,7 @@ export class KnowledgeGraphService {
     const departments = new Map<string, string[]>();
     for (const dv of deptValues) {
       const deptName = String(dv.value);
-      if (!departments.has(deptName)) departments.set(deptName, []);
+      if (!departments.has(deptName)) {departments.set(deptName, []);}
       departments.get(deptName)!.push(dv.documentId);
     }
     for (const [deptName, docIds] of departments) {
@@ -162,7 +162,7 @@ export class KnowledgeGraphService {
     const projects = new Map<string, string[]>();
     for (const pv of projectValues) {
       const projectName = String(pv.value);
-      if (!projects.has(projectName)) projects.set(projectName, []);
+      if (!projects.has(projectName)) {projects.set(projectName, []);}
       projects.get(projectName)!.push(pv.documentId);
     }
     for (const [projectName, docIds] of projects) {

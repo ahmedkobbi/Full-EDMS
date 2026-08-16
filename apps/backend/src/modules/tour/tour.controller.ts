@@ -39,26 +39,26 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import type { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
 import { TourService } from './tour.service';
 import {
-  AdminTourListQuerySchema,
-  AdminUpdateTourBodySchema,
-  CompleteTourBodySchema,
-  DismissTourBodySchema,
-  SkipTourBodySchema,
-  StartTourBodySchema,
-  TourAnalyticsQuerySchema,
-  TourListQuerySchema,
-  TourProgressBodySchema,
-  UserTourStateQuerySchema,
   type AdminTourListQuery,
+  AdminTourListQuerySchema,
   type AdminUpdateTourBody,
+  AdminUpdateTourBodySchema,
   type CompleteTourBody,
+  CompleteTourBodySchema,
   type DismissTourBody,
+  DismissTourBodySchema,
   type SkipTourBody,
+  SkipTourBodySchema,
   type StartTourBody,
+  StartTourBodySchema,
   type TourAnalyticsQuery,
+  TourAnalyticsQuerySchema,
   type TourListQuery,
+  TourListQuerySchema,
   type TourProgressBody,
+  TourProgressBodySchema,
   type UserTourStateQuery,
+  UserTourStateQuerySchema,
 } from './dto';
 
 // ---------------------------------------------------------------------------

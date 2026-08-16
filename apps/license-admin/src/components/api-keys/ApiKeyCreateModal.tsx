@@ -8,29 +8,29 @@
  */
 import { useEffect, useState } from 'react';
 import {
-  Modal,
-  Stack,
-  Select,
-  TextInput,
-  MultiSelect,
-  Button,
-  Group,
-  Text,
+  ActionIcon,
   Alert,
+  Box,
+  Button,
+  Checkbox,
   Code,
   CopyButton,
-  ActionIcon,
-  Checkbox,
-  Box,
+  Group,
+  Modal,
+  MultiSelect,
+  Select,
+  Stack,
+  Text,
+  TextInput,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 
-import { Copy, Check, TriangleAlert, Key } from 'lucide-react';
+import { Check, Copy, Key, TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import {
-  useCustomersQuery,
   useCreateApiKeyMutation,
+  useCustomersQuery,
 } from '../../api/hooks';
 
 const SCOPE_OPTIONS: { value: string; label: string }[] = [
@@ -77,7 +77,7 @@ export function ApiKeyCreateModal({ opened, onClose, defaultCustomerId }: ApiKey
   }, [opened, defaultCustomerId]);
 
   const handleCreate = async (): Promise<void> => {
-    if (!customerId || !name) return;
+    if (!customerId || !name) {return;}
     try {
       const res = await createMutation.mutateAsync({
         customerId,
@@ -97,7 +97,7 @@ export function ApiKeyCreateModal({ opened, onClose, defaultCustomerId }: ApiKey
   };
 
   const handleClose = (): void => {
-    if (rawKey && !acknowledged) return;
+    if (rawKey && !acknowledged) {return;}
     onClose();
   };
 

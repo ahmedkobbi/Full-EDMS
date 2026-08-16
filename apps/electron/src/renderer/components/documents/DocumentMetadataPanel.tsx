@@ -13,8 +13,8 @@
  *  - Created / updated timestamps (locale-aware)
  *  - Cryptographic checksum (truncated, copyable)
  */
-import { Stack, Group, Text, Box, Badge, CopyButton, Button, Divider } from '@mantine/core';
-import { Copy, Check, Tag, Lock } from 'lucide-react';
+import { Badge, Box, Button, CopyButton, Divider, Group, Stack, Text } from '@mantine/core';
+import { Check, Copy, Lock, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Document } from '@smart-edms/types';
 import { LocaleAwareDate } from '@smart-edms/ui';

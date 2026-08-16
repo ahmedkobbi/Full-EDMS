@@ -1,9 +1,9 @@
 import { type ReactNode } from 'react';
 import { type Metadata } from 'next';
-import { Container, Title, Text, Box, SimpleGrid, Card, Stack, Group, ThemeIcon } from '@mantine/core';
-import { Mail, Briefcase, LifeBuoy, ShieldAlert, Lock } from 'lucide-react';
+import { Box, Card, Container, Group, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { Briefcase, LifeBuoy, Lock, Mail, ShieldAlert } from 'lucide-react';
 import { getServerI18n } from '../../../i18n/config';
-import { isSupportedLocale, DEFAULT_LOCALE } from '../../../lib/locales';
+import { DEFAULT_LOCALE, isSupportedLocale } from '../../../lib/locales';
 import { buildPageMetadata } from '../../../lib/seo';
 
 interface ContactPageProps {

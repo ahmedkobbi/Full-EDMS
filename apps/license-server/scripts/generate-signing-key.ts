@@ -21,11 +21,11 @@
  * in any client artifact. The file is chmod 600 (owner read/write only).
  */
 
-import { writeFile, chmod, stat } from 'node:fs/promises';
+import { chmod, stat, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import {
-  generateSigningKeyPair,
   deriveKeyId,
+  generateSigningKeyPair,
   type SigningAlg,
 } from '@smart-edms/license-core';
 

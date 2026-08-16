@@ -59,7 +59,7 @@ export class MigrationService {
     const job = await this.prisma.job.findFirst({
       where: { id: jobId, tenantId, kind: 'migration' },
     });
-    if (!job) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!job) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return {
       jobId: job.id,
       status: job.status,
@@ -98,7 +98,7 @@ export class MigrationService {
     const job = await this.prisma.job.findFirst({
       where: { id: jobId, tenantId, kind: 'migration' },
     });
-    if (!job) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!job) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const payload = job.payload as any;
     payload.processedItems = (payload.processedItems ?? 0) + (delta.processed ?? 0);

@@ -39,8 +39,8 @@ export function buildLocaleHref(
   locale: MandatoryLocaleCode,
   href: string,
 ): string {
-  if (href === '/' || href === '') return `/${locale}`;
-  if (href.startsWith('/')) return `/${locale}${href}`;
+  if (href === '/' || href === '') {return `/${locale}`;}
+  if (href.startsWith('/')) {return `/${locale}${href}`;}
   return `/${locale}/${href}`;
 }
 

@@ -16,7 +16,7 @@
  */
 
 import { Module } from '@nestjs/common';
-import { AiController, AiAdminController } from './ai.controller';
+import { AiAdminController, AiController } from './ai.controller';
 import { AiService } from './ai.service';
 import { SearchModule } from '../search/search.module';
 import { LicenseModule } from '../license/license.module';

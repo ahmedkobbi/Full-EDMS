@@ -72,6 +72,7 @@ import { environmentSchema } from './config/environment';
           transport:
             config.get<string>('NODE_ENV') === 'production'
               ? undefined
+               
               : { target: require.resolve('pino-pretty'), options: { colorize: true, singleLine: true } },
           redact: {
             paths: [

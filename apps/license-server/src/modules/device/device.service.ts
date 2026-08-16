@@ -54,7 +54,7 @@ export class DeviceService {
    */
   async getById(id: string) {
     const device = await this.prisma.device.findUnique({ where: { id } });
-    if (!device) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!device) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return device;
   }
 

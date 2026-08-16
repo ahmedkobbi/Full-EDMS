@@ -7,7 +7,7 @@ import { RedisService } from '../../common/redis.service';
 import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { authenticator as otplibAuthenticator } from 'otplib';
-import { randomBytes, createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import type { JwtPayload, LoginResult } from './types';
 
@@ -164,14 +164,14 @@ export class AuthService {
       where: { id: payload.sub, tenantId: payload.tid, deletedAt: null, status: 'ACTIVE' },
       ...USER_WITH_RELATIONS,
     });
-    if (!user) throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
+    if (!user) {throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });}
     return this.issueTokens(user, { userAgent: undefined, ip: undefined });
   }
 
   async logout(accessToken: string): Promise<void> {
     try {
       const payload = await this.jwt.decode(accessToken) as JwtPayload | null;
-      if (!payload) return;
+      if (!payload) {return;}
       const ttl = (payload.exp ?? 0) - Math.floor(Date.now() / 1000);
       if (ttl > 0) {
         await this.redis.connection.set(`jwt:revoked:${sha256(accessToken)}`, '1', 'EX', ttl);
@@ -190,7 +190,7 @@ export class AuthService {
     user: UserWithRelations,
     ctx: { ip?: string; userAgent?: string },
   ): Promise<LoginResult> {
-    if (!user) throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
+    if (!user) {throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });}
     const roles = user.roleAssignments.map((r) => r.role.code);
     const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
       sub: user.id,
@@ -427,7 +427,7 @@ export class AuthService {
     userId: string,
   ): Promise<{ secret: string; qrCodeUri: string; backupCodes: string[] }> {
     const user = await this.prisma.user.findFirst({ where: { id: userId, tenantId } });
-    if (!user) throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });
+    if (!user) {throw new UnauthorizedException({ messageKey: 'errors.UNAUTHENTICATED' });}
     if (user.mfaEnabled) {
       throw new UnauthorizedException({ messageKey: 'errors.MFA_ALREADY_ENABLED' });
     }
@@ -577,7 +577,7 @@ export class AuthService {
     const session = await this.prisma.session.findFirst({
       where: { id: sessionId, tenantId },
     });
-    if (!session) throw new UnauthorizedException({ messageKey: 'errors.NOT_FOUND' });
+    if (!session) {throw new UnauthorizedException({ messageKey: 'errors.NOT_FOUND' });}
     // Only the owner can revoke their own sessions (admins use a separate endpoint)
     if (session.userId !== userId) {
       throw new UnauthorizedException({ messageKey: 'errors.UNAUTHORIZED' });

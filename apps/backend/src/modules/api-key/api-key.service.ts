@@ -115,13 +115,13 @@ export class ApiKeyService {
    * Returns the API key record if valid, null otherwise.
    */
   async validate(rawKey: string) {
-    if (!rawKey.startsWith('sedms_')) return null;
+    if (!rawKey.startsWith('sedms_')) {return null;}
     const keyHash = sha256(rawKey);
     const apiKey = await this.prisma.apiKey.findFirst({
       where: { keyHash, isActive: true },
     });
-    if (!apiKey) return null;
-    if (apiKey.expiresAt && apiKey.expiresAt < new Date()) return null;
+    if (!apiKey) {return null;}
+    if (apiKey.expiresAt && apiKey.expiresAt < new Date()) {return null;}
 
     // Update lastUsedAt (fire-and-forget)
     void this.prisma.apiKey.update({

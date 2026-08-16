@@ -4,25 +4,25 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../common/audit.service';
 import { RedisService } from '../../common/redis.service';
 import {
+  buildHeartbeatRequest,
+  buildInstallationFingerprint,
   buildLicenseArtifact,
-  verifyLicenseArtifact,
+  buildOfflineRequest,
+  computeLicenseState,
+  computeMachineFingerprint,
+  type HeartbeatRequest,
   parseSedmslic,
   parseSedmsreq,
-  computeMachineFingerprint,
-  buildInstallationFingerprint,
-  computeLicenseState,
-  buildOfflineRequest,
-  buildHeartbeatRequest,
-  type HeartbeatRequest,
   type SigningKeyPair,
+  verifyLicenseArtifact,
 } from '@smart-edms/license-core';
 import { readFile } from 'node:fs/promises';
 import type {
   LicenseArtifact,
+  LicenseLocalState,
   LicensePayload,
   LicenseSigningAlgorithm,
   LicenseState,
-  LicenseLocalState,
   OfflineRequest,
 } from '@smart-edms/types';
 import { z } from 'zod';
@@ -275,14 +275,14 @@ export class LicenseService {
    */
   async getActivePayload(): Promise<{ payload: LicensePayload; state: LicenseState } | null> {
     const local = await this.prisma.licenseLocalState.findFirst();
-    if (!local?.payloadJson) return null;
+    if (!local?.payloadJson) {return null;}
     const state = await this.getCurrentState();
     return { payload: local.payloadJson as unknown as LicensePayload, state };
   }
 
   private async getOrCreateDeploymentId(): Promise<string> {
     let local = await this.prisma.licenseLocalState.findFirst();
-    if (local?.deploymentId) return local.deploymentId;
+    if (local?.deploymentId) {return local.deploymentId;}
     const id = `dep-${cryptoRandomString(16)}`;
     local = await this.prisma.licenseLocalState.upsert({
       where: { tenantId: 'default' },

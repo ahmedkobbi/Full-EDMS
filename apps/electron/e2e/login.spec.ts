@@ -13,7 +13,7 @@
  *   - Database seeded (pnpm --filter @smart-edms/backend db:seed)
  *   - Default admin: admin@smart-edms.local / ChangeMe!2026
  */
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? 'admin@smart-edms.local';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'ChangeMe!2026';

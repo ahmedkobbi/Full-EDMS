@@ -84,7 +84,7 @@ export class ApiKeyService {
 
   async revoke(id: string, adminId: string): Promise<void> {
     const key = await this.prisma.apiKey.findUnique({ where: { id } });
-    if (!key) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!key) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     await this.prisma.apiKey.update({
       where: { id },
       data: { isActive: false },
@@ -100,7 +100,7 @@ export class ApiKeyService {
 
   async delete(id: string, adminId: string): Promise<void> {
     const key = await this.prisma.apiKey.findUnique({ where: { id } });
-    if (!key) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!key) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     await this.prisma.apiKey.delete({ where: { id } });
     await this.audit.record({
       adminId,
@@ -115,13 +115,13 @@ export class ApiKeyService {
    * Validate an API key (used by ApiKeyGuard).
    */
   async validate(rawKey: string) {
-    if (!rawKey.startsWith('sedms_')) return null;
+    if (!rawKey.startsWith('sedms_')) {return null;}
     const keyHash = sha256(rawKey);
     const apiKey = await this.prisma.apiKey.findFirst({
       where: { keyHash, isActive: true },
     });
-    if (!apiKey) return null;
-    if (apiKey.expiresAt && apiKey.expiresAt < new Date()) return null;
+    if (!apiKey) {return null;}
+    if (apiKey.expiresAt && apiKey.expiresAt < new Date()) {return null;}
 
     // Update lastUsedAt (fire-and-forget)
     void this.prisma.apiKey.update({

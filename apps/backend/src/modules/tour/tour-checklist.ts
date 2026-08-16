@@ -100,7 +100,7 @@ const chooseLanguage: ChecklistResolver = async (ctx) => {
     where: { id: ctx.userId },
     select: { preferredLocale: true, tenant: { select: { defaultLocale: true } } },
   });
-  if (!user) return false;
+  if (!user) {return false;}
   return Boolean(user.preferredLocale && user.preferredLocale.length > 0);
 };
 
@@ -114,7 +114,7 @@ const chooseTheme: ChecklistResolver = async (ctx) => {
     where: { userId: ctx.userId },
     select: { theme: true },
   });
-  if (!pref) return false;
+  if (!pref) {return false;}
   return pref.theme !== 'system' && Boolean(pref.theme);
 };
 
@@ -127,7 +127,7 @@ const completeWelcomeTour: ChecklistResolver = async (ctx) => {
     where: { tenantId: ctx.tenantId, code: 'welcome' },
     select: { id: true },
   });
-  if (!tour) return false;
+  if (!tour) {return false;}
   const state = await ctx.prisma.tourUserState.findUnique({
     where: { tourId_userId: { tourId: tour.id, userId: ctx.userId } },
     select: { status: true },

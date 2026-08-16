@@ -11,8 +11,8 @@
  *
  * All data fetched from GET /v1/usage/aggregate.
  */
-import { Stack, SimpleGrid, Card, Text, ThemeIcon, Group, LoadingOverlay, Button } from '@mantine/core';
-import { IconUsers, IconServer, IconDatabase, IconFileText, IconBrain, IconLicense } from '@tabler/icons-react';
+import { Button, Card, Group, LoadingOverlay, SimpleGrid, Stack, Text, ThemeIcon } from '@mantine/core';
+import { IconBrain, IconDatabase, IconFileText, IconLicense, IconServer, IconUsers } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useUsageAggregateQuery } from '../api/hooks';
 import { PageHeader } from '../components/common/PageHeader';
@@ -111,7 +111,7 @@ function UsageCard({ icon: Icon, label, value, color }: { icon: any; label: stri
 }
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) {return '0 B';}
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));

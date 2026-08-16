@@ -81,7 +81,7 @@ export class LocaleService {
     // Group by namespace
     const grouped: Record<string, Record<string, string>> = {};
     for (const o of overrides) {
-      if (!grouped[o.namespace]) grouped[o.namespace] = {};
+      if (!grouped[o.namespace]) {grouped[o.namespace] = {};}
       grouped[o.namespace][o.key] = o.value;
     }
     return grouped;

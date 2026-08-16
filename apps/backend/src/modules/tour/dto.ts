@@ -16,10 +16,10 @@
 
 import { z } from 'zod';
 import {
-  TourTriggerSchema,
-  TourPrioritySchema,
   TourAudienceSchema,
+  TourPrioritySchema,
   TourStatusSchema,
+  TourTriggerSchema,
 } from '@smart-edms/schemas';
 
 // ---------------------------------------------------------------------------

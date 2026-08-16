@@ -10,26 +10,26 @@
  */
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Modal,
-  Stack,
-  Select,
-  NumberInput,
-  MultiSelect,
   Button,
   Group,
-  Text,
+  Modal,
+  MultiSelect,
+  NumberInput,
+  Select,
+  Stack,
   Switch,
+  Text,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
-import type { LicenseType, LicenseEnvironment, EntitlementModule } from '@smart-edms/types';
+import type { EntitlementModule, LicenseEnvironment, LicenseType } from '@smart-edms/types';
 import {
   useCustomersQuery,
-  useProductsQuery,
-  useProductPlansQuery,
   useIssueLicenseMutation,
+  useProductPlansQuery,
+  useProductsQuery,
 } from '../../api/hooks';
 
 const LICENSE_TYPES: LicenseType[] = [
@@ -134,7 +134,7 @@ export function LicenseIssueModal({
   }, [selectedPlan]);
 
   const handleSubmit = async (): Promise<void> => {
-    if (!customerId || !productId || !planId || !startsAt) return;
+    if (!customerId || !productId || !planId || !startsAt) {return;}
     try {
       await issueMutation.mutateAsync({
         customerId,

@@ -90,7 +90,7 @@ export const ALLOWED_MIME_TYPES = Array.from(
 /** Extract a lower-cased extension (no leading dot) from a filename. */
 export function extractExtension(filename: string): string {
   const idx = filename.lastIndexOf('.');
-  if (idx < 0 || idx === filename.length - 1) return '';
+  if (idx < 0 || idx === filename.length - 1) {return '';}
   return filename.slice(idx + 1).toLowerCase();
 }
 

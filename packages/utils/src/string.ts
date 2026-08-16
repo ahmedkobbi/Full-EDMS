@@ -49,12 +49,12 @@ export function sanitizeFilename(filename: string): string {
  * @param max — maximum length of the output (must be ≥ 1).
  */
 export function truncate(s: string, max: number): string {
-  if (typeof s !== 'string') return '';
+  if (typeof s !== 'string') {return '';}
   if (!Number.isInteger(max) || max < 1) {
     throw new RangeError(`truncate: max must be a positive integer, got ${max}`);
   }
-  if (s.length <= max) return s;
-  if (max === 1) return '…';
+  if (s.length <= max) {return s;}
+  if (max === 1) {return '…';}
   return `${s.slice(0, max - 1)}…`;
 }
 
@@ -69,7 +69,7 @@ export function truncate(s: string, max: number): string {
  *   slugify('Café au Lait');  // 'cafe-au-lait'
  */
 export function slugify(s: string): string {
-  if (typeof s !== 'string') return '';
+  if (typeof s !== 'string') {return '';}
   return s
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '') // strip combining diacritics
@@ -88,7 +88,7 @@ export function slugify(s: string): string {
  *   camelToKebab('already-kebab'); // 'already-kebab'
  */
 export function camelToKebab(s: string): string {
-  if (typeof s !== 'string') return '';
+  if (typeof s !== 'string') {return '';}
   return s
     .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2')

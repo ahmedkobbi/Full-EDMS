@@ -17,7 +17,7 @@
  * Smart EDMS six-locale set with no third-party matcher dependency.
  */
 
-import { NextResponse, type NextRequest } from 'next/server';
+import { type NextRequest, NextResponse } from 'next/server';
 import {
   DEFAULT_LOCALE,
   isSupportedLocale,
@@ -36,7 +36,7 @@ const EXCLUDED_PATHS = /^\/(_next|api)|\.(ico|png|jpg|jpeg|svg|webp|avif|txt|xml
  * mandatory default if no header is present or no match is found.
  */
 function negotiateLocale(acceptLanguage: string | null): MandatoryLocaleCode {
-  if (!acceptLanguage) return DEFAULT_LOCALE;
+  if (!acceptLanguage) {return DEFAULT_LOCALE;}
   // Parse "fr-FR,fr;q=0.9,en;q=0.8" — take the most specific match.
   const requested = acceptLanguage
     .split(',')
@@ -50,12 +50,12 @@ function negotiateLocale(acceptLanguage: string | null): MandatoryLocaleCode {
 
   for (const { tag } of requested) {
     // Exact match (e.g. "zh-cn", "zh-CN").
-    if (isSupportedLocale(tag)) return tag as MandatoryLocaleCode;
+    if (isSupportedLocale(tag)) {return tag as MandatoryLocaleCode;}
     // Prefix match (e.g. "fr-FR" -> "fr", "zh-Hant" -> still no match, falls
     // back to en; that's acceptable since Smart EDMS only ships Simplified
     // Chinese).
     const prefix = tag.split('-')[0];
-    if (isSupportedLocale(prefix)) return prefix as MandatoryLocaleCode;
+    if (isSupportedLocale(prefix)) {return prefix as MandatoryLocaleCode;}
   }
   return DEFAULT_LOCALE;
 }

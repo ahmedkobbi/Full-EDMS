@@ -14,24 +14,24 @@
  *
  * Spec ref: §9.13 (notifications and alerts), §17 (Mantine v7 enterprise UI).
  */
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Popover,
-  Indicator,
   ActionIcon,
-  Stack,
-  Group,
-  Text,
   Badge,
-  Button,
-  ScrollArea,
-  Divider,
-  ThemeIcon,
-  Paper,
   Box,
+  Button,
+  Divider,
+  Group,
+  Indicator,
+  Paper,
+  Popover,
+  ScrollArea,
+  Stack,
+  Text,
+  ThemeIcon,
 } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
-import { IconBell, IconCheck, IconAlertCircle, IconInfoCircle, IconAlertTriangle, IconCircleCheck } from '@tabler/icons-react';
+import { IconAlertCircle, IconAlertTriangle, IconBell, IconCheck, IconCircleCheck, IconInfoCircle } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuditEventsQuery } from '../../api/hooks';
 import { onRealtimeEvent, REALTIME_EVENTS } from '../../api/websocket';

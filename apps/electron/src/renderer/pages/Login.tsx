@@ -20,18 +20,18 @@
  */
 import { useState } from 'react';
 import {
-  Stack,
-  TextInput,
-  PasswordInput,
-  Button,
-  Text,
-  Title,
-  Box,
-  Center,
-  Paper,
   Alert,
-  Container,
+  Box,
+  Button,
+  Center,
   Checkbox,
+  Container,
+  Paper,
+  PasswordInput,
+  Stack,
+  Text,
+  TextInput,
+  Title,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { AlertCircle } from 'lucide-react';

@@ -7,7 +7,7 @@
  * These tests verify the AdminAuthService's login + MFA + step-up flow
  * without needing a running server (mocked Prisma + Redis).
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import bcrypt from 'bcryptjs';
 import { authenticator as otplibAuthenticator } from 'otplib';
 import { AdminAuthService } from '../src/modules/admin-auth/admin-auth.service.js';
@@ -45,8 +45,8 @@ const mockJwt = {
 // Mock ConfigService
 const mockConfig = {
   get: vi.fn((key: string) => {
-    if (key === 'JWT_SECRET') return 'test-secret-at-least-32-characters-long';
-    if (key === 'LOG_LEVEL') return 'error';
+    if (key === 'JWT_SECRET') {return 'test-secret-at-least-32-characters-long';}
+    if (key === 'LOG_LEVEL') {return 'error';}
     return undefined;
   }),
 };

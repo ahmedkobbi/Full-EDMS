@@ -16,8 +16,8 @@
  */
 import { useEffect } from 'react';
 import {
-  Stack, Paper, Text, TextInput, Select, Textarea,
-  Button, Group, Divider, Badge,
+  Badge, Button, Divider, Group, Paper, Select,
+  Stack, Text, Textarea, TextInput,
 } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -72,7 +72,7 @@ export function DocumentMetadataEditor({
     if (initialValues) {
       form.setValues({ metadata: initialValues });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   }, [initialValues]);
 
   const handleSubmit = form.onSubmit(async (values) => {

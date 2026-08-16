@@ -208,8 +208,8 @@ export class RetentionService {
     }>;
   }> {
     const where: Prisma.RetentionScheduleWhereInput = { tenantId };
-    if (query.isActive !== undefined) where.isActive = query.isActive;
-    if (query.code) where.code = query.code;
+    if (query.isActive !== undefined) {where.isActive = query.isActive;}
+    if (query.code) {where.code = query.code;}
 
     const rows = await this.prisma.retentionSchedule.findMany({
       where,
@@ -243,18 +243,18 @@ export class RetentionService {
       where: { id, tenantId },
       select: { id: true },
     });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     const data: Prisma.RetentionScheduleUpdateInput = {};
-    if (body.name !== undefined) data.name = body.name;
-    if (body.description !== undefined) data.description = body.description;
-    if (body.triggerKind !== undefined) data.triggerKind = body.triggerKind;
-    if (body.triggerDateField !== undefined) data.triggerDateField = body.triggerDateField;
-    if (body.retentionDays !== undefined) data.retentionDays = body.retentionDays;
+    if (body.name !== undefined) {data.name = body.name;}
+    if (body.description !== undefined) {data.description = body.description;}
+    if (body.triggerKind !== undefined) {data.triggerKind = body.triggerKind;}
+    if (body.triggerDateField !== undefined) {data.triggerDateField = body.triggerDateField;}
+    if (body.retentionDays !== undefined) {data.retentionDays = body.retentionDays;}
     if (body.dispositionAction !== undefined) {
       data.dispositionAction = body.dispositionAction === 'delete' ? 'delete' : body.dispositionAction;
     }
-    if (body.isActive !== undefined) data.isActive = body.isActive;
+    if (body.isActive !== undefined) {data.isActive = body.isActive;}
 
     const updated = await this.prisma.retentionSchedule.update({
       where: { id },
@@ -293,7 +293,7 @@ export class RetentionService {
       where: { id, tenantId },
       select: { id: true, isActive: true, code: true },
     });
-    if (!existing) throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
+    if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
 
     await this.prisma.retentionSchedule.update({
       where: { id },
@@ -398,17 +398,17 @@ export class RetentionService {
     }> = [];
 
     for (const doc of docs) {
-      if (!doc.retentionSchedule) continue;
+      if (!doc.retentionSchedule) {continue;}
       const schedule = doc.retentionSchedule;
 
       // Determine the trigger date based on triggerKind.
       const triggerDate = this.resolveTriggerDate(doc, schedule.triggerKind);
-      if (!triggerDate) continue;
+      if (!triggerDate) {continue;}
 
       const expiresAt = new Date(
         triggerDate.getTime() + schedule.retentionDays * 24 * 3600_000,
       );
-      if (expiresAt > horizon) continue; // outside window
+      if (expiresAt > horizon) {continue;} // outside window
       if (expiresAt < now && schedule.dispositionAction === 'review') {
         // For 'review' actions, even past-expiry documents are surfaced.
       } else if (expiresAt < now) {

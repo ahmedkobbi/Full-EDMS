@@ -13,7 +13,7 @@
  *
  * Spec ref: §9.11 (external recipient verification).
  */
-import { Injectable, Logger, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
 import { randomInt } from 'node:crypto';
@@ -37,7 +37,7 @@ export class ShareOtpService {
     const share = await this.prisma.shareLink.findFirst({
       where: { token, isActive: true },
     });
-    if (!share) throw new NotFoundException({ messageKey: 'errors.SHARE_NOT_FOUND' });
+    if (!share) {throw new NotFoundException({ messageKey: 'errors.SHARE_NOT_FOUND' });}
 
     // Check if share is expired
     if (share.expiresAt && share.expiresAt < new Date()) {
@@ -123,7 +123,7 @@ export class ShareOtpService {
     const share = await this.prisma.shareLink.findFirst({
       where: { token, isActive: true },
     });
-    if (!share) throw new NotFoundException({ messageKey: 'errors.SHARE_NOT_FOUND' });
+    if (!share) {throw new NotFoundException({ messageKey: 'errors.SHARE_NOT_FOUND' });}
 
     // Increment view count
     await this.prisma.shareLink.update({
@@ -164,7 +164,7 @@ export class ShareOtpService {
       permission: string;
       expiresAt: string;
     }>(`share:session:${sessionId}`);
-    if (!session) return null;
+    if (!session) {return null;}
     if (new Date(session.expiresAt) < new Date()) {
       await this.redis.invalidate(`share:session:${sessionId}`);
       return null;

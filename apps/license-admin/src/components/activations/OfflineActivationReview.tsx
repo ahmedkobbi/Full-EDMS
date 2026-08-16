@@ -26,42 +26,42 @@
  *   7. The admin can also "Reject" the request — calls
  *      `/v1/activate/offline-reject/:id` with a reason.
  */
-import { useState, useRef, type ChangeEvent, type DragEvent } from 'react';
+import { type ChangeEvent, type DragEvent, useRef, useState } from 'react';
 import {
-  Stack,
-  Group,
-  Text,
-  Button,
-  Box,
-  SimpleGrid,
-  Select,
-  NumberInput,
   Alert,
+  Badge,
+  Box,
+  Button,
   Code,
   Divider,
+  Group,
+  NumberInput,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
   ThemeIcon,
-  Badge,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 
 import {
-  Upload,
-  FileCheck,
-  X,
   Download,
+  FileCheck,
   ShieldCheck,
+  Upload,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import type { OfflineActivationRequest, OfflineRequest } from '@smart-edms/types';
 import {
+  downloadOfflineLicense,
   useCustomersQuery,
-  useProductPlansQuery,
   useIntakeOfflineRequestMutation,
   useIssueOfflineLicenseMutation,
-  useRejectOfflineRequestMutation,
   useOfflineRequestsQuery,
-  downloadOfflineLicense,
+  useProductPlansQuery,
+  useRejectOfflineRequestMutation,
 } from '../../api/hooks';
 import { LocaleAwareDate } from '../common/LocaleAwareDate';
 import { EmptyState } from '../common/EmptyState';
@@ -129,16 +129,16 @@ export function OfflineActivationReview() {
   const handleDrop = (e: DragEvent<HTMLDivElement>): void => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file) void handleFile(file);
+    if (file) {void handleFile(file);}
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
-    if (file) void handleFile(file);
+    if (file) {void handleFile(file);}
   };
 
   const handleIssue = async (): Promise<void> => {
-    if (!persisted || !customerId || !planId) return;
+    if (!persisted || !customerId || !planId) {return;}
     try {
       const cert = await issueMutation.mutateAsync({
         requestId: persisted.id,
@@ -159,7 +159,7 @@ export function OfflineActivationReview() {
   };
 
   const handleReject = async (): Promise<void> => {
-    if (!persisted) return;
+    if (!persisted) {return;}
     try {
       await rejectMutation.mutateAsync({
         id: persisted.id,
@@ -179,7 +179,7 @@ export function OfflineActivationReview() {
   };
 
   const handleDownload = async (): Promise<void> => {
-    if (!certificate) return;
+    if (!certificate) {return;}
     try {
       const blob = await downloadOfflineLicense(certificate.id);
       const url = URL.createObjectURL(blob);
@@ -219,7 +219,7 @@ export function OfflineActivationReview() {
     setPlanId(null);
     setExpiresAt(null);
     setGracePeriodDays(14);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) {fileInputRef.current.value = '';}
   };
 
   return (
@@ -400,7 +400,7 @@ function Field({ label, value }: { readonly label: string; readonly value: React
 export function RecentOfflineRequests(): React.ReactElement {
   const { t } = useTranslation();
   const query = useOfflineRequestsQuery({ status: 'pending', limit: 10 });
-  if (query.isLoading) return <EmptyState illustration="offline" titleKey="common:status.loading" />;
+  if (query.isLoading) {return <EmptyState illustration="offline" titleKey="common:status.loading" />;}
   const items = query.data ?? [];
   if (items.length === 0) {
     return (
