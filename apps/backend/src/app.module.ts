@@ -24,6 +24,7 @@ import { ScannerModule } from './modules/scanner/scanner.module';
 import { TourModule } from './modules/tour/tour.module';
 import { AiModule } from './modules/ai/ai.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { SecurityModule } from './modules/security/security.module';
 import { HealthModule } from './modules/health/health.module';
 import { GroupModule } from './modules/group/group.module';
 import { RoleModule } from './modules/role/role.module';
@@ -112,6 +113,7 @@ import { environmentSchema } from './config/environment';
     TourModule,
     AiModule,
     AdminModule,
+    SecurityModule,
     HealthModule,
     GroupModule,
     RoleModule,

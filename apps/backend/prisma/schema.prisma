@@ -48,6 +48,7 @@ model Tenant {
   legalHolds        LegalHold[]
   shareLinks        ShareLink[]
   auditEvents       AuditEvent[]
+  securityIncidents SecurityIncident[]
   notifications     Notification[]
   scannerProfiles   ScannerProfile[]
   scannerJobs       ScannerJob[]
@@ -103,6 +104,7 @@ model User {
   lockedDocuments  Document[] @relation("DocumentLockedBy")
   documentComments  DocumentComment[]
   auditEvents       AuditEvent[]
+  securityIncidents SecurityIncident[]
   notifications     Notification[]
   tourUserStates    TourUserState[]
   assistantSessions AssistantSession[]
@@ -817,6 +819,119 @@ model LicenseLocalState {
   wrappedPublicKey  String?  @db.Text
 
   @@map("license_local_state")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Security Incidents (cracking / tampering detection)
+// ────────────────────────────────────────────────────────────────────────────
+
+enum SecurityIncidentSeverity {
+  INFO
+  WARNING
+  CRITICAL
+  BLOCKED
+}
+
+enum SecurityIncidentStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  RESOLVED
+  FALSE_POSITIVE
+}
+
+model SecurityIncident {
+  id                String   @id @default(uuid()) @db.Uuid
+  tenantId          String?  @db.Uuid
+
+  // ── Classification ──
+  severity          SecurityIncidentSeverity @default(WARNING)
+  status            SecurityIncidentStatus @default(ACTIVE)
+  category          String   @db.VarChar(64)
+  code              String   @db.VarChar(128)
+  reason            String   @db.Text
+
+  // ── Attacker Profile: Network ──
+  ipAddress         String?  @db.VarChar(64)
+  userAgent         String?  @db.VarChar(512)
+  forwardedFor      String?  @db.VarChar(256)
+
+  // ── Attacker Profile: Account (if authenticated) ──
+  userId            String?  @db.Uuid
+  userEmail         String?  @db.VarChar(256)
+  userRoles         String[] @default([])
+
+  // ── Attacker Profile: Hardware / Environment ──
+  machineFingerprint String? @db.VarChar(128)
+  deploymentId       String? @db.VarChar(128)
+  hostname           String? @db.VarChar(128)
+  platform           String? @db.VarChar(32)
+  arch               String? @db.VarChar(32)
+  nodeVersion        String? @db.VarChar(256)
+  processPid         Int?
+
+  // ── Attacker Profile: Environment Variables (suspicious ones) ──
+  envFlags           Json?
+
+  // ── Forensic Evidence ──
+  requestMethod      String?  @db.VarChar(8)
+  requestUrl         String?  @db.VarChar(512)
+  requestHeaders     Json?
+  requestBody        String?  @db.Text
+  callStack          String?  @db.Text
+
+  // ── Validation Layer Results (which layers failed) ──
+  failedLayers       Json?
+
+  // ── Auto-Response ──
+  autoLockedDown     Boolean  @default(false)
+  autoBlockedIp      Boolean  @default(false)
+  autoSuspendedUser  Boolean  @default(false)
+
+  // ── Admin Response ──
+  acknowledgedBy     String?  @db.Uuid
+  acknowledgedAt     DateTime? @db.Timestamptz(3)
+  resolvedBy         String?  @db.Uuid
+  resolvedAt         DateTime? @db.Timestamptz(3)
+  resolutionNote     String?  @db.Text
+
+  // ── Hash Chain (tamper-evident) ──
+  sequenceNumber     BigInt   @default(1)
+  previousHash       String?  @db.VarChar(64)
+  eventHash          String   @db.VarChar(64)
+
+  // ── Correlation ──
+  correlationId      String?  @db.VarChar(64)
+
+  createdAt          DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(3)
+
+  tenant             Tenant?  @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, severity, status])
+  @@index([ipAddress])
+  @@index([userId])
+  @@index([category, code])
+  @@index([createdAt])
+  @@map("security_incidents")
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// IP Blocklist (auto-populated by incident response)
+// ────────────────────────────────────────────────────────────────────────────
+
+model BlockedIp {
+  id                String   @id @default(uuid()) @db.Uuid
+  ipAddress         String   @unique @db.VarChar(64)
+  reason            String   @db.Text
+  incidentId        String?  @db.Uuid
+  blockedAt         DateTime @default(now()) @db.Timestamptz(3)
+  expiresAt         DateTime? @db.Timestamptz(3)
+  blockedBy         String?  @db.VarChar(64)
+  attemptCount      Int      @default(1)
+
+  @@index([ipAddress, expiresAt])
+  @@map("blocked_ips")
 }
 
 // ────────────────────────────────────────────────────────────────────────────

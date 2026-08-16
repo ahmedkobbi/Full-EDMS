@@ -24,6 +24,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../common/audit.service';
+import { SecurityIncidentService } from '../security/security-incident.service';
 import {
   verifyLicenseArtifact,
   computeLicenseState,
@@ -93,6 +94,7 @@ export class EnterpriseLicenseValidator {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly config: ConfigService,
+    private readonly securityIncidents: SecurityIncidentService,
   ) {
     void this.loadPublicKey();
     void this.computeIntegrityBaseline();
@@ -307,6 +309,26 @@ export class EnterpriseLicenseValidator {
 
   private fail(reason: string, layers: any): LicenseValidationResult {
     this.logger.error(`License validation FAILED: ${reason}`);
+
+    // Determine severity based on which layer failed
+    let severity: 'WARNING' | 'CRITICAL' | 'BLOCKED' = 'WARNING';
+    if (layers.antiDebug === false || layers.envTampering === false || layers.requireCache === false) {
+      severity = 'CRITICAL';
+    }
+    if (layers.integrity === false || layers.signature === false || layers.publicKeyPin === false) {
+      severity = 'BLOCKED';
+    }
+
+    // Capture security incident with full forensic profile
+    // (non-blocking — never let incident capture break the request)
+    void this.securityIncidents.capture({
+      severity,
+      category: 'license_validation',
+      code: 'license.layer_failed',
+      reason,
+      failedLayers: layers,
+    }).catch(() => {});
+
     return { state: 'invalid' as LicenseState, reason, layers };
   }
 
