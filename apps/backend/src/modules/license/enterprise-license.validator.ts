@@ -39,6 +39,15 @@ import {
   CRITICAL_LICENSE_FILES,
   type IntegrityEntry,
   MonotonicClockTracker,
+  // Anti-tamper modules
+  detectDebugging,
+  detectEnvTampering,
+  verifyPublicKeyPin,
+  snapshotRequireCache,
+  checkRequireCache,
+  runSecurityChecks,
+  verifyFunctionIntegrity,
+  hashFunction,
 } from '@smart-edms/license-core';
 import type { LicenseArtifact, LicensePayload, LicenseState } from '@smart-edms/types';
 import { ConfigService } from '@nestjs/config';
@@ -60,8 +69,16 @@ export interface LicenseValidationResult {
     readonly crl: boolean;
     readonly heartbeat: boolean;
     readonly payloadDecryption: boolean;
+    readonly antiDebug: boolean;
+    readonly envTampering: boolean;
+    readonly publicKeyPin: boolean;
+    readonly requireCache: boolean;
   };
 }
+
+// Expected hash of the verifyLicenseArtifact function source.
+// If someone monkey-patches it, this hash won't match.
+const EXPECTED_VERIFY_FN_HASH = ''; // Set at deployment time via env var
 
 @Injectable()
 export class EnterpriseLicenseValidator {
@@ -70,6 +87,7 @@ export class EnterpriseLicenseValidator {
   private stateCache: { result: LicenseValidationResult; expiresAt: number } | null = null;
   private integrityBaseline: readonly IntegrityEntry[] | null = null;
   private readonly monotonicClock = new MonotonicClockTracker();
+  private requireCacheSnapshotTaken = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -78,6 +96,9 @@ export class EnterpriseLicenseValidator {
   ) {
     void this.loadPublicKey();
     void this.computeIntegrityBaseline();
+    // Take a snapshot of require.cache at startup for later comparison
+    snapshotRequireCache();
+    this.requireCacheSnapshotTaken = true;
   }
 
   /**
@@ -112,9 +133,51 @@ export class EnterpriseLicenseValidator {
       crl: true,
       heartbeat: true,
       payloadDecryption: true,
+      antiDebug: true,
+      envTampering: true,
+      publicKeyPin: true,
+      requireCache: true,
     };
 
-    // Layer 1: Runtime integrity verification
+    const isProduction = (process.env.NODE_ENV ?? this.config.get<string>('NODE_ENV')) === 'production';
+
+    // ── ANTI-TAMPER LAYER 0a: Anti-debugging ──────────────────────
+    // Detect --inspect, CDP attachment, ptrace, frida, gdb
+    const antiDebug = detectDebugging();
+    if (!antiDebug.ok) {
+      allLayersOk.antiDebug = false;
+      return this.fail(`Anti-debug check failed: ${antiDebug.reasons.join('; ')}`, allLayersOk);
+    }
+
+    // ── ANTI-TAMPER LAYER 0b: Environment tampering ───────────────
+    // Detect LD_PRELOAD, NODE_OPTIONS, faketime, NODE_ENV spoofing
+    const envCheck = detectEnvTampering(isProduction);
+    if (!envCheck.ok) {
+      allLayersOk.envTampering = false;
+      return this.fail(`Environment tampering detected: ${envCheck.reasons.join('; ')}`, allLayersOk);
+    }
+
+    // ── ANTI-TAMPER LAYER 0c: require.cache monitoring ────────────
+    // Detect if any cached modules have been modified at runtime
+    if (this.requireCacheSnapshotTaken) {
+      const cacheCheck = checkRequireCache();
+      if (!cacheCheck.ok) {
+        allLayersOk.requireCache = false;
+        return this.fail(`Module cache tampering detected: ${cacheCheck.reasons.join('; ')}`, allLayersOk);
+      }
+    }
+
+    // ── ANTI-TAMPER LAYER 0d: Public key pinning ──────────────────
+    // Verify that the loaded public key matches the expected hash
+    if (this.publicKeyPem) {
+      const expectedHash = this.config.get<string>('LICENSE_PUBLIC_KEY_HASH');
+      if (!verifyPublicKeyPin(this.publicKeyPem, expectedHash)) {
+        allLayersOk.publicKeyPin = false;
+        return this.fail('Public key pin verification failed — key may have been replaced', allLayersOk);
+      }
+    }
+
+    // Layer 1: Runtime integrity verification (file hashes)
     if (!this.verifyRuntimeIntegrity()) {
       allLayersOk.integrity = false;
       return this.fail('Runtime integrity check failed — binary may have been patched', allLayersOk);

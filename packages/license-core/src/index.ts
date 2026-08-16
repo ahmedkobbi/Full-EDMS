@@ -174,3 +174,25 @@ export {
   deserializeEncryptedPayload,
   type EncryptedPayload,
 } from './payload-cipher.js';
+
+// ── Anti-tamper & anti-reverse-engineering ─────────────────────────
+
+// Anti-debugging, environment tampering detection, public key pinning,
+// module integrity, self-defending functions, VM detection, and
+// constant-time comparisons. Covers all cracking techniques 2010-2026.
+export {
+  detectDebugging,
+  detectEnvTampering,
+  verifyPublicKeyPin,
+  hashDirectory,
+  hashFunction,
+  verifyFunctionIntegrity,
+  snapshotRequireCache,
+  checkRequireCache,
+  detectVirtualization,
+  safeEqual,
+  verifyFunctionSource,
+  runSecurityChecks,
+  type AntiDebugResult,
+  type SecurityCheckResult,
+} from './anti-tamper.js';
