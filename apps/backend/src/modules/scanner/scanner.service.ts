@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
@@ -43,7 +44,7 @@ export class ScannerService {
         name: input.name,
         driverKind: input.driverKind,
         deviceId: input.deviceId ?? null,
-        settings: input.settings as any,
+        settings: input.settings as Prisma.InputJsonValue,
       },
     });
   }

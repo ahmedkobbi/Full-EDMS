@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
@@ -88,8 +89,8 @@ export class NotificationService {
         severity: input.severity,
         titleKey: input.titleKey,
         bodyKey: input.bodyKey,
-        titleVars: (input.titleVars as any) ?? undefined,
-        bodyVars: (input.bodyVars as any) ?? undefined,
+        titleVars: (input.titleVars as Prisma.InputJsonValue) ?? undefined,
+        bodyVars: (input.bodyVars as Prisma.InputJsonValue) ?? undefined,
         actionUrl: input.actionUrl,
       },
     });

@@ -75,7 +75,7 @@ import { environmentSchema } from './config/environment.js';
           },
           genReqId: (req: { id?: string }) => req.id,
         },
-      }) as any,
+      }) as unknown as Parameters<typeof app.useLogger>[0],
     }),
     ScheduleModule.forRoot(),
     PrismaModule,

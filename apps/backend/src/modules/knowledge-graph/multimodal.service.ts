@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * Multimodal evidence syncing service (spec §9.10).
  *
@@ -81,7 +82,7 @@ export class MultimodalService {
           mediaType: input.mediaType,
           language: input.language,
           requestedBy: userId,
-        } as any,
+        } as Prisma.InputJsonValue,
       },
     });
 

@@ -46,7 +46,7 @@ async function main(): Promise<void> {
       defaultLocale: 'en',
       enabledLocales: ['en', 'fr', 'ar', 'ru', 'zh-CN', 'de'],
       defaultTheme: 'system',
-      flagConfig: { ar: 'neutral' } as any,
+      flagConfig: { ar: 'neutral' } as Prisma.InputJsonValue,
       quotaUsers: 50,
       quotaStorageBytes: BigInt(10737418240),
       quotaDocuments: 100000,
@@ -150,8 +150,8 @@ async function main(): Promise<void> {
   };
   await prisma.metadataSchema.upsert({
     where: { tenantId_code: { tenantId: tenant.id, code: defaultMetadataSchema.code } },
-    update: { fields: defaultMetadataSchema.fields as any },
-    create: { tenantId: tenant.id, ...defaultMetadataSchema as any },
+    update: { fields: defaultMetadataSchema.fields as Prisma.InputJsonValue },
+    create: { tenantId: tenant.id, ...defaultMetadataSchema },
   });
   console.log(`  ✓ Default metadata schema`);
 

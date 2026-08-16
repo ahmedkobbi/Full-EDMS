@@ -69,11 +69,11 @@ export class AuditController {
     const job = await this.prisma.job.findFirst({
       where: { id: jobId, tenantId: req.user!.tid, kind: 'audit_export', status: 'completed' },
     });
-    if (!job || !job.result || typeof (job.result as any).storageKey !== 'string') {
+    if (!job || !job.result || typeof (job.result as { storageKey?: string }).storageKey !== 'string') {
       throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });
     }
 
-    const storageKey = (job.result as any).storageKey as string;
+    const storageKey = (job.result as { storageKey?: string }).storageKey as string;
     const signedUrl = await this.storage.signDownloadUrl(storageKey, 300); // 5min
 
     // Redirect to the signed URL

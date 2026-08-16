@@ -17,6 +17,7 @@ import sharing from './sharing.js';
 import audit from './audit.js';
 import admin from './admin.js';
 import security from './security.js';
+import crisis from './crisis.js';
 import errors from './errors.js';
 import notifications from './notifications.js';
 import emails from './emails.js';
@@ -47,6 +48,7 @@ export const en = {
   audit,
   admin,
   security,
+  crisis,
   errors,
   notifications,
   emails,

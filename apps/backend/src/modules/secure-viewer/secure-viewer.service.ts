@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * Secure viewer service (spec §9.9).
  *
@@ -305,7 +306,7 @@ export class SecureViewerService {
           versionId: redactionData.versionId,
           redactions: redactionData.redactions,
           requestedBy: userId,
-        } as any,
+        } as Prisma.InputJsonValue,
       },
     });
 

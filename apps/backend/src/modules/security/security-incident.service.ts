@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * Smart EDMS — Security Incident Service.
  *
@@ -181,13 +182,13 @@ export class SecurityIncidentService {
           arch: attacker.arch,
           nodeVersion: attacker.nodeVersion,
           processPid: attacker.processPid,
-          envFlags: attacker.envFlags as any,
+          envFlags: attacker.envFlags as Prisma.InputJsonValue,
           requestMethod: input.requestMethod ?? null,
           requestUrl: input.requestUrl ?? null,
-          requestHeaders: (input.requestHeaders as any) ?? undefined,
+          requestHeaders: (input.requestHeaders as Prisma.InputJsonValue) ?? undefined,
           requestBody: input.requestBody ?? null,
           callStack: this.captureCallStack(),
-          failedLayers: (input.failedLayers as any) ?? undefined,
+          failedLayers: (input.failedLayers as Prisma.InputJsonValue) ?? undefined,
           autoLockedDown: autoResponse.lockedDown,
           autoBlockedIp: autoResponse.blockedIp,
           autoSuspendedUser: autoResponse.suspendedUser,

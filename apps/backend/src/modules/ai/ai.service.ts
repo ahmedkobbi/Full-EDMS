@@ -852,8 +852,8 @@ export class AiService {
       where: { tenantId },
       _count: { _all: true },
     });
-    const msgByUser = new Map<string, number>(messageRows.map((r) => [r.userId, (r._count as any)._all ?? 0]));
-    const toolCount = (toolRows[0]?._count as any)?._all ?? 0;
+    const msgByUser = new Map<string, number>(messageRows.map((r) => [r.userId, (r._count as { _all?: number })._all ?? 0]));
+    const toolCount = (toolRows[0]?._count as { _all?: number })?._all ?? 0;
 
     return {
       totalSessions: sessions,
@@ -861,7 +861,7 @@ export class AiService {
       totalToolInvocations: tools,
       byUser: sessionRows.map((r) => ({
         userId: r.userId,
-        sessions: (r._count as any)._all ?? 0,
+        sessions: (r._count as { _all?: number })._all ?? 0,
         messages: msgByUser.get(r.userId) ?? 0,
         tools: toolCount, // Prisma cannot group by userId on a table without that column; this is approximate.
       })),

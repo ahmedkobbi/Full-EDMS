@@ -218,6 +218,23 @@ const security = {
   'incidents.assign': 'Assign',
   'incidents.escalate': 'Escalate',
   'incidents.notify': 'Notify stakeholders',
+
+  // Security Dashboard (spec §27.3 — cracking/tampering detection)
+  'dashboard.title': 'Security Center',
+  'dashboard.subtitle': 'Real-time cracking & tampering detection',
+  'dashboard.totalIncidents': 'Total',
+  'dashboard.activeIncidents': 'Active',
+  'dashboard.criticalIncidents': 'Critical',
+  'dashboard.blockedIncidents': 'Blocked',
+  'dashboard.today': 'Today',
+  'dashboard.blockedIps': 'Blocked IPs',
+  'dashboard.filterBySeverity': 'Filter by severity',
+  'dashboard.filterByStatus': 'Filter by status',
+  'dashboard.incidentDetail': 'Incident Detail',
+  'dashboard.noIncidents': 'No security incidents',
+  'dashboard.noIncidentsDescription': 'No cracking or tampering attempts detected',
+  'dashboard.acknowledge': 'Acknowledge',
+  'dashboard.resolve': 'Resolve',
 } as const;
 
 export default security;

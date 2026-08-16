@@ -15,6 +15,8 @@ const nav = {
   'nav.search': 'Search',
   'nav.workflows': 'Workflows',
   'nav.audit': 'Audit',
+  'nav.security': 'Security',
+  'nav.crisisRoom': 'Crisis Room',
   'nav.admin': 'Administration',
   'nav.scanner': 'Scanner',
   'nav.tours': 'Guided Tours',

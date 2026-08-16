@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { z } from 'zod';
@@ -31,7 +32,7 @@ export class TenantService {
 
   async update(tenantId: string, raw: unknown) {
     const input = updateTenantSchema.parse(raw);
-    return this.prisma.tenant.update({ where: { id: tenantId }, data: input as any });
+    return this.prisma.tenant.update({ where: { id: tenantId }, data: input as Prisma.TenantUpdateInput });
   }
 
   async getEnabledLocales(tenantId: string): Promise<string[]> {

@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * Smart EDMS — BullMQ worker handlers.
  *
@@ -312,7 +313,7 @@ export class AuditExportWorker implements OnModuleInit, OnModuleDestroy {
           where: { id: jobId },
           data: {
             status: 'completed',
-            result: { storageKey: result.storageKey, eventCount: events.length } as any,
+            result: { storageKey: result.storageKey, eventCount: events.length } as Prisma.InputJsonValue,
             completedAt: new Date(),
           },
         });
@@ -564,7 +565,7 @@ export class ScannerOcrWorker implements OnModuleInit, OnModuleDestroy {
             const profile = await this.prisma.scannerProfile.findUnique({
               where: { id: scannerJob.profileId },
             });
-            if (profile?.settings && (profile.settings as any)?.omrEnabled) {
+            if (profile?.settings && (profile.settings as Record<string, unknown>)?.omrEnabled) {
               const omrResult = await this.omrService.runOmr(tenantId, documentId, version.id);
               confidenceScores.push(omrResult.overallConfidence);
             }
@@ -575,7 +576,7 @@ export class ScannerOcrWorker implements OnModuleInit, OnModuleDestroy {
             const profile = await this.prisma.scannerProfile.findUnique({
               where: { id: scannerJob.profileId },
             });
-            if (profile?.settings && (profile.settings as any)?.icrEnabled) {
+            if (profile?.settings && (profile.settings as Record<string, unknown>)?.icrEnabled) {
               const icrResult = await this.icrService.runIcr(tenantId, documentId, version.id);
               confidenceScores.push(icrResult.overallConfidence);
             }

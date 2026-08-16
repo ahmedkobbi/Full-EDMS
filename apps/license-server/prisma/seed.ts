@@ -143,8 +143,8 @@ async function main(): Promise<void> {
   for (const def of planDefs) {
     await prisma.plan.upsert({
       where: { code: def.code },
-      update: { features: def.features as any, limits: def.limits as any, name: def.name, description: def.description },
-      create: { productId: product.id, ...def, features: def.features as any, limits: def.limits as any },
+      update: { features: def.features as Prisma.InputJsonValue, limits: def.limits as Prisma.InputJsonValue, name: def.name, description: def.description },
+      create: { productId: product.id, ...def, features: def.features as Prisma.InputJsonValue, limits: def.limits as Prisma.InputJsonValue },
     });
   }
   console.log(`  ✓ ${planDefs.length} plans (team, business, enterprise-on-premise, trial)`);

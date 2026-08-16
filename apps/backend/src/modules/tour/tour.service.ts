@@ -36,7 +36,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import type { AuditEventCode } from '@smart-edms/types';
+import type { AuditEventCode, TourStepActionType } from '@smart-edms/types';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../common/audit.service';
 import { LicenseService } from '../license/license.service';
@@ -327,7 +327,7 @@ export class TourService {
         placement: s.placement,
         requiresPermission: s.requiresPermission,
         requiresLicenseModule: s.requiresLicenseModule,
-        actionType: (s.actionType ?? 'none') as any,
+        actionType: (s.actionType ?? 'none') as TourStepActionType,
         waitForEvent: s.waitForEvent,
       })),
       userState: state

@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * AI Workflow Generation + Agentic Document Negotiators (spec §9.8).
  *
@@ -94,7 +95,7 @@ export class AiWorkflowService {
           generatedBy: 'ai',
           generatedAt: new Date().toISOString(),
           sourceDescription: input.description,
-        } as any,
+        } as Prisma.InputJsonValue,
         version: 1,
         status: 'DRAFT',
         isAiDraft: true,
@@ -227,7 +228,7 @@ export class AiWorkflowService {
             ],
             generatedBy: 'ai-negotiator',
             contradictions,
-          } as any,
+          } as Prisma.InputJsonValue,
           version: 1,
           status: 'DRAFT',
           isAiDraft: true,

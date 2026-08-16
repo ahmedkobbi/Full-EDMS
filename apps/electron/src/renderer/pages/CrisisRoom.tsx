@@ -82,7 +82,7 @@ export function CrisisRoomPage() {
     };
 
     const offSync = onRealtimeEvent(REALTIME_EVENTS.CrisisRoomSync, handleSync);
-    const offEvent = onRealtimeEvent('crisis.event' as any, handleEvent);
+    const offEvent = onRealtimeEvent('crisis.event' as never, handleEvent);
 
     return () => {
       offSync?.();
@@ -122,7 +122,7 @@ export function CrisisRoomPage() {
   };
 
   if (loading) return <LoadingOverlay visible />;
-  if (error) return <ErrorState error={{ message: error, code: 'CRISIS_ROOM_ERROR' } as any} />;
+  if (error) return <ErrorState error={{ message: error, code: 'CRISIS_ROOM_ERROR' } as { message: string; code: string }} />;
 
   return (
     <Stack gap="md" p="md">

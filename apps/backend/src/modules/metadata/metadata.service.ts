@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 /**
  * Metadata schema management service (spec §9.5 — metadata, taxonomy).
  *
@@ -53,7 +54,7 @@ export class MetadataService {
   async createSchema(tenantId: string, raw: unknown) {
     const input = createSchemaSchema.parse(raw);
     return this.prisma.metadataSchema.create({
-      data: { tenantId, ...input, fields: input.fields as any },
+      data: { tenantId, ...input, fields: input.fields as Prisma.InputJsonValue },
     });
   }
 
@@ -63,7 +64,7 @@ export class MetadataService {
     if (!existing) {throw new NotFoundException({ messageKey: 'errors.NOT_FOUND' });}
     return this.prisma.metadataSchema.update({
       where: { id },
-      data: { ...input, fields: input.fields as any },
+      data: { ...input, fields: input.fields as Prisma.InputJsonValue },
     });
   }
 
@@ -92,8 +93,8 @@ export class MetadataService {
   ) {
     return this.prisma.metadataValue.upsert({
       where: { documentId_fieldCode: { documentId, fieldCode } },
-      create: { tenantId, documentId, fieldCode, value: value as any },
-      update: { value: value as any },
+      create: { tenantId, documentId, fieldCode, value: value as Prisma.InputJsonValue },
+      update: { value: value as Prisma.InputJsonValue },
     });
   }
 

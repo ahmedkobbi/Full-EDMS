@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { createHash, randomUUID } from 'node:crypto';
@@ -87,7 +88,7 @@ export class AuditService {
           userAgent: input.userAgent ?? null,
           correlationId: input.correlationId ?? null,
           reason: input.reason ?? null,
-          metadata: (input.metadata as any) ?? undefined,
+          metadata: (input.metadata as Prisma.InputJsonValue) ?? undefined,
           sequenceNumber,
           previousHash,
           eventHash,

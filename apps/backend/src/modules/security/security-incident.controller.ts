@@ -13,6 +13,7 @@ import {
 import { SecurityIncidentService } from './security-incident.service';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { AuthenticatedRequest } from '../../common/guards/jwt-auth.guard';
+import type { IncidentSeverity, IncidentStatus } from './security-incident.service';
 
 @Controller('v1/security')
 @Roles('admin')
@@ -41,8 +42,8 @@ export class SecurityIncidentController {
   ) {
     return this.security.listIncidents({
       tenantId: req.user!.tid,
-      severity: severity as any,
-      status: status as any,
+      severity: severity as IncidentSeverity,
+      status: status as IncidentStatus,
       ipAddress,
       userId,
       category,

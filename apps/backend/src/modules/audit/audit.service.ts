@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuditService } from '../../common/audit.service';
@@ -87,7 +88,7 @@ export class AuditApiService {
         tenantId,
         kind: 'audit_export',
         status: 'queued',
-        payload: { query, requestedBy: userId } as any,
+        payload: { query, requestedBy: userId } as Prisma.InputJsonValue,
       },
     });
     return { jobId: job.id, status: 'queued' };
