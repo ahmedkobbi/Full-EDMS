@@ -4,6 +4,10 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import fastifyHelmet from '@fastify/helmet';
+import fastifyCompress from '@fastify/compress';
+import fastifyRateLimit from '@fastify/rate-limit';
+import fastifyMultipart from '@fastify/multipart';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
@@ -28,61 +32,44 @@ async function bootstrap(): Promise<void> {
   app.useLogger(app.get(PinoLogger));
 
   // Security headers — strict CSP, HSTS, clickjacking protection (spec §21.5).
-  // Plugin registration is wrapped in try/catch so the backend can boot in dev
-  // environments where the exact fastify-plugin version may not be installed.
-  try {
-    const fastifyHelmet = (await import('@fastify/helmet')).default;
-    await app.register(fastifyHelmet, {
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'blob:'],
-          connectSrc: ["'self'"],
-          fontSrc: ["'self'"],
-          objectSrc: ["'none'"],
-          baseUri: ["'self'"],
-          formAction: ["'self'"],
-          frameAncestors: ["'none'"],
-        },
+  await app.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        baseUri: ["'self'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'none'"],
       },
-      hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
-      frameguard: { action: 'deny' },
-      noSniff: true,
-    });
-  } catch (err) {
-    logger.warn(`@fastify/helmet skipped: ${(err as Error).message}`);
-  }
+    },
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    frameguard: { action: 'deny' },
+    noSniff: true,
+  });
 
-  try {
-    const fastifyCompress = (await import('@fastify/compress')).default;
-    await app.register(fastifyCompress);
-  } catch (err) {
-    logger.warn(`@fastify/compress skipped: ${(err as Error).message}`);
-  }
-  try {
-    const fastifyRateLimit = (await import('@fastify/rate-limit')).default;
-    await app.register(fastifyRateLimit, {
-      global: true,
-      max: 200,
-      timeWindow: '1 minute',
-      keyGenerator: (req) => {
-        const auth = (req.headers.authorization ?? '').slice(0, 32);
-        return `${req.ip}:${auth}`;
-      },
-    });
-  } catch (err) {
-    logger.warn(`@fastify/rate-limit skipped: ${(err as Error).message}`);
-  }
-  try {
-    const fastifyMultipart = (await import('@fastify/multipart')).default;
-    await app.register(fastifyMultipart, {
-      limits: { fileSize: 5 * 1024 * 1024 * 1024 }, // 5GB per file
-    });
-  } catch (err) {
-    logger.warn(`@fastify/multipart skipped: ${(err as Error).message}`);
-  }
+  // Compression (spec §21.5 — reduce bandwidth).
+  await app.register(fastifyCompress);
+
+  // Rate limiting — 200 req/min global, 10 req/min for auth (spec §21.5, §27.3).
+  await app.register(fastifyRateLimit, {
+    global: true,
+    max: 200,
+    timeWindow: '1 minute',
+    keyGenerator: (req) => {
+      const auth = (req.headers.authorization ?? '').slice(0, 32);
+      return `${req.ip}:${auth}`;
+    },
+  });
+
+  // Multipart file upload support — 5GB max per file (spec §9.3).
+  await app.register(fastifyMultipart, {
+    limits: { fileSize: 5 * 1024 * 1024 * 1024 },
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({

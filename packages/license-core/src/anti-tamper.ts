@@ -118,7 +118,7 @@
  */
 
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { readFileSync, existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 
 // ── A. Anti-debugging ──────────────────────────────────────────────
@@ -159,15 +159,13 @@ export function detectDebugging(): AntiDebugResult {
 
   // Check for V8 inspector (CDP)
   try {
-    // @ts-ignore — process.binding is deprecated but still exists
-    if (typeof process.binding === 'function') {
-      // The inspector module is only available when --inspect is used
-      const inspector = require('node:inspector');
-      if (inspector && typeof inspector.url === 'function') {
-        const url = inspector.url();
-        if (url) {
-          reasons.push(`V8 inspector active: ${url}`);
-        }
+    // The inspector module is only available when --inspect is used
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const inspector = require('node:inspector');
+    if (inspector && typeof inspector.url === 'function') {
+      const url = inspector.url();
+      if (url) {
+        reasons.push(`V8 inspector active: ${url}`);
       }
     }
   } catch {
@@ -302,7 +300,9 @@ export function verifyPublicKeyPin(
  */
 export function hashDirectory(dirPath: string): string | null {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { readdirSync, statSync } = require('node:fs');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { join } = require('node:path');
     const hashes: string[] = [];
 
@@ -322,7 +322,7 @@ export function hashDirectory(dirPath: string): string | null {
     }
 
     walk(dirPath);
-    if (hashes.length === 0) return null;
+    if (hashes.length === 0) {return null;}
     hashes.sort();
     return createHash('sha256').update(hashes.join('|')).digest('hex');
   } catch {
@@ -336,7 +336,7 @@ export function hashDirectory(dirPath: string): string | null {
  * Compute a hash of a function's source code. If the function has been
  * monkey-patched or overridden, the hash will change.
  */
-export function hashFunction(fn: Function): string {
+export function hashFunction(fn: (...args: unknown[]) => unknown): string {
   const source = fn.toString();
   return createHash('sha256').update(source, 'utf8').digest('hex');
 }
@@ -346,7 +346,7 @@ export function hashFunction(fn: Function): string {
  * source hash against an expected hash.
  */
 export function verifyFunctionIntegrity(
-  fn: Function,
+  fn: (...args: unknown[]) => unknown,
   expectedHash: string,
 ): boolean {
   const currentHash = hashFunction(fn);
@@ -487,7 +487,7 @@ export function detectVirtualization(): {
  * Uses crypto.timingSafeEqual internally.
  */
 export function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
+  if (a.length !== b.length) {return false;}
   try {
     return timingSafeEqual(Buffer.from(a, 'utf8'), Buffer.from(b, 'utf8'));
   } catch {
@@ -506,7 +506,7 @@ export function safeEqual(a: string, b: string): boolean {
  *   LicenseGuard.prototype.canActivate = async function() { return true; };
  */
 export function verifyFunctionSource(
-  fn: Function,
+  fn: (...args: unknown[]) => unknown,
   expectedPattern: RegExp,
 ): boolean {
   const source = fn.toString();

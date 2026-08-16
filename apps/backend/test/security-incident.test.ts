@@ -5,9 +5,9 @@
  * auto-response pipeline using direct Prisma queries.
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
-import { randomUUID, createHash } from 'node:crypto';
-import { hostname, platform, arch, version as nodeVersion } from 'node:os';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { createHash, randomUUID } from 'node:crypto';
+import { arch, hostname, version as nodeVersion, platform } from 'node:os';
 
 describe('Security Incident Service (spec §27.3, §9.12)', () => {
   let prisma: any;
@@ -42,7 +42,7 @@ describe('Security Incident Service (spec §27.3, §9.12)', () => {
   }) {
     const envFlags: Record<string, string> = {};
     for (const v of ['LD_PRELOAD', 'NODE_OPTIONS', 'FAKETIME', 'NODE_ENV']) {
-      if (process.env[v]) envFlags[v] = process.env[v]!;
+      if (process.env[v]) {envFlags[v] = process.env[v]!;}
     }
 
     const sequenceNumber = BigInt(Date.now());
@@ -161,8 +161,8 @@ describe('Security Incident Service (spec §27.3, §9.12)', () => {
 
     expect(incident.envFlags.LD_PRELOAD).toBe('/tmp/malicious.so');
 
-    if (originalLdPreload === undefined) delete process.env.LD_PRELOAD;
-    else process.env.LD_PRELOAD = originalLdPreload;
+    if (originalLdPreload === undefined) {delete process.env.LD_PRELOAD;}
+    else {process.env.LD_PRELOAD = originalLdPreload;}
   });
 
   it('lists incidents with pagination', async () => {

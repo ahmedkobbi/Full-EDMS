@@ -7,24 +7,24 @@
  * Each test plays the role of an attacker attempting a specific
  * bypass technique, then verifies the system detects it.
  */
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
+  checkRequireCache,
   detectDebugging,
   detectEnvTampering,
-  verifyPublicKeyPin,
-  hashFunction,
-  verifyFunctionIntegrity,
-  snapshotRequireCache,
-  checkRequireCache,
   detectVirtualization,
-  safeEqual,
-  verifyFunctionSource,
-  runSecurityChecks,
   hashDirectory,
+  hashFunction,
+  runSecurityChecks,
+  safeEqual,
+  snapshotRequireCache,
+  verifyFunctionIntegrity,
+  verifyFunctionSource,
+  verifyPublicKeyPin,
 } from '@smart-edms/license-core';
 import { generateSigningKeyPair, type SigningKeyPair } from '@smart-edms/license-core';
 import { createHash } from 'node:crypto';
-import { writeFileSync, mkdtempSync, rmSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -84,6 +84,7 @@ describe('Anti-tamper penetration tests (2010-2026 attack vectors)', () => {
     it('detects require.cache module replacement', () => {
       const testFile = join(tmpDir, 'hooked.js');
       writeFileSync(testFile, 'module.exports = { check: () => false };');
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require(tmpDir + '/hooked.js');
 
       // Take snapshot
@@ -154,8 +155,8 @@ describe('Anti-tamper penetration tests (2010-2026 attack vectors)', () => {
       expect(result.ok).toBe(false);
       expect(result.reasons.some(r => r.includes('LD_PRELOAD'))).toBe(true);
 
-      if (original === undefined) delete process.env.LD_PRELOAD;
-      else process.env.LD_PRELOAD = original;
+      if (original === undefined) {delete process.env.LD_PRELOAD;}
+      else {process.env.LD_PRELOAD = original;}
     });
 
     it('detects NODE_ENV=development in production', () => {
@@ -177,8 +178,8 @@ describe('Anti-tamper penetration tests (2010-2026 attack vectors)', () => {
       expect(result.ok).toBe(false);
       expect(result.reasons.some(r => r.includes('faketime'))).toBe(true);
 
-      if (original1 === undefined) delete process.env.FAKETIME;
-      else process.env.FAKETIME = original1;
+      if (original1 === undefined) {delete process.env.FAKETIME;}
+      else {process.env.FAKETIME = original1;}
     });
 
     it('detects NODE_OPTIONS with --require (module injection)', () => {
@@ -189,8 +190,8 @@ describe('Anti-tamper penetration tests (2010-2026 attack vectors)', () => {
       expect(result.ok).toBe(false);
       expect(result.reasons.some(r => r.includes('NODE_OPTIONS'))).toBe(true);
 
-      if (original === undefined) delete process.env.NODE_OPTIONS;
-      else process.env.NODE_OPTIONS = original;
+      if (original === undefined) {delete process.env.NODE_OPTIONS;}
+      else {process.env.NODE_OPTIONS = original;}
     });
 
     it('passes when environment is clean', () => {
@@ -214,7 +215,7 @@ describe('Anti-tamper penetration tests (2010-2026 attack vectors)', () => {
 
       // Restore
       for (const [k, v] of Object.entries(saved)) {
-        if (v !== undefined) (process.env as any)[k] = v;
+        if (v !== undefined) {(process.env as any)[k] = v;}
       }
     });
   });
@@ -301,8 +302,8 @@ describe('Anti-tamper penetration tests (2010-2026 attack vectors)', () => {
       expect(result.reasons.some(r => r.includes('LD_PRELOAD'))).toBe(true);
       expect(result.reasons.some(r => r.includes('inspect'))).toBe(true);
 
-      if (originalLdPreload === undefined) delete process.env.LD_PRELOAD;
-      else process.env.LD_PRELOAD = originalLdPreload;
+      if (originalLdPreload === undefined) {delete process.env.LD_PRELOAD;}
+      else {process.env.LD_PRELOAD = originalLdPreload;}
       process.argv = originalArgv;
     });
   });
@@ -353,7 +354,7 @@ describe('Anti-tamper penetration tests (2010-2026 attack vectors)', () => {
     it('verifyFunctionSource can match function patterns (detect overrides)', () => {
       function legitimateGuard() {
         const state = checkState();
-        if (state === 'invalid') throw new Error();
+        if (state === 'invalid') {throw new Error();}
         return true;
       }
 

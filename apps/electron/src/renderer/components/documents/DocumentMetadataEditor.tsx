@@ -72,7 +72,7 @@ export function DocumentMetadataEditor({
     if (initialValues) {
       form.setValues({ metadata: initialValues });
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
   }, [initialValues]);
 
   const handleSubmit = form.onSubmit(async (values) => {

@@ -41,7 +41,7 @@ export function ProductDrawer({ opened, onClose }: ProductDrawerProps) {
     if (opened) {
       form.reset();
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
   }, [opened]);
 
   const handleSubmit = async (values: ProductInput): Promise<void> => {

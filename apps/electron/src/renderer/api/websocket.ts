@@ -65,6 +65,8 @@ export const REALTIME_EVENTS = {
   AiResponseChunk: 'ai.response.chunk',
   AiResponseCompleted: 'ai.response.completed',
   AiResponseFailed: 'ai.response.failed',
+  // Security events (§27.3 — cracking/tampering detection)
+  SecurityIncidentCreated: 'security.incident.created',
 } as const;
 
 export type RealtimeEventName = (typeof REALTIME_EVENTS)[keyof typeof REALTIME_EVENTS];

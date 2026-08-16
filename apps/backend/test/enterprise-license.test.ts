@@ -10,7 +10,7 @@
  *
  * Spec ref: §12.4 (licensing), §27.3 (security rules — fail closed).
  */
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
   generateSigningKeyPair,
   buildLicenseArtifact,
@@ -38,7 +38,7 @@ import {
 } from '@smart-edms/license-core';
 import type { LicensePayload } from '@smart-edms/types';
 import { randomUUID } from 'node:crypto';
-import { writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 

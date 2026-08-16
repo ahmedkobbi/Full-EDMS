@@ -848,5 +848,174 @@ export function useRejectVerificationMutation(
   });
 }
 
+// ---------------------------------------------------------------------------
+// Security Incidents (spec §27.3 — cracking/tampering detection)
+// ---------------------------------------------------------------------------
+
+export interface SecurityIncident {
+  id: string;
+  severity: 'INFO' | 'WARNING' | 'CRITICAL' | 'BLOCKED';
+  status: 'ACTIVE' | 'ACKNOWLEDGED' | 'RESOLVED' | 'FALSE_POSITIVE';
+  category: string;
+  code: string;
+  reason: string;
+  ipAddress: string | null;
+  userAgent: string | null;
+  userId: string | null;
+  userEmail: string | null;
+  userRoles: string[];
+  machineFingerprint: string | null;
+  deploymentId: string | null;
+  hostname: string | null;
+  platform: string | null;
+  arch: string | null;
+  nodeVersion: string | null;
+  processPid: number | null;
+  envFlags: Record<string, string> | null;
+  requestMethod: string | null;
+  requestUrl: string | null;
+  requestHeaders: Record<string, unknown> | null;
+  requestBody: string | null;
+  callStack: string | null;
+  failedLayers: Record<string, boolean> | null;
+  autoLockedDown: boolean;
+  autoBlockedIp: boolean;
+  autoSuspendedUser: boolean;
+  acknowledgedBy: string | null;
+  acknowledgedAt: string | null;
+  resolvedBy: string | null;
+  resolvedAt: string | null;
+  resolutionNote: string | null;
+  sequenceNumber: string;
+  eventHash: string;
+  createdAt: string;
+}
+
+export interface SecurityDashboardStats {
+  totalIncidents: number;
+  activeIncidents: number;
+  criticalIncidents: number;
+  blockedIncidents: number;
+  incidentsToday: number;
+  blockedIpsActive: number;
+}
+
+export interface BlockedIp {
+  id: string;
+  ipAddress: string;
+  reason: string;
+  incidentId: string | null;
+  blockedAt: string;
+  expiresAt: string | null;
+  blockedBy: string | null;
+  attemptCount: number;
+}
+
+export function useSecurityDashboardQuery(
+  options?: Omit<UseQueryOptions<SecurityDashboardStats, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<SecurityDashboardStats, ApiError>({
+    queryKey: ['security-dashboard'],
+    queryFn: () => apiGet<SecurityDashboardStats>('/security/dashboard'),
+    refetchInterval: 5000,
+    ...options,
+  });
+}
+
+export function useSecurityIncidentsQuery(
+  params: {
+    severity?: string;
+    status?: string;
+    ipAddress?: string;
+    category?: string;
+    limit?: number;
+    cursor?: string;
+  } = {},
+  options?: Omit<UseQueryOptions<{ items: SecurityIncident[]; total: number; hasMore: boolean; nextCursor: string | null }, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery({
+    queryKey: ['security-incidents', params],
+    queryFn: () => apiGet<{ items: SecurityIncident[]; total: number; hasMore: boolean; nextCursor: string | null }>('/security/incidents', { params }),
+    refetchInterval: 10000,
+    ...options,
+  });
+}
+
+export function useSecurityIncidentQuery(
+  id: string,
+  options?: Omit<UseQueryOptions<SecurityIncident, ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<SecurityIncident, ApiError>({
+    queryKey: ['security-incident', id],
+    queryFn: () => apiGet<SecurityIncident>(`/security/incidents/${id}`),
+    ...options,
+  });
+}
+
+export function useAcknowledgeIncidentMutation(
+  options?: Omit<UseMutationOptions<SecurityIncident, ApiError, { id: string; note?: string }>, 'mutationFn'>,
+) {
+  const qc = useQueryClient();
+  return useMutation<SecurityIncident, ApiError, { id: string; note?: string }>({
+    mutationFn: (input) => apiPatch<SecurityIncident>(`/security/incidents/${input.id}/acknowledge`, { note: input.note }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['security-incidents'] });
+      qc.invalidateQueries({ queryKey: ['security-dashboard'] });
+    },
+    ...options,
+  });
+}
+
+export function useResolveIncidentMutation(
+  options?: Omit<UseMutationOptions<SecurityIncident, ApiError, { id: string; note?: string; falsePositive?: boolean }>, 'mutationFn'>,
+) {
+  const qc = useQueryClient();
+  return useMutation<SecurityIncident, ApiError, { id: string; note?: string; falsePositive?: boolean }>({
+    mutationFn: (input) => apiPatch<SecurityIncident>(`/security/incidents/${input.id}/resolve`, { note: input.note, falsePositive: input.falsePositive }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['security-incidents'] });
+      qc.invalidateQueries({ queryKey: ['security-dashboard'] });
+    },
+    ...options,
+  });
+}
+
+export function useBlockedIpsQuery(
+  options?: Omit<UseQueryOptions<BlockedIp[], ApiError>, 'queryKey' | 'queryFn'>,
+) {
+  return useQuery<BlockedIp[], ApiError>({
+    queryKey: ['security-blocked-ips'],
+    queryFn: () => apiGet<BlockedIp[]>('/security/blocked-ips'),
+    refetchInterval: 15000,
+    ...options,
+  });
+}
+
+export function useBlockIpMutation(
+  options?: Omit<UseMutationOptions<BlockedIp, ApiError, { ipAddress: string; reason: string; durationHours?: number }>, 'mutationFn'>,
+) {
+  const qc = useQueryClient();
+  return useMutation<BlockedIp, ApiError, { ipAddress: string; reason: string; durationHours?: number }>({
+    mutationFn: (input) => apiPost<BlockedIp>('/security/blocked-ips', input),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['security-blocked-ips'] });
+    },
+    ...options,
+  });
+}
+
+export function useUnblockIpMutation(
+  options?: Omit<UseMutationOptions<{ ok: true }, ApiError, string>, 'mutationFn'>,
+) {
+  const qc = useQueryClient();
+  return useMutation<{ ok: true }, ApiError, string>({
+    mutationFn: (ip) => apiPost<{ ok: true }>(`/security/blocked-ips/${ip}/unblock`),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['security-blocked-ips'] });
+    },
+    ...options,
+  });
+}
+
 // Re-export the error helper for convenience.
 export { toApiError };

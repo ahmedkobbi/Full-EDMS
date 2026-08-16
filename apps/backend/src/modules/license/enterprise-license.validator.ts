@@ -52,8 +52,8 @@ import {
 } from '@smart-edms/license-core';
 import type { LicenseArtifact, LicensePayload, LicenseState } from '@smart-edms/types';
 import { ConfigService } from '@nestjs/config';
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 
 const STATE_CACHE_TTL_SECONDS = 30;
 

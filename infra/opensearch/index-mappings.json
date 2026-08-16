@@ -1,0 +1,60 @@
+{
+  "settings": {
+    "index": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "refresh_interval": "5s"
+    },
+    "analysis": {
+      "analyzer": {
+        "edms_content": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": ["lowercase", "stop", "edms_stemmer"]
+        },
+        "edms_filename": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tokenizer",
+          "filter": ["lowercase"]
+        }
+      },
+      "filter": {
+        "edms_stemmer": {
+          "type": "stemmer",
+          "language": "english"
+        }
+      },
+      "tokenizer": {
+        "edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 2,
+          "max_gram": 20,
+          "token_chars": ["letter", "digit"]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "documentId":        { "type": "keyword" },
+      "tenantId":          { "type": "keyword" },
+      "title":             { "type": "text", "analyzer": "edms_content", "boost": 3 },
+      "description":       { "type": "text", "analyzer": "edms_content" },
+      "fileName":          { "type": "text", "analyzer": "edms_filename", "boost": 2 },
+      "contentText":       { "type": "text", "analyzer": "edms_content" },
+      "ocrText":           { "type": "text", "analyzer": "edms_content" },
+      "documentType":      { "type": "keyword" },
+      "classificationCode":{ "type": "keyword" },
+      "sensitivityLevel":  { "type": "integer" },
+      "tags":              { "type": "keyword" },
+      "status":            { "type": "keyword" },
+      "folderId":          { "type": "keyword" },
+      "createdByUserId":   { "type": "keyword" },
+      "metadata":          { "type": "object", "enabled": false },
+      "createdAt":         { "type": "date" },
+      "updatedAt":         { "type": "date" },
+      "deletedAt":         { "type": "date" },
+      "version":           { "type": "integer" }
+    }
+  }
+}

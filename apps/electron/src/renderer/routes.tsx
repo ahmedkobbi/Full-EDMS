@@ -32,6 +32,8 @@ import { DocumentDetailPage } from './pages/DocumentDetail';
 import { SearchPage } from './pages/Search';
 import { WorkflowsPage } from './pages/Workflows';
 import { AuditPage } from './pages/Audit';
+import { SecurityPage } from './pages/Security';
+import { CrisisRoomPage } from './pages/CrisisRoom';
 import { AdminPage } from './pages/Admin';
 import { ScannerPage } from './pages/Scanner';
 import { ToursPage } from './pages/Tours';
@@ -66,6 +68,8 @@ const authenticatedRoutes: readonly RouteConfig[] = [
   { path: '/search', element: SearchPage, tourKey: 'app.search' },
   { path: '/workflows', element: WorkflowsPage, tourKey: 'workflow.designerCanvas' },
   { path: '/audit', element: AuditPage, tourKey: 'audit.timeline' },
+  { path: '/security', element: SecurityPage, tourKey: 'security.dashboard' },
+  { path: '/crisis-room', element: CrisisRoomPage, tourKey: 'crisis.room' },
   { path: '/admin', element: AdminPage, tourKey: 'admin.overview' },
   { path: '/scanner', element: ScannerPage, tourKey: 'scanner.profiles' },
   { path: '/tours', element: ToursPage, tourKey: 'help.menu' },

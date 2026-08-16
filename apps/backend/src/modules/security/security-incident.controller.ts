@@ -8,7 +8,7 @@
  */
 
 import {
-  Controller, Get, Post, Patch, Body, Param, Query, Req, UseGuards, ForbiddenException,
+  Body, Controller, ForbiddenException, Get, Param, Patch, Post, Query, Req, UseGuards,
 } from '@nestjs/common';
 import { SecurityIncidentService } from './security-incident.service';
 import { Roles } from '../../common/decorators/roles.decorator';

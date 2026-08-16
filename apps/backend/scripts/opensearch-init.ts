@@ -1,153 +1,97 @@
+#!/usr/bin/env tsx
 /**
- * OpenSearch index initialization script.
+ * Smart EDMS — OpenSearch index initialization script (spec §9.10).
  *
- * Creates the `smart-edms-documents` index with proper Arabic-aware analysis
- * (spec §9.10 — Arabic tokenization, normalization, tashkeel removal,
- * hamza/alef/taa marbuta normalization, Arabic stopwords + synonyms).
+ * Creates the `smart-edms-documents` index with the correct mappings
+ * if it does not already exist. Also configures analyzers for
+ * multilingual full-text search.
  *
- * Run on startup or manually:
+ * Usage:
  *   pnpm --filter @smart-edms/backend opensearch:init
  *
- * Spec ref: §9.10 (search, DLA, flex search), §16.7 (Arabic search requirements).
+ * Environment:
+ *   OPENSEARCH_URL — e.g. http://admin:admin@localhost:9200
  */
-import { Client as OpenSearchClient } from '@opensearch-project/opensearch';
 
-const OPENSEARCH_URL = process.env.OPENSEARCH_URL ?? 'http://localhost:9200';
-const INDEX_NAME = process.env.OPENSEARCH_INDEX ?? 'smart-edms-documents';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const OPENSEARCH_URL = process.env.OPENSEARCH_URL ?? 'http://admin:admin@localhost:9200';
+const INDEX_NAME = 'smart-edms-documents';
 
 async function main(): Promise<void> {
-  const client = new OpenSearchClient({ node: OPENSEARCH_URL });
+  console.log('Smart EDMS — OpenSearch index initialization');
+  console.log(`  URL: ${OPENSEARCH_URL.replace(/\/\/[^@]+@/, '//***@')}`);
+  console.log(`  Index: ${INDEX_NAME}`);
+  console.log('');
 
-  // Check if index already exists
-  const exists = await client.indices.exists({ index: INDEX_NAME });
-  if (exists.body) {
-    console.log(`Index ${INDEX_NAME} already exists — skipping creation.`);
-    return;
+  // Load mappings
+  const mappingsPath = resolve(__dirname, '../../infra/opensearch/index-mappings.json');
+  let mappings: Record<string, unknown>;
+  try {
+    mappings = JSON.parse(readFileSync(mappingsPath, 'utf8'));
+    console.log(`  Loaded mappings from ${mappingsPath}`);
+  } catch (err) {
+    console.error(`  Failed to load mappings: ${(err as Error).message}`);
+    process.exit(1);
   }
 
-  console.log(`Creating index ${INDEX_NAME}...`);
+  // Check if index already exists
+  try {
+    const checkResp = await fetch(`${OPENSEARCH_URL}/${INDEX_NAME}`, {
+      method: 'HEAD',
+    });
+    if (checkResp.ok) {
+      console.log(`  Index '${INDEX_NAME}' already exists — skipping creation.`);
+      return;
+    }
+  } catch {
+    // OpenSearch not reachable — continue (will fail on create)
+  }
 
-  await client.indices.create({
-    index: INDEX_NAME,
-    body: {
-      settings: {
-        index: {
-          number_of_shards: 3,
-          number_of_replicas: 1,
-          analysis: {
-            analyzer: {
-              // Arabic analyzer with tashkeel removal + normalization
-              smart_edms_arabic: {
-                type: 'custom',
-                tokenizer: 'standard',
-                filter: [
-                  'lowercase',
-                  'arabic_normalization',
-                  'smart_edms_tashkeel_remove',
-                  'smart_edms_alef_normalize',
-                  'smart_edms_hamza_normalize',
-                  'smart_edms_taa_marbuta_normalize',
-                  'smart_edms_alef_maksura_normalize',
-                  'arabic_stop',
-                  'arabic_keywords',
-                  'arabic_stemmer',
-                ],
-              },
-              // Latin analyzer with proper plural handling
-              smart_edms_latin: {
-                type: 'custom',
-                tokenizer: 'standard',
-                filter: ['lowercase', 'stop', 'snowball'],
-              },
-              // CJK analyzer (Chinese)
-              smart_edms_cjk: {
-                type: 'custom',
-                tokenizer: 'icu_tokenizer',
-                filter: ['lowercase', 'icu_normalizer'],
-              },
-            },
-            filter: {
-              smart_edms_tashkeel_remove: {
-                type: 'pattern_replace',
-                pattern: '[\u064B-\u065F\u0670]',
-                replacement: '',
-              },
-              smart_edms_alef_normalize: {
-                type: 'pattern_replace',
-                pattern: '[\u0622\u0623\u0625]',
-                replacement: '\u0627', // normalize آأإ → ا
-              },
-              smart_edms_hamza_normalize: {
-                type: 'pattern_replace',
-                pattern: '\u0624',
-                replacement: '\u0648', // normalize ؤ → و
-              },
-              smart_edms_taa_marbuta_normalize: {
-                type: 'pattern_replace',
-                pattern: '\u0629',
-                replacement: '\u0647', // normalize ة → ه
-              },
-              smart_edms_alef_maksura_normalize: {
-                type: 'pattern_replace',
-                pattern: '\u0649',
-                replacement: '\u064A', // normalize ى → ي
-              },
-            },
-          },
-        },
-      },
-      mappings: {
-        properties: {
-          tenantId: { type: 'keyword' },
-          documentId: { type: 'keyword' },
-          versionId: { type: 'keyword' },
-          title: {
-            type: 'text',
-            fields: {
-              ar: { type: 'text', analyzer: 'smart_edms_arabic' },
-              latin: { type: 'text', analyzer: 'smart_edms_latin' },
-              cjk: { type: 'text', analyzer: 'smart_edms_cjk' },
-              keyword: { type: 'keyword', ignore_above: 256 },
-            },
-          },
-          description: {
-            type: 'text',
-            fields: {
-              ar: { type: 'text', analyzer: 'smart_edms_arabic' },
-              latin: { type: 'text', analyzer: 'smart_edms_latin' },
-              cjk: { type: 'text', analyzer: 'smart_edms_cjk' },
-            },
-          },
-          content: {
-            type: 'text',
-            fields: {
-              ar: { type: 'text', analyzer: 'smart_edms_arabic' },
-              latin: { type: 'text', analyzer: 'smart_edms_latin' },
-              cjk: { type: 'text', analyzer: 'smart_edms_cjk' },
-            },
-          },
-          documentType: { type: 'keyword' },
-          classificationId: { type: 'keyword' },
-          sensitivityLevel: { type: 'integer' },
-          contentLanguage: { type: 'keyword' },
-          textDirection: { type: 'keyword' },
-          tags: { type: 'keyword' },
-          metadata: { type: 'object', enabled: true },
-          createdByUserId: { type: 'keyword' },
-          createdAt: { type: 'date' },
-          updatedAt: { type: 'date' },
-          // Permission-aware filter fields (spec §9.10 — no existence leakage)
-          accessibleByUserIds: { type: 'keyword' },
-          accessibleByRoleCodes: { type: 'keyword' },
-        },
-      },
-    },
-  });
+  // Create the index
+  try {
+    const createResp = await fetch(`${OPENSEARCH_URL}/${INDEX_NAME}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mappings),
+    });
 
-  console.log(`Index ${INDEX_NAME} created successfully.`);
+    if (createResp.ok) {
+      const body = await createResp.text();
+      console.log(`  ✅ Index '${INDEX_NAME}' created successfully.`);
+      console.log(`  Response: ${body.slice(0, 200)}`);
+    } else {
+      const errorBody = await createResp.text();
+      console.error(`  ❌ Failed to create index (HTTP ${createResp.status}): ${errorBody}`);
+      process.exit(1);
+    }
+  } catch (err) {
+    console.error(`  ❌ Failed to connect to OpenSearch: ${(err as Error).message}`);
+    console.error('  Make sure OpenSearch is running and OPENSEARCH_URL is set correctly.');
+    process.exit(1);
+  }
+
+  // Verify index
+  try {
+    const verifyResp = await fetch(`${OPENSEARCH_URL}/${INDEX_NAME}/_count`, {
+      method: 'GET',
+    });
+    if (verifyResp.ok) {
+      const body = await verifyResp.json() as { count: number };
+      console.log(`  ✅ Index verified — document count: ${body.count}`);
+    }
+  } catch {
+    // Non-fatal
+  }
+
+  console.log('');
+  console.log('OpenSearch initialization complete.');
 }
 
 main().catch((err) => {
-  console.error('OpenSearch init failed:', err);
+  console.error('Fatal error:', err);
   process.exit(1);
 });

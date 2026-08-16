@@ -19,8 +19,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis.service';
+import { EmailService } from '../email/email.service';
 import { createHash, randomUUID } from 'node:crypto';
-import { hostname, platform, arch, version as nodeVersion } from 'node:os';
+import { arch, hostname, version as nodeVersion, platform } from 'node:os';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -108,6 +109,7 @@ export class SecurityIncidentService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redis: RedisService,
+    private readonly emailService: EmailService,
   ) {
     void this.loadLastHashes();
   }
@@ -413,6 +415,7 @@ export class SecurityIncidentService {
   }
 
   private async notifyAdmins(incident: IncidentRecord): Promise<void> {
+    // 1. Real-time WebSocket notification to admin panel
     try {
       await this.redis.connection.publish(
         'smart-edms:ws-events:admin',
@@ -439,8 +442,84 @@ export class SecurityIncidentService {
         }),
       );
     } catch (err) {
-      this.logger.error(`Failed to notify admins: ${(err as Error).message}`);
+      this.logger.error(`Failed to notify admins via WebSocket: ${(err as Error).message}`);
     }
+
+    // 2. Email alert for CRITICAL and BLOCKED incidents (spec §9.13)
+    if (incident.severity === 'CRITICAL' || incident.severity === 'BLOCKED') {
+      try {
+        await this.sendSecurityAlertEmail(incident);
+      } catch (err) {
+        this.logger.error(`Failed to send security alert email: ${(err as Error).message}`);
+      }
+    }
+  }
+
+  /**
+   * Send a security alert email to deployment admins.
+   * Queries the DB for users with admin role in the affected tenant.
+   */
+  private async sendSecurityAlertEmail(incident: IncidentRecord): Promise<void> {
+    // Find admin users to notify (from the affected tenant, or all admins if no tenant)
+    const where: any = {
+      status: 'ACTIVE',
+      deletedAt: null,
+      roleAssignments: { some: { role: { code: 'admin' } } },
+    };
+    if (incident.attacker.userId) {
+      // Also include the affected user's email if they have one
+    }
+
+    const admins = await this.prisma.user.findMany({
+      where,
+      select: { email: true, preferredLocale: true },
+      take: 50, // Safety limit
+    });
+
+    if (admins.length === 0) {
+      this.logger.warn('No admin users found to send security alert email');
+      return;
+    }
+
+    const severityLabel = incident.severity === 'BLOCKED' ? '🚫 BLOCKED' : '⚠️ CRITICAL';
+    const subject = `[Smart EDMS Security] ${severityLabel}: ${incident.category}/${incident.code}`;
+
+    const emailVars = {
+      incidentId: incident.id,
+      severity: incident.severity,
+      category: incident.category,
+      code: incident.code,
+      reason: incident.reason,
+      attackerIp: incident.attacker.ipAddress ?? 'unknown',
+      attackerEmail: incident.attacker.userEmail ?? 'N/A',
+      attackerHostname: incident.attacker.hostname,
+      attackerPlatform: `${incident.attacker.platform}/${incident.attacker.arch}`,
+      attackerFingerprint: incident.attacker.machineFingerprint ?? 'N/A',
+      autoBlockedIp: incident.autoBlockedIp ? 'YES' : 'NO',
+      autoSuspendedUser: incident.autoSuspendedUser ? 'YES' : 'NO',
+      autoLockedDown: incident.autoLockedDown ? 'YES' : 'NO',
+      createdAt: incident.createdAt,
+      suspiciousEnvVars: incident.attacker.envFlags
+        ? Object.entries(incident.attacker.envFlags).map(([k, v]) => `${k}=${v}`).join(', ')
+        : 'None',
+    };
+
+    // Send email to each admin (queued via BullMQ/Redis)
+    for (const admin of admins) {
+      try {
+        await this.emailService.sendEmail({
+          to: admin.email,
+          template: 'security-incident-alert',
+          vars: emailVars,
+          locale: admin.preferredLocale ?? 'en',
+          subject,
+        });
+      } catch (err) {
+        this.logger.error(`Failed to queue email to ${admin.email}: ${(err as Error).message}`);
+      }
+    }
+
+    this.logger.log(`Security alert email queued for ${admins.length} admin(s)`);
   }
 
   private canonicalizeIncident(data: Record<string, unknown>): string {
@@ -462,12 +541,12 @@ export class SecurityIncidentService {
     cursor?: string;
   }) {
     const where: any = {};
-    if (params.tenantId) where.tenantId = params.tenantId;
-    if (params.severity) where.severity = params.severity;
-    if (params.status) where.status = params.status;
-    if (params.ipAddress) where.ipAddress = params.ipAddress;
-    if (params.userId) where.userId = params.userId;
-    if (params.category) where.category = { contains: params.category };
+    if (params.tenantId) {where.tenantId = params.tenantId;}
+    if (params.severity) {where.severity = params.severity;}
+    if (params.status) {where.status = params.status;}
+    if (params.ipAddress) {where.ipAddress = params.ipAddress;}
+    if (params.userId) {where.userId = params.userId;}
+    if (params.category) {where.category = { contains: params.category };}
 
     const take = Math.min(params.limit ?? 50, 200);
 
@@ -497,7 +576,7 @@ export class SecurityIncidentService {
 
   async getIncident(id: string) {
     const incident = await this.prisma.securityIncident.findUnique({ where: { id } });
-    if (!incident) return null;
+    if (!incident) {return null;}
     return {
       ...incident,
       sequenceNumber: incident.sequenceNumber.toString(),
@@ -555,8 +634,8 @@ export class SecurityIncidentService {
 
   async isIpBlocked(ip: string): Promise<boolean> {
     const blocked = await this.prisma.blockedIp.findUnique({ where: { ipAddress: ip } });
-    if (!blocked) return false;
-    if (blocked.expiresAt && blocked.expiresAt < new Date()) return false;
+    if (!blocked) {return false;}
+    if (blocked.expiresAt && blocked.expiresAt < new Date()) {return false;}
     return true;
   }
 

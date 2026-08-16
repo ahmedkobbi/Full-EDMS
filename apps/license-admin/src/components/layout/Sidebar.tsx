@@ -28,6 +28,7 @@ import {
   ListChecks,
   Package,
   Settings,
+  ShieldAlert,
   ShieldCheck,
   Users,
   Webhook,
@@ -55,6 +56,7 @@ const NAV_GROUPS: readonly NavGroup[] = [
       { to: '/dashboard', labelKey: 'admin:nav.dashboard', icon: LayoutDashboard, tour: 'admin.sidebar.dashboard' },
       { to: '/usage', labelKey: 'admin:nav.usage', icon: ChartBar, tour: 'admin.sidebar.usage' },
       { to: '/audit', labelKey: 'admin:nav.audit', icon: History, tour: 'admin.sidebar.audit' },
+      { to: '/security', labelKey: 'admin:nav.security', icon: ShieldAlert, tour: 'admin.sidebar.security' },
     ],
   },
   {

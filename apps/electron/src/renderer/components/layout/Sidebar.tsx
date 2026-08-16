@@ -31,7 +31,9 @@ import {
   Scan,
   Search,
   Settings,
+  ShieldAlert,
   ShieldCheck,
+  AlertTriangle,
   Workflow,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -53,6 +55,8 @@ const NAV_ITEMS: readonly NavItem[] = [
   { to: '/search', labelKey: 'nav.search', icon: Search, tour: 'app.sidebar.search' },
   { to: '/workflows', labelKey: 'nav.workflows', icon: Workflow, tour: 'app.sidebar.workflows' },
   { to: '/audit', labelKey: 'nav.audit', icon: History, tour: 'app.sidebar.audit' },
+  { to: '/security', labelKey: 'nav.security', icon: ShieldAlert, tour: 'app.sidebar.security', adminOnly: true },
+  { to: '/crisis-room', labelKey: 'nav.crisisRoom', icon: AlertTriangle, tour: 'app.sidebar.crisisRoom', adminOnly: true },
   { to: '/scanner', labelKey: 'nav.scanner', icon: Scan, tour: 'app.sidebar.scanner' },
   { to: '/tours', labelKey: 'nav.tours', icon: Compass, tour: 'app.sidebar.tours' },
   { to: '/admin', labelKey: 'nav.admin', icon: ShieldCheck, tour: 'app.sidebar.admin', adminOnly: true },

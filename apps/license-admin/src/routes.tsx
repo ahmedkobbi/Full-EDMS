@@ -25,6 +25,7 @@ import { SigningKeysPage } from './pages/SigningKeys';
 import { SettingsPage } from './pages/Settings';
 import { UsagePage } from './pages/Usage';
 import { AdminUsersPage } from './pages/AdminUsers';
+import { SecurityPage } from './pages/Security';
 
 export interface RouteDef {
   readonly path: string;
@@ -50,6 +51,7 @@ export const authenticatedRoutes: readonly RouteDef[] = [
   { path: '/webhooks', element: WebhooksPage },
   { path: '/api-keys', element: ApiKeysPage },
   { path: '/audit', element: AuditLogsPage },
+  { path: '/security', element: SecurityPage },
   { path: '/signing-keys', element: SigningKeysPage },
   { path: '/admin-users', element: AdminUsersPage },
   { path: '/settings', element: SettingsPage },

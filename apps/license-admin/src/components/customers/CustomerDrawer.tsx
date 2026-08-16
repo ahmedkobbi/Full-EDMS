@@ -61,7 +61,7 @@ export function CustomerDrawer({ opened, onClose, customer }: CustomerDrawerProp
       });
       form.resetDirty();
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
   }, [opened, customer]);
 
   const handleSubmit = async (values: CustomerInput): Promise<void> => {
