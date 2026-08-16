@@ -79,6 +79,14 @@ export class LicenseService {
   private async computeCurrentState(): Promise<LicenseState> {
     const local = await this.prisma.licenseLocalState.findFirst();
     if (!local || !local.payloadJson || !local.signature || !local.kid || !local.alg) {
+      // Dev-mode bypass: when NODE_ENV=development and no license is loaded,
+      // return 'valid' so the backend is usable without a license server.
+      // Production deployments MUST import a real .sedmslic file.
+      const nodeEnv = process.env.NODE_ENV || this.config.get<string>('NODE_ENV');
+      if (nodeEnv === 'development' || nodeEnv === 'test') {
+        this.logger.warn(`No license loaded (NODE_ENV=${nodeEnv}) — dev-mode bypass active. Production requires a valid .sedmslic file.`);
+        return 'valid';
+      }
       return 'invalid';
     }
 

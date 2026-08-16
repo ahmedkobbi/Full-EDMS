@@ -542,17 +542,15 @@ export class DocumentService {
       cursor = { id: c.id };
     }
 
-    // Build the orderBy clause. Prisma requires a literal key, so we
-    // dispatch on `q.sort` rather than using a computed key (which TS
-    // would widen to `string` and reject).
-    const order: Prisma.DocumentOrderByWithRelationInput =
+    // Build the orderBy clause. Prisma 5 requires an array of order specs.
+    const order: Prisma.DocumentOrderByWithRelationInput[] =
       q.sort === 'createdAt'
-        ? { createdAt: q.order, id: 'asc' }
+        ? [{ createdAt: q.order }, { id: 'asc' }]
         : q.sort === 'updatedAt'
-          ? { updatedAt: q.order, id: 'asc' }
+          ? [{ updatedAt: q.order }, { id: 'asc' }]
           : q.sort === 'title'
-            ? { title: q.order, id: 'asc' }
-            : { sizeBytes: q.order, id: 'asc' };
+            ? [{ title: q.order }, { id: 'asc' }]
+            : [{ sizeBytes: q.order }, { id: 'asc' }];
 
     // Take one extra row to determine `hasMore`.
     const rows = await this.prisma.document.findMany({

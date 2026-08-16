@@ -20,10 +20,15 @@ export class StorageService {
 
   constructor(private readonly config: ConfigService) {
     this.bucket = config.get<string>('S3_BUCKET')!;
+    const rawEndpoint = config.get<string>('S3_ENDPOINT')!;
+    const useSSL = rawEndpoint.startsWith('https://');
+    const endPoint = rawEndpoint.replace(/^https?:\/\//, '').split(':')[0];
+    const portMatch = rawEndpoint.match(/:(\d+)$/);
+    const port = portMatch ? parseInt(portMatch[1], 10) : (useSSL ? 443 : 80);
     this.client = new MinioClient({
-      endPoint: config.get<string>('S3_ENDPOINT')!.replace(/^https?:\/\//, ''),
-      port: 443,
-      useSSL: true,
+      endPoint,
+      port,
+      useSSL,
       accessKey: config.get<string>('S3_ACCESS_KEY_ID')!,
       secretKey: config.get<string>('S3_SECRET_ACCESS_KEY')!,
       region: config.get<string>('S3_REGION') ?? 'us-east-1',

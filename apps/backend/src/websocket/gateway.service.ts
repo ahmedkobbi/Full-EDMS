@@ -84,6 +84,10 @@ export class WebSocketGatewayService implements OnModuleInit {
 
   async setupAdapter(io: SocketIOServer): Promise<void> {
     this.io = io;
-    io.adapter(createAdapter(this.pubClient, this.subClient));
+    try {
+      io.adapter(createAdapter(this.pubClient, this.subClient));
+    } catch (err) {
+      this.logger.warn(`Socket.IO Redis adapter skipped: ${(err as Error).message}`);
+    }
   }
 }

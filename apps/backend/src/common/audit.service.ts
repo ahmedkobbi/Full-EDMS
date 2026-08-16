@@ -50,6 +50,7 @@ export class AuditService {
       const lastSeq = this.lastSequenceByTenant.get(BigInt(parseInt(tenantId.replace(/-/g, '').slice(0, 15), 16))) ?? 0n;
       const sequenceNumber = lastSeq + 1n;
 
+      const occurredAt = new Date().toISOString();
       const canonical = canonicalizeForAudit({
         tenantId,
         userId: input.userId ?? null,
@@ -66,7 +67,7 @@ export class AuditService {
         reason: input.reason ?? null,
         sequenceNumber: sequenceNumber.toString(),
         previousHash,
-        occurredAt: new Date().toISOString(),
+        occurredAt,
       });
       const eventHash = createHash('sha256').update(canonical).digest('hex');
 
@@ -90,6 +91,7 @@ export class AuditService {
           sequenceNumber,
           previousHash,
           eventHash,
+          occurredAt: new Date(occurredAt),
         },
       });
 

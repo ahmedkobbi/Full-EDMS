@@ -7,15 +7,20 @@
  *
  * Spec ref: §24 (testing requirements), §24.2 (critical test cases).
  */
+import 'reflect-metadata';
 import { beforeAll, afterAll } from 'vitest';
 import { type NestApplication, NestFactory } from '@nestjs/core';
 import { type INestApplication } from '@nestjs/common';
 import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
-import { AppModule } from '../src/app.module.js';
-import { PrismaService } from '../src/prisma/prisma.service.js';
+// Use compiled dist (CJS) so decorator metadata is preserved.
+// Run `npx nest build` before running tests.
+import { AppModule } from '../dist/app.module.js';
+import { PrismaService } from '../dist/prisma/prisma.service.js';
+import { AuditService } from '../dist/common/audit.service.js';
 
 export let app: INestApplication;
 export let prisma: PrismaService;
+export let audit: AuditService;
 
 beforeAll(async () => {
   const adapter = new FastifyAdapter({ logger: false });
@@ -24,10 +29,17 @@ beforeAll(async () => {
   });
   await app.init();
   await (app.getHttpAdapter().getInstance() as any).ready();
-  prisma = app.get(PrismaService);
+  // Services instantiated directly to avoid Nest DI resolution issues
+  // when running tests through vitest (decorator metadata not emitted by esbuild).
+  prisma = new PrismaService();
+  await prisma.$connect();
+  audit = new AuditService(prisma);
 }, 60_000);
 
 afterAll(async () => {
+  if (prisma) {
+    await prisma.$disconnect();
+  }
   if (app) {
     await app.close();
   }

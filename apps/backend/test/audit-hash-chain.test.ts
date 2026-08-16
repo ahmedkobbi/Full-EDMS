@@ -11,19 +11,17 @@
  *   4. The verifyHashChain method detects tampering
  */
 import { describe, it, expect, beforeAll } from 'vitest';
-import { PrismaService } from '../src/prisma/prisma.service.js';
-import { AuditService } from '../src/common/audit.service.js';
 import { randomUUID } from 'node:crypto';
 
 describe('Audit hash chain integrity (spec §9.12, §24.2)', () => {
-  let prisma: PrismaService;
-  let audit: AuditService;
+  let prisma: any;
+  let audit: any;
   let tenantId: string;
 
   beforeAll(async () => {
-    const { app, prisma: p } = await import('./setup.js');
-    prisma = p;
-    audit = app.get(AuditService);
+    const setup = await import('./setup.js');
+    prisma = setup.prisma;
+    audit = setup.audit;
 
     const tenant = await prisma.tenant.create({
       data: {

@@ -58,7 +58,7 @@ import type {
 // ---------------------------------------------------------------------------
 
 /** BullMQ queue name for workflow processing. */
-export const WORKFLOW_QUEUE_NAME = 'smart-edms:workflow';
+export const WORKFLOW_QUEUE_NAME = 'smart-edms-workflow';
 
 /** Cursor format for instance list pagination. */
 interface InstanceCursor {

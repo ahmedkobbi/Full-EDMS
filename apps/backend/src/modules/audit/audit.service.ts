@@ -57,16 +57,27 @@ export class AuditApiService {
       }),
       this.prisma.auditEvent.count({ where }),
     ]);
+    // Serialize BigInt fields (sequenceNumber) for JSON response.
+    const serializedItems = items.map((item) => ({
+      ...item,
+      sequenceNumber: item.sequenceNumber.toString(),
+    }));
     return {
-      items,
+      items: serializedItems,
       total,
-      cursor: items.length === q.limit ? items[items.length - 1]?.id : null,
+      cursor: serializedItems.length === q.limit ? serializedItems[serializedItems.length - 1]?.id : null,
       limit: q.limit,
     };
   }
 
   async verifyChain(tenantId: string) {
-    return this.auditService.verifyHashChain(tenantId);
+    const result = await this.auditService.verifyHashChain(tenantId);
+    return {
+      ok: result.ok,
+      brokenAt: result.brokenAt !== undefined && result.brokenAt !== null
+        ? result.brokenAt.toString()
+        : null,
+    };
   }
 
   async requestExport(tenantId: string, userId: string, query: unknown) {

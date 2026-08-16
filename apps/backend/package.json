@@ -4,7 +4,6 @@
   "private": true,
   "description": "Smart EDMS on-premise NestJS backend (Fastify + Prisma + Redis + BullMQ + Socket.IO + OpenSearch + MinIO).",
   "license": "UNLICENSED",
-  "type": "module",
   "scripts": {
     "build": "nest build",
     "dev": "nest start --watch",
